@@ -1,4 +1,4 @@
 #!/bin/sh
-docker pull mlepetit/saanity
-docker build src/.docker_modules/mlepetit/sanity -t 'lbmc/sanity'
+docker pull mlepetit/sanity
+docker build src/.docker_modules/sanity -t 'lbmc/sanity'
 docker push lbmc/sanity
