@@ -151,3 +151,4 @@ process fastp_accel_1splus {
       --report_title ${file_prefix}
   """
 }
+

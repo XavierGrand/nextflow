@@ -268,7 +268,7 @@ workflow index_fasta_velocity {
 
 process index_fasta_velocity_default {
   container = "${container_url}"
-  label "big_mem_mono_cpus"
+  label "big_mem_multi_cpus"
   tag "$file_id"
   if (params.index_fasta_out != "") {
     publishDir "results/${params.index_fasta_out}", mode: 'copy'
