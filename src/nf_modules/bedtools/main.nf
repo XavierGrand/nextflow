@@ -109,13 +109,13 @@ process bam_to_bedgraph {
   tuple val(bam_id), path(bam)
 
   output:
-  tuple val(bam_id), path("*.bg"), emit: bedgraph
+  tuple val(bam_id), path("*.bed"), emit: bed
 
   script:
 """
 bedtools genomecov \
   ${params.bam_to_bedgraph} \
   -ibam ${bam} \
-  -bg > ${bam.simpleName}.bg
+  -bg > ${bam.simpleName}.bed
 """
 }
