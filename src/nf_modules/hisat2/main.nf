@@ -1,5 +1,5 @@
 version = "2.2.1"
-container_url = "lbmc/histat2:${version}"
+container_url = "lbmc/hisat2:${version}"
 
 params.index_fasta = ""
 params.index_fasta_out = ""
@@ -20,12 +20,13 @@ process index_fasta {
 
   script:
 """
+gunzip ${fasta}
 hisat2-build -p ${task.cpus} \
-  ${fasta} \
+  ${fasta.baseName} \
   ${fasta.simpleName} &> \
   ${fasta.simpleName}_hisat2_index_report.txt
 
-if grep -q "Error" ${fasta.simpleName}_bowtie2_index_report.txt; then
+if grep -q "Error" ${fasta.simpleName}_hisat2_index_report.txt; then
   exit 1
 fi
 """
@@ -70,30 +71,34 @@ process mapping_fastq {
 
   if (reads.size() == 2)
   """
-  histat2 ${params.mapping_fastq} \
+  hisat2 ${params.mapping_fastq} \
     -p ${task.cpus} \
     -x ${index_id} \
     -1 ${reads[0]} \
     -2 ${reads[1]} 2> \
     ${file_prefix}_ht2_mapping_report_tmp.txt \
-    | samtools view -@ ${task.cpus} -bS - \
-    | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam -
+    | samtools view -@ ${task.cpus} -bS - 2>> \
+    ${file_prefix}_ht2_mapping_report_tmp.txt \
+    | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam - 2>> \
+    ${file_prefix}_ht2_mapping_report.txt
 
-  if grep -q "Error" ${file_prefix}_ht2_mapping_report_tmp.txt; then
+  if grep -q "Error" ${file_prefix}_ht2_mapping_report.txt; then
     exit 1
   fi
   """
   else
   """
-  histat2 ${params.mapping_fastq} \
+  hisat2 ${params.mapping_fastq} \
     -p ${task.cpus} \
     -x ${index_id} \
     -U ${reads} 2> \
     ${file_prefix}_ht2_mapping_report_tmp.txt \
-    | samtools view -@ ${task.cpus} -bS - \
-    | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam -
+    | samtools view -@ ${task.cpus} -bS - 2>> \
+    ${file_prefix}_ht2_mapping_report.txt \
+    | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam - 2>> \
+    ${file_prefix}_ht2_mapping_report.txt
 
-  if grep -q "Error" ${file_prefix}_ht2_mapping_report_tmp.txt; then
+  if grep -q "Error" ${file_prefix}_ht2_mapping_report.txt; then
     exit 1
   fi
   """
