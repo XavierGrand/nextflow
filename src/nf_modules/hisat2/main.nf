@@ -76,9 +76,9 @@ process mapping_fastq {
     -x ${index_id} \
     -1 ${reads[0]} \
     -2 ${reads[1]} 2> \
-    ${file_prefix}_ht2_mapping_report_tmp.txt \
+    ${file_prefix}_ht2_mapping_report.txt \
     | samtools view -@ ${task.cpus} -bS - 2>> \
-    ${file_prefix}_ht2_mapping_report_tmp.txt \
+    ${file_prefix}_ht2_mapping_report.txt \
     | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam - 2>> \
     ${file_prefix}_ht2_mapping_report.txt
 
@@ -92,7 +92,7 @@ process mapping_fastq {
     -p ${task.cpus} \
     -x ${index_id} \
     -U ${reads} 2> \
-    ${file_prefix}_ht2_mapping_report_tmp.txt \
+    ${file_prefix}_ht2_mapping_report.txt \
     | samtools view -@ ${task.cpus} -bS - 2>> \
     ${file_prefix}_ht2_mapping_report.txt \
     | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam - 2>> \
