@@ -78,9 +78,9 @@ process mapping_fastq {
     -2 ${reads[1]} 2> \
     ${file_prefix}_ht2_mapping_report.txt \
     | samtools view -@ ${task.cpus} -bS - 2>> \
-    ${file_prefix}_ht2_mapping_report.txt \
+    ${file_prefix}_ht2_samtools_view_report.txt \
     | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam - 2>> \
-    ${file_prefix}_ht2_mapping_report.txt
+    ${file_prefix}_ht2_samtools_sort_report.txt
 
   if grep -q "Error" ${file_prefix}_ht2_mapping_report.txt; then
     exit 1
@@ -94,9 +94,9 @@ process mapping_fastq {
     -U ${reads} 2> \
     ${file_prefix}_ht2_mapping_report.txt \
     | samtools view -@ ${task.cpus} -bS - 2>> \
-    ${file_prefix}_ht2_mapping_report.txt \
+    ${file_prefix}_ht2_samtools_view_report.txt \
     | samtools sort -@ ${task.cpus} -o ${file_prefix}.bam - 2>> \
-    ${file_prefix}_ht2_mapping_report.txt
+    ${file_prefix}_ht2_samtools_sort_report.txt
 
   if grep -q "Error" ${file_prefix}_ht2_mapping_report.txt; then
     exit 1
