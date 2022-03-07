@@ -16,9 +16,9 @@ include {
   count_velocity_out: "quantification_velocity/"
 )
 
-params.fasta = "http://ftp.ensembl.org/pub/release-94/fasta/gallus_gallus/dna/Gallus_gallus.Gallus_gallus-5.0.dna.toplevel.fa.gz"
+params.fasta = "http://ftp.ensembl.org/pub/release-98/fasta/gallus_gallus/dna/Gallus_gallus.GRCg6a.dna.toplevel.fa.gz"
 params.fastq = "data/CF42_45/*/*R{1,2}.fastq.gz"
-params.gtf = "http://ftp.ensembl.org/pub/release-94/gtf/gallus_gallus/Gallus_gallus.Gallus_gallus-5.0.94.gtf.gz"
+params.gtf = "http://ftp.ensembl.org/pub/release-98/gtf/gallus_gallus/Gallus_gallus.GRCg6a.98.gtf.gz"
 params.transcript_to_gene = ""
 params.whitelist = "data/expected_whitelist.txt"
 params.config = "data/marseq_flexi_splitter.yaml"
