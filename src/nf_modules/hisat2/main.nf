@@ -32,7 +32,7 @@ fi
 """
 }
 
-params.mapping_fastq = "--very-sensitive"
+params.mapping_fastq = ""
 params.mapping_fastq_out = ""
 process mapping_fastq {
   container = "${container_url}"
