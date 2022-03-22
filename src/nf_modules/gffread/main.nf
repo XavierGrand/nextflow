@@ -54,7 +54,8 @@ process spliced_cds {
     file_prefix = file_id
   }
   """
-gffread -x -M - -g ${fasta} ${gtf} \
+gzip -dc ${fasta} > ${fasta.simpleName}_un.fasta
+gffread -x -M - -g ${fasta.simpleName}_un.fasta ${gtf} \
   > ${file_prefix}.fasta
   """
 }
