@@ -29,3 +29,41 @@ process gffread {
   awk 'BEGIN {i = 1;} { if (\$1 ~ /^>/) { tmp = h[i]; h[i] = \$1; } else if (!a[\$1]) { s[i] = \$1; a[\$1] = "1"; i++; } else { h[i] = tmp; } } END { for (j = 1; j < i; j++) { print h[j]; print s[j]; } }' < dup_${file_prefix}.fasta | grep -v -e "^\$" > ${file_prefix}.fasta
   """
 }
+
+params.spliced_cds = ""
+params.spliced_cds_out = ""
+process spliced_cds {
+  container = "${container_url}"
+  label "big_mem_mono_cpus"
+  tag "$file_prefix"
+  if (params.spliced_cds_out != "") {
+    publishDir "results/${params.spliced_cds_out}", mode: 'copy'
+  }
+
+  input:
+  tuple val(file_id), path(gtf)
+  tuple val(fasta_id), path(fasta)
+
+  output:
+    tuple val(fasta_id), path("${file_prefix}.fasta"), emit: fasta
+
+  script:
+  if (file_id instanceof List){
+    file_prefix = file_id[0]
+  } else {
+    file_prefix = file_id
+  }
+  """
+gffread -x -M - -g ${fasta} ${gtf} | \
+bioawk -c fastx '{ print \$name, \$seq }' | \
+while read line; \
+do \
+name=$(echo \$line | cut -f 1); \
+echo \$line | cut -f 2 | \
+awk -F "" '{ for (i = 3; i <= NF; i += 3) \
+printf "%s%s", \$i, (i+3>NF?"\n":FS) }' | \
+awk -v name="\$name" '{ print ">"name; print \$1 }'; \
+done \
+> ${file_prefix}.fasta
+  """
+}
