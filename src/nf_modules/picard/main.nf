@@ -29,6 +29,31 @@ PicardCommandLine MarkDuplicates \
 """
 }
 
+params.normalize_fasta = ""
+params.normalize_fasta_out = ""
+process normalize_fasta {
+  container = "${container_url}"
+  label "big_mem_mono_cpus"
+  tag "$file_id"
+  if (params.normalize_fasta_out != "") {
+    publishDir "results/${params.normalize_fasta_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(file_id), path(fasta)
+  output:
+    tuple val(file_id), path("results/*.fasta.gz"), emit: fasta 
+
+  script:
+"""
+mkdir -p results
+PicardCommandLine NormalizeFasta \
+      I=${fasta} \
+      O=results/${fasta.simpleName}.fasta
+gzip results/${fasta.simpleName}.fasta
+"""
+}
+
 params.index_fasta = ""
 params.index_fasta_out = ""
 process index_fasta {
