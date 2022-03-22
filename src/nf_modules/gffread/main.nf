@@ -58,7 +58,7 @@ gffread -x -M - -g ${fasta} ${gtf} | \
 bioawk -c fastx '{ print \$name, \$seq }' | \
 while read line; \
 do \
-name=$(echo \$line | cut -f 1); \
+name=\$(echo \$line | cut -f 1); \
 echo \$line | cut -f 2 | \
 awk -F "" '{ for (i = 3; i <= NF; i += 3) \
 printf "%s%s", \$i, (i+3>NF?"\n":FS) }' | \
