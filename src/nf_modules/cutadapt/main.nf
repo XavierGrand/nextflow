@@ -77,3 +77,26 @@ process trimming {
   ${reads} > ${file_prefix}_report.txt
   """
 }
+
+
+process 5pRACE {
+  container = "${container_url}"
+  label "big_mem_mono_cpus"tag "$file_id"
+  
+  if (params.cutadapt_out != "") {
+    publishDir "results/${params.cutadapt_out}", mode: 'copy'
+  }
+
+  input:
+  tuple val(file_id), path(fastq)
+
+  output:
+  tuple val(file_id), path("*_cut_*"), emit: fastq
+
+  """
+  cutadapt -e 0.2 -g CGACTGGAGCACGAGGACACTGACATGGACTGAAGGAGTAGAAA -g TTAGGCAGAGGTGAAAAAGTTG 
+                  -a TTTCTACTCCTTCAGTCCATGTCAGTGTCCTCGTGCTCCAGTCG -a CAACTTTTTCACCTCTGCCTAA 
+                  -o ${}
+                  ${fastq}
+  """
+}
