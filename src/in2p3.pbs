@@ -10,8 +10,6 @@
 
 # change to your path 
 SCRATCH=/sps/lbmc/lmodolo/nextflow
-NXF_TEMP=/sps/lbmc/lmodolo/nextflow/tmp/
-mkdir -p ${NXF_TEMP}
 
 ${SCRATCH}/nextflow run ${SCRATCH}/src/solution_RNASeq.nf -profile ccin2p3 \
 --fastq "${SCRATCH}/data/tiny_dataset/fastq/*_R{1,2}.fastq" \
