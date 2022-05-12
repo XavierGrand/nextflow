@@ -1,31 +1,23 @@
-#! /usr/local/bin/bash -l
-#####################################
-# job script example with GE options
-#####################################
-#$ -q demon
-#$ -l demon=1
-#$ -P P_lbmc
-#$ -N nf_pipe
-#$ -o /sps/lbmc/lmodolo/logs/ # change to your username !
-#$ -e /sps/lbmc/lmodolo/logs/ # change to your username !
-#$ -r n       # relaunch y/n
-#$ -M laurent.modolo@ens-lyon.fr # change to your mail !
-#$ -m be      ## send an email when the job starts and ends
-#$ -l os=cl7  ## choose OS
-#$ -l sps=1   ## acces /sps directory
-#####################################
+#!/bin/sh
 
-NF_VERSION=19.10
-NF=/pbs/throng/lbmc/cl7/nextflow/${NF_VERSION}/nextflow
-# change to your username
-SCRATCH=/sps/lbmc/lmodolo/
-# change to your project / pipeline !
-PIPELINE=${SCRATCH}/nextflow/src/training_dataset.nf
-# change to your project / pipeline !
-CONFIG=${SCRATCH}/nextflow/src/training_dataset.config
+#SBATCH --job-name=nextflow
 
-${NF} ${PIPELINE} -c ${CONFIG} -profile ccin2p3 \
---fasta "${SCRATCH}/nextflow/data/tiny_dataset/fasta/tiny_v2.fasta" \
---fastq_single "${SCRATCH}/nextflow/data/tiny_dataset/fastq/tiny2_S.fastq.gz" \
---chromosome "X" --start 5305683 --stop 5333928 -resume \
--w "${SCRATCH}"
+#SBATCH --ntasks=1
+#SBATCH --output=results/nextflow_%j.log
+#SBATCH --licenses=sps
+
+####################################
+
+# change to your path 
+SCRATCH=/sps/lbmc/lmodolo/nextflow
+NXF_TEMP=/sps/lbmc/lmodolo/nextflow/tmp/
+mkdir -p ${NXF_TEMP}
+
+${SCRATCH}/nextflow run ${SCRATCH}/src/solution_RNASeq.nf -profile ccin2p3 \
+--fastq "${SCRATCH}/data/tiny_dataset/fastq/*_R{1,2}.fastq" \
+--fasta "${SCRATCH}/data/tiny_dataset/fasta/tiny_v2.fasta" \
+--bed "${SCRATCH}/data/tiny_dataset/annot/tiny.bed" \
+-ansi-log \
+-w "${SCRATCH}/work/"
+
+wait
