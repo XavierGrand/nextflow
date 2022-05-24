@@ -1,5 +1,5 @@
 
-version = "1.99.2"
+version = "0.13.5"
 container_url = "lbmc/htseq:${version}"
 
 params.htseq_out = ""
@@ -21,6 +21,7 @@ gffread ${gff3_file} -T -o ${genome_id}.gtf
 }
 
 
+params.htseq_param = "yes"
 process htseq_count {
     container = "${container_url}"
     label "big_mem_multi_cpus"
@@ -37,7 +38,7 @@ process htseq_count {
 
   script:
 """
-htseq-count -n ${task.cpus} -r pos -a 10 -s yes -t exon -i gene_id $bam $gtf > ${file_id}.tsv
+htseq-count -n ${task.cpus} -r pos -a 10 -s ${params.htseq_param} -t exon -i gene_id $bam $gtf > ${file_id}.tsv
 """
 }
 
