@@ -36,10 +36,18 @@ params.gtf = "data/test.gtf"
 @Type: File
 */
 
+
+params.index = ""
+/* Path leading to a index file
+
+@ Type: file
+*/
+
+
 if (!params.paired_end) {
-    params.fastq = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA"
+    params.fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA"
 } else {
-    params.fastq = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA -F 18 --adapter_sequence_r2=AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
+    params.fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA -F 18 --adapter_sequence_r2=AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
 }
 
 
@@ -82,6 +90,20 @@ Channel
     .ifEmpty { error "Cannot find any gtf files matching: ${params.gtf}" }
     .set { gtf_file }
 
+
+/* index file */
+if (params.index != "") {
+    Channel
+        .fromPath( params.index )
+        .ifEmpty { error "Cannot find any index files matching: ${params.index}" }
+        .collect()
+        .map { it -> [ "ht2_index", it ]}
+        .set { index_file }
+} else {
+    Channel.from( "" ).set{ index_file }
+}
+
+
 /*
  ****************************************************************
                           Imports
@@ -99,7 +121,7 @@ sammod = './nf_modules/samtools/main.nf'
 
 include { fastqc_fastq as fastqc1} from fastqc_mod addParams(fastqc_fastq_out: '01_fastqc')
 include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp', 
-                                                   fastp: "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA" )
+                                                   fastp: "${params.fastp}" )
 include { fastqc_fastq as fastqc2} from fastqc_mod addParams(fastqc_fastq_out: '03_fastqc_trimmed')
 include { fastqc_fastq as fastqc_aligned} from fastqc_mod addParams(fastqc_fastq_out: '05_fastqc_aligned')
 include { fastqc_fastq as fastqc_unaligned} from fastqc_mod addParams(fastqc_fastq_out: '06_fastqc_unaligned')
@@ -127,8 +149,11 @@ def merge_channels(report1, report2, report3, report4) {
 
 workflow {
     fastp_default(fastq_files)
-    index_fasta(genome_file)
-    genome_mapping(fastp_default.out.fastq, index_fasta.out.index.collect())
+    if ( params.index == "" ) {
+        index_fasta(genome_file)
+        index_fasta.out.index.set { index_file }
+    }
+    genome_mapping(fastp_default.out.fastq, index_file.collect())
     bam_to_fastq(genome_mapping.out.aligned)
     sort_bam(genome_mapping.out.aligned)
     index_bam(sort_bam.out.bam)
