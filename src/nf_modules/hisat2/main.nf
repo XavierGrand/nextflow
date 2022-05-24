@@ -98,3 +98,60 @@ process mapping_fastq {
   fi
   """
 }
+
+
+params.hisat2 = ""
+process genome_mapping {
+  tag "$file_id"
+  label "multi_thread"
+  container = "${container_url}"
+  publishDir "results/${params.folder}", mode: 'copy'
+
+  input:
+    tuple val(file_id), file(fastq_filtred)
+    tuple val(index_id), path(index)
+
+  output:
+    tuple val(file_id), path("*notaligned*.fastq.gz"), emit: unaligned
+    tuple val(file_id), path("*_aligned*.bam"), emit: aligned
+    path "*.txt", emit: report
+
+  script:
+    if (file_id instanceof List){
+      file_prefix = file_id[0]
+    } else {
+      file_prefix = file_id
+    }
+    index_id = index[0]
+    for (index_file in index) {
+        if (index_file =~ /.*\.1\.ht2/ && !(index_file =~ /.*\.rev\.1\.ht2/)) {
+            index_id = ( index_file =~ /(.*)\.1\.ht2/)[0][1]
+        }
+    }
+    if (fastq_filtred.size() == 2)
+      """
+      hisat2 -x ${index_id} -p ${task.cpus} \
+      -1 ${fastq_filtred[0]} -2  ${fastq_filtred[1]} \
+      --un-conc-gz ${file_prefix}_notaligned.fastq.gz \
+      ${params.hisat2} \
+      2> ${file_prefix}_hisat2_report.txt | samtools view  -@ ${task.cpus} -bS -F 268 -q 10 -o ${file_prefix}_aligned.bam
+
+      mv ${file_prefix}_notaligned.fastq.1.gz ${file_prefix}_notaligned_1.fastq.gz
+      mv ${file_prefix}_notaligned.fastq.2.gz ${file_prefix}_notaligned_2.fastq.gz
+
+      if grep -q "Error" ${file_prefix}_hisat2_report.txt; then
+      exit 1
+      fi
+      """
+    else
+      """
+      hisat2 -x ${index_id} -p ${task.cpus} \
+      -U ${fastq_filtred} --un-gz ${file_prefix}_notaligned.fastq.gz \
+      \
+      2> ${file_prefix}_hisat2_report.txt | samtools view  -@ ${task.cpus} -bS -F 260 -q 10 -o ${file_prefix}_aligned.bam
+
+      if grep -q "Error" ${file_prefix}_hisat2_report.txt; then
+      exit 1
+      fi
+      """
+}
