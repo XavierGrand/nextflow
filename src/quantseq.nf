@@ -44,12 +44,21 @@ params.index = ""
 */
 
 
-if (!params.paired_end) {
-    params.fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA"
-} else {
-    params.fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA -F 18 --adapter_sequence_r2=AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
-}
 
+params.fastp = ""
+if(params.fastp == "") {
+    if (!params.paired_end) {
+        params_fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA"
+    } else {
+        params_fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA -F 18 --adapter_sequence_r2=AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
+    }
+} else {
+    params_fastp = params.fastp
+}
+/* Fastp parameters used to customize trimming and dapter removal
+
+@ Type: String
+*/
 
 /*
  ****************************************************************
@@ -61,10 +70,10 @@ if (!params.paired_end) {
 log.info "paired-end data: ${params.paired_end}"
 log.info "fastq files : ${params.fastq}"
 log.info "genome files : ${params.genome}"
-log.info "htseq param: -s ${htseq_param}"
+log.info "htseq param: -s ${params.htseq_param}"
 log.info "gtf file: ${params.gtf}"
 log.info "index file: ${params.index}"
-log.info "fastp parameters: ${params.fastp}"
+log.info "fastp parameters: ${params_fastp}"
 
 
 /*
@@ -125,7 +134,7 @@ sammod = './nf_modules/samtools/main.nf'
 
 include { fastqc_fastq as fastqc1} from fastqc_mod addParams(fastqc_fastq_out: '01_fastqc')
 include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp', 
-                                                   fastp: "${params.fastp}" )
+                                                   fastp: "${params_fastp}" )
 include { fastqc_fastq as fastqc2} from fastqc_mod addParams(fastqc_fastq_out: '03_fastqc_trimmed')
 include { fastqc_fastq as fastqc_aligned} from fastqc_mod addParams(fastqc_fastq_out: '05_fastqc_aligned')
 include { fastqc_fastq as fastqc_unaligned} from fastqc_mod addParams(fastqc_fastq_out: '06_fastqc_unaligned')
