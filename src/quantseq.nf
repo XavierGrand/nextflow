@@ -61,7 +61,7 @@ if (!params.paired_end) {
 log.info "paired-end data: ${params.paired_end}"
 log.info "fastq files : ${params.fastq}"
 log.info "genome files : ${params.genome}"
-log.info "htseq param: ${params.fastp}"
+log.info "htseq param: -s ${htseq_param}"
 log.info "gtf file: ${params.gtf}"
 log.info "index file: ${params.index}"
 log.info "fastp parameters: ${params.fastp}"
