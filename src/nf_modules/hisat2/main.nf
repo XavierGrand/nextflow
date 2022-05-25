@@ -19,14 +19,25 @@ process index_fasta {
     tuple val(file_id), path("*_report.txt"), emit: report
 
   script:
+  filename = fasta.toString()
+  extention = filename[filename.lastIndexOf('.')..filename.size() - 1]
+  if ( extention == ".gz" ) {
+    base_name = fasta.baseName
+    simple_name = fasta.simpleName
+  } else {
+    base_name = filename
+    simple_name = fasta.simpleName
+  }
 """
-gunzip ${fasta}
+if [[ ${filename} == *.gz ]]; then
+  gunzip ${filename}
+fi
 hisat2-build -p ${task.cpus} \
-  ${fasta.baseName} \
-  ${fasta.simpleName} &> \
-  ${fasta.simpleName}_hisat2_index_report.txt
+  ${base_name} \
+  ${simple_name} &> \
+  ${simple_name}_hisat2_index_report.txt
 
-if grep -q "Error" ${fasta.simpleName}_hisat2_index_report.txt; then
+if grep -q "Error" ${simple_name}_hisat2_index_report.txt; then
   exit 1
 fi
 """
@@ -101,6 +112,7 @@ process mapping_fastq {
 
 
 params.hisat2 = ""
+params.notaligned_name = "notaligned"
 process genome_mapping {
   tag "$file_id"
   label "multi_thread"
@@ -112,7 +124,7 @@ process genome_mapping {
     tuple val(index_id), path(index)
 
   output:
-    tuple val(file_id), path("*notaligned*.fastq.gz"), emit: unaligned
+    tuple val(file_id), path("*${params.notaligned_name}*.fastq.gz"), emit: unaligned
     tuple val(file_id), path("*_aligned*.bam"), emit: aligned
     path "*.txt", emit: report
 
@@ -136,8 +148,8 @@ process genome_mapping {
       ${params.hisat2} \
       2> ${file_prefix}_hisat2_report.txt | samtools view  -@ ${task.cpus} -bS -F 268 -q 10 -o ${file_prefix}_aligned.bam
 
-      mv ${file_prefix}_notaligned.fastq.1.gz ${file_prefix}_notaligned_1.fastq.gz
-      mv ${file_prefix}_notaligned.fastq.2.gz ${file_prefix}_notaligned_2.fastq.gz
+      mv ${file_prefix}_notaligned.fastq.1.gz ${file_prefix}_${params.notaligned_name}_1.fastq.gz
+      mv ${file_prefix}_notaligned.fastq.2.gz ${file_prefix}_${params.notaligned_name}_2.fastq.gz
 
       if grep -q "Error" ${file_prefix}_hisat2_report.txt; then
       exit 1
@@ -146,7 +158,7 @@ process genome_mapping {
     else
       """
       hisat2 -x ${index_id} -p ${task.cpus} \
-      -U ${fastq_filtred} --un-gz ${file_prefix}_notaligned.fastq.gz \
+      -U ${fastq_filtred} --un-gz ${file_prefix}_${params.notaligned_name}.fastq.gz \
       \
       2> ${file_prefix}_hisat2_report.txt | samtools view  -@ ${task.cpus} -bS -F 260 -q 10 -o ${file_prefix}_aligned.bam
 
