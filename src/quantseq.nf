@@ -218,9 +218,11 @@ include { multiqc_default as multiqc_default_spike } from multiqc_mod addParams(
  ****************************************************************
 */
 
-def merge_channels(report1, report2, report3, report4, report5) {
-    return report1.concat(report2, report3, report4, report5).map {it -> it[1]} 
-    .collect()
+def merge_channels(report1, report2, report3, report4, report5, 
+                   fastp_report, hisat2_report) {
+    return report1.concat(report2, report3, report4, report5,
+    fastp_report.map { it -> [it[0], [it[1]]]},
+    hisat2_report.map { it -> [it.baseName, [it]]}).map {it -> it[1]}.collect()
 }
 
 workflow spikein_analysis {
@@ -280,6 +282,7 @@ workflow {
 
     // multiqc
     res = merge_channels(fastqc1.out.report, fastqc2.out.report, fastqc_unaligned.out.report,
-                         fastqc_aligned.out.report, fastqc_spikein_report)
+                         fastqc_aligned.out.report, fastqc_spikein_report, fastp_default.out.report,
+                         genome_mapping.out.report)
     multiqc_default(res)
 }
