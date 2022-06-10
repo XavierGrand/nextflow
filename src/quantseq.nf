@@ -265,7 +265,8 @@ workflow {
     } else {
         fastp_default.out.fastq.set { fastq_mapping }
         Channel
-            .from( "" )
+            .fromPath( "tmp_void.txt" )
+            .map( it -> [ "tmp", [it]] )
             .set { fastqc_spikein_report }
     }
     genome_mapping(fastq_mapping, index_file.collect())
