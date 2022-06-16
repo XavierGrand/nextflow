@@ -23,14 +23,13 @@ def helpMessage() {
       nextflow ./src/star_fusion.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
-      --project [path]                Path to the project folder. Results are saved in this folder.
-      --input [path]                  Path to the folder containing fast5 files. If skip basecalling option enabled, path to fastq files folder.
+      --project [path]                Path to the project folder containing fastq folder. Results are saved in this folder.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
 
-    References:                       If not specified, use of default transcriptome <EBI ID>.
-      --genome [file]                 Path to the fasta file containing the genome.
-      --gtf [file]                    Path to the gtf file containing the genome annotation.
+    References:
+      --lib [path]                    Path to CTAT resource library.
+                                      Available at https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/
 
     Help:                             Display this help message.
       --help
@@ -56,29 +55,16 @@ if (params.help || params.h) {
 */
  
 params.project = ""
+params.paired = true
+params.fastq = "$params.project/fastq/*_R{1,2}.fastq*"
 
 /*
-if (params.transcriptome)   { params.transcriptome = path(params.transcriptome, checkIfExists: true) } else { exit 1, "No transcriptome specified." }
 if (params.genome)          { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
-if (params.gtf)             { params.gtf = path(params.gtf, checkIfExists: true) } else { exit 1, "No annotation specified." }
-if (params.input)           { params.input = path(params.input, checkIfExists: true) } else { exit 1, "$params.input does not exists." }
-if (params.mode != "gpu")   { params.mode = "cpu" } 
 */
 
 /* Params out */
 
-params.basecalling_out = "$params.project/Basecalling/"
-params.fastq_out = "$params.project/fastq/"
-params.ref_out = "$params.project/Ref/"
-params.pycoQC_out = "$params.project/pycoQC/"
-params.porechop_out = "$params.project/porechop/"
-params.cutadapt_out = "$params.project/cutadapt/"
-params.minimap2_transcriptome_out = "$params.project/minimap2_transcriptome/"
-params.minimap2_genome_out = "$params.project/minimap2_genome/"
-params.sort_bam_out = "$params.project/minimap2_genome/"
-params.salmon_out = "$params.project/salmon/"
-params.stringtie_out = "$params.project/stringtie2/"
-params.start_position_counts_out = "$params.project/start_positions/"
+params.star-fusion_out = "$params.project/star-fusion/"
 
 /*
  ****************************************************************
@@ -86,12 +72,7 @@ params.start_position_counts_out = "$params.project/start_positions/"
  ****************************************************************
 */
 
-log.info "fast5/q folder : ${params.input}"
-log.info "5'RACE adapter sequence : ${params.adapt}"
-log.info "Guppy basecalling calculation mode : ${params.mode}"
-log.info "Transcriptome file : ${params.transcriptome}"
-log.info "Genome file : ${params.genome}"
-log.info "Genome annotation file : ${params.gtf}"
+log.info "Genome library folder : ${params.lib}"
 
 /*
  ****************************************************************
@@ -100,11 +81,29 @@ log.info "Genome annotation file : ${params.gtf}"
 */
 
 Channel
-    .of( params.input )
-    .ifEmpty { error "No fast5/q folder defined." }
-    .set { input }
+  .fromFilePairs( params.fastq, size: -1 )
+  .set { fastq_files }
 
-Channel
-    .fromPath( params.transcriptome )
-    .ifEmpty { error "No transcriptome defined, a fasta file containing transcripts linked to 5pRACE adapter." }
-    .set { transcriptome }
+/*
+ ****************************************************************
+                          Imports
+ ****************************************************************
+*/
+
+include { star_fusion } from "./nf_modules/star-fusion/main.nf"
+
+/*
+ ****************************************************************
+                          Workflow
+ ****************************************************************
+*/
+
+workflow {
+
+  //########################  ########################
+
+  star_fusion(params.lib, fastq_files)
+
+  //################ GRAPHICAL REPRESENTATIONS ##################
+
+}
