@@ -56,15 +56,13 @@ if (params.help || params.h) {
  
 params.project = ""
 params.paired = true
-params.fastq = "$params.project/fastq/*_R{1,2}.fastq*"
+params.fastq = "${params.project}/fastq/*_R{1,2}.fastq*"
 
 /*
 if (params.genome)          { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
 */
 
 /* Params out */
-
-params.star-fusion_out = "$params.project/star-fusion/"
 
 /*
  ****************************************************************

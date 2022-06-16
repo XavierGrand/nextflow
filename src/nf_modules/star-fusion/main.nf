@@ -2,13 +2,14 @@ version = "1.11.0"
 // container_url = "lbmc/star-fusion:${version}"
 container_url = "xgrand/star-fusion:${version}"
 
+params.star_fusion_out = "predicted_fusion"
 process star_fusion {
 
     container = "${container_url}"
-    label "big_mem_multi_cpus"
+    label "mid_mem_multi_cpus"
     tag "$file_id"
-    if (params.star-fusion_out != "") {
-        publishDir "results/${params.star-fusion_out}", mode: 'copy'
+    if (params.star_fusion_out != "") {
+        publishDir "results/${params.star_fusion_out}", mode: 'copy'
     }
 
     input:
@@ -16,7 +17,7 @@ process star_fusion {
         tuple val(file_id), path(fastq)
 
     output:
-        tuple val(), path ("star-fusion.fusion_predictions.tsv"), emit: fusion_predictions
+        tuple val(file_id), path ("star-fusion.fusion_predictions.tsv"), emit: fusion_predictions
 
     script:
 
