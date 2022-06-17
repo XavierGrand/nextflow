@@ -10,6 +10,8 @@ nextflow.enable.dsl=2
 star_fusion pipeline :
  * Pipeline dedicated to rna fusion from transcriptomic data using STAR-Fusion software.
 
+Maintainer Xavier Grand <xavier.grand@ens-lyon.fr>
+
  ****************************************************************
                       Help Message Definition
  ****************************************************************
