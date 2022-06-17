@@ -65,6 +65,10 @@ if (params.genome) { params.genome = path(params.genome, checkIfExists: true) } 
 if (params.gtf) { params.gtf = path(params.gtf, checkIfExists: true) } else { exit 1, "No annotation specified." }
 
 /* Params out */
+params.fastp_out = "$params.project/fastp/"
+params.index_fasta_out = "$params.project/Indexed_genome/"
+params.sort_bam_out = "$params.project/Bam_filtered_sorted/"
+params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
 
 /*
  ****************************************************************

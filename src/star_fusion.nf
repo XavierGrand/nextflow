@@ -62,6 +62,7 @@ if (params.genome)          { params.genome = path(params.genome, checkIfExists:
 */
 
 /* Params out */
+params.star_fusion_out = "$params.project/predicted_fusion/"
 
 /*
  ****************************************************************
