@@ -57,7 +57,7 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
-params.project = ""
+project = params.project
 params.fastq = "${project}/fastq/*R{1,2}.fastq.gz"
 
 /*
