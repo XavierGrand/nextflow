@@ -1,4 +1,4 @@
-version = "1.11.0"
+version = "1.8.0"
 // container_url = "lbmc/star-fusion:${version}"
 container_url = "xgrand/star-fusion:${version}"
 
