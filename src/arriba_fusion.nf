@@ -23,9 +23,13 @@ def helpMessage() {
       nextflow ./src/arriba_fusion.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
-      --project [path]                Path to the project folder containing fastq folder. Results are saved in this folder.
+      --project [path]                Path to the project folder. Results are saved in this folder.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
+    
+    Input:
+      --fastq [path]                  Path to fastq folder.
+      --bam [path]                    Path to the bam-containing folder.
 
     References:
       --genome [path]                 Path to genome reference fasta file.
@@ -55,12 +59,10 @@ if (params.help || params.h) {
 */
  
 params.project = ""
-params.paired = true
-params.fastq = "${params.project}/fastq/*_R{1,2}.fastq*"
-
-/*
-if (params.genome)          { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
-*/
+params.bam = ""
+params.fastq = ""
+if (params.genome) { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
+if (params.gtf) { params.gtf = path(params.gtf, checkIfExists: true) } else { exit 1, "No annotation specified." }
 
 /* Params out */
 
@@ -71,7 +73,7 @@ if (params.genome)          { params.genome = path(params.genome, checkIfExists:
 */
 
 log.info "Reference genome : ${params.genome}"
-log.info "Genome annotation : ${params.genome}"
+log.info "Genome annotation : ${params.gtf}"
 
 /*
  ****************************************************************
@@ -79,9 +81,16 @@ log.info "Genome annotation : ${params.genome}"
  ****************************************************************
 */
 
-Channel
-  .fromFilePairs( params.fastq, size: -1 )
-  .set { fastq_files }
+if(params.bam != "") {
+    Channel
+        .fromPath( params.bam )
+        .set { bam_files }
+}
+else {
+    Channel
+        .fromFilePairs( params.fastq, size = -1 )
+        .set(fastq_files)    
+}
 
 Channel
   .fromPath( params.genome )
@@ -106,8 +115,6 @@ include { arriba } from "./nf_modules/arriba/main.nf"
 */
 
 workflow {
-
-  fastq_files.view()
 
   //###################### ARRIBA FUSION ########################
 

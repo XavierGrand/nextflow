@@ -55,8 +55,7 @@ if (params.help || params.h) {
 */
  
 params.project = ""
-params.paired = true
-params.fastq = "${params.project}/fastq/*_R{1,2}.fastq*"
+params.fastq = "${params.project}/fastq"
 
 /*
 if (params.genome)          { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
@@ -82,6 +81,10 @@ Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
 
+Channel
+  .fromPath( params.lib )
+  .set { lib_folder }
+
 /*
  ****************************************************************
                           Imports
@@ -100,7 +103,7 @@ workflow {
 
   //######################## STAR FUSION ########################
 
-  star_fusion(params.lib, fastq_files)
+  star_fusion(lib_folder, fastq_files)
 
   //################ GRAPHICAL REPRESENTATIONS ##################
 
