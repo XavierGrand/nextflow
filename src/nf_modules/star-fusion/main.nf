@@ -6,7 +6,7 @@ params.star_fusion_out = "predicted_fusion"
 process star_fusion {
 
     container = "${container_url}"
-    label "mid_mem_multi_cpus"
+    label "big_mem_multi_cpus"
     tag "$file_id"
     if (params.star_fusion_out != "") {
         publishDir "results/${params.star_fusion_out}", mode: 'copy'
