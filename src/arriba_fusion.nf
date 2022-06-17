@@ -112,6 +112,10 @@ Channel
  ****************************************************************
 */
 
+include { fastp } from './nf_modules/fastp/main.nf'
+include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/01_fastqc_raw/")
+include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
+include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "$params.project/QC/")
 include { arriba } from "./nf_modules/arriba/main.nf"
 
 /*
@@ -121,6 +125,23 @@ include { arriba } from "./nf_modules/arriba/main.nf"
 */
 
 workflow {
+
+  if(params.bam == ""){
+    fastp()
+    fastqc_raw()
+    fastqc_preprocessed()
+    multiqc()
+    .mix(
+      fastqc_preprocessed.out.report
+      ).collect()
+    index_fasta()
+    mapping_fastq()
+    filter_bam_quality()
+    sort_bam()
+    index_bam()
+  }
+
+
 
   //###################### ARRIBA FUSION ########################
 
