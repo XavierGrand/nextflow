@@ -1,0 +1,155 @@
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+/*
+========================================================================================================================
+                                                      RNAseq_XGR
+========================================================================================================================
+
+RNAseq_XGR pipeline :
+ * Pipeline dedicated to transcriptomic analysis.
+
+Maintainer Xavier Grand <xavier.grand@ens-lyon.fr>
+
+ ****************************************************************
+                      Help Message Definition
+ ****************************************************************
+*/
+
+def helpMessage() {
+    log.info"""
+    Usage:
+    The typical command for running the pipeline is as follows:
+
+      nextflow ./src/star_fusion.nf -c ./src/nextflow.config -profile singularity
+
+    Mandatory arguments:
+      --project [path]                Path to the project folder. Results are saved in this folder.
+      -profile [str]                  Configuration profile to use.
+                                      Available: docker, singularity, podman, psmn, ccin2p3
+
+    References:
+      --fasta [path]                  Path to genome fasta file.
+      --genome [path]                 Path to STAR indexed genome. (To avoid the time consumming indexation of "STAR genome generate" step)
+      --gtf [path]                    Path to the gtf annotation file.
+
+    Help:                             Display this help message.
+      --help
+      --h
+    
+    """.stripIndent()
+}
+
+// Show help message
+
+params.help = ""
+params.h = ""
+
+if (params.help || params.h) {
+    helpMessage()
+    exit 0
+}
+
+/*
+ ****************************************************************
+                      Default Parameters
+ ****************************************************************
+*/
+ 
+/* Arguments */
+project = params.project
+params.fastq = "${project}/fastq/*R{1,2}.fastq.gz"
+params.genome = ""
+params.gtf = ""
+params.fasta = ""
+
+params.fastp_out = "$params.project/fastp/"
+params.star_mapping_fastq_out = "$params.project/STAR/"
+
+/*
+ ****************************************************************
+                              Logs
+ ****************************************************************
+*/
+
+log.info "Genome: ${params.genome}"
+log.info "Annotation: ${params.gtf}"
+log.info "Genome fasta file: ${params.fasta}"
+
+/*
+ ****************************************************************
+                        Channel definitions
+ ****************************************************************
+*/
+
+Channel
+  .fromFilePairs( params.fastq, size: -1 )
+  .set { fastq_files }
+
+/*
+Channel
+  .fromPath( params.genome )
+  .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+  .set { genome }
+*/
+
+Channel
+  .fromPath( params.gtf )
+  .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+  .set { gtf }
+
+Channel
+  .fromPath( params.fasta )
+  .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+  .set( fasta )
+
+/*
+ ****************************************************************
+                          Imports
+ ****************************************************************
+*/
+
+fastqc_mod = "./nf_modules/fastqc/main.nf"
+include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/01_fastqc_raw/")
+include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
+include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "$params.project/QC/")
+include { fastp } from "./nf_modules/fastp/main.nf"
+include { index_with_gtf } from "./nf_modules/star/main.nf"
+include { mapping_fastq } from "./nf_modules/star/main.nf"
+
+/*
+ ****************************************************************
+                          Workflow
+ ****************************************************************
+*/
+
+workflow {
+
+  //########################## PREPROCESSING ####################   
+  // fastp
+  fastp(fastq_files)
+
+  //########################## QUALITY CHECKS ###################
+
+  // fastqc_rawdata
+  fastqc_raw(fastq_files)
+  // fastqc_processed
+  fastqc_preprocessed(fastp.out.fastq.map { it -> [it [0], it[1]]})
+  // multiqc
+  multiqc(
+    fastqc_raw.out.report
+    .mix(
+      fastqc_preprocessed.out.report
+      ).collect()
+  )
+
+  //############ GENOME INDEXATION AND MAPPING ###################
+
+  if (params.genome != "") {
+    mapping_fastq(genome, fastp.out.fastq)
+  } else {
+    index_with_gtf(fasta, gtf)
+    mapping_fastq(index_with_gtf.out.index, fastp.out.fastq)
+  }
+}
