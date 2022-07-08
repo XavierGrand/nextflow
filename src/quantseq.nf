@@ -176,6 +176,7 @@ include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp',
                                                    fastp: "${params_fastp}" )
 if (params.paired_end) {
     include { bam_to_fastq_pairedend as bam_to_fastq} from  bedt_mod addParams(bam_to_fastq_pairedend_out: '05_bam_to_fastq_out')
+    include { sort_bam as sort_bam_pe } from sammod addParams(sort_bam_out: '05_bam_sortname', sort_bam: "-n" )
 } else {
     include { bam_to_fastq_singleend as bam_to_fastq} from  bedt_mod addParams(bam_to_fastq_singleend_out: '05_bam_to_fastq_out')
 }
@@ -198,6 +199,7 @@ include { genome_mapping as genome_mapping_spike; index_fasta as index_fasta_spi
                                                                                                                notaligned_name: 'no_spike-in')
 if (params.paired_end) {
     include { bam_to_fastq_pairedend as bam_to_fastq_spike} from  bedt_mod addParams(bam_to_fastq_pairedend_out: 'spike-in/02_bam_to_fastq_out')
+    include { sort_bam as sort_bam_pe_spike } from sammod addParams(sort_bam_out: 'spike-in/02_bamsortname', sort_bam: "-n" )
 } else {
     include { bam_to_fastq_singleend as bam_to_fastq_spike} from  bedt_mod addParams(bam_to_fastq_singleend_out: 'spike-in/02_bam_to_fastq_out')
 }
@@ -233,7 +235,12 @@ workflow spikein_analysis {
     main:
         index_fasta_spike(genome_spike_in)
         genome_mapping_spike(fastq_spike_in, index_fasta_spike.out.index.collect())
-        bam_to_fastq_spike(genome_mapping_spike.out.aligned)
+        if (!params.paired_end) {
+            bam_to_fastq_spike(genome_mapping_spike.out.aligned)
+        } else {
+            sort_bam_pe_spike(genome_mapping_spike.out.aligned)
+            bam_to_fastq_spike(sort_bam_spike.out.bam)
+        }
         sort_bam_spike(genome_mapping_spike.out.aligned)
         index_bam_spike(sort_bam_spike.out.bam)
         htseq_count_spike(index_bam_spike.out.bam_idx, gtf_spike_in.collect())
@@ -270,7 +277,12 @@ workflow {
             .set { fastqc_spikein_report }
     }
     genome_mapping(fastq_mapping, index_file.collect())
-    bam_to_fastq(genome_mapping.out.aligned)
+    if (!params.paired_end) {
+            bam_to_fastq(genome_mapping.out.aligned)
+    } else {
+            sort_bam_pe(genome_mapping.out.aligned)
+            bam_to_fastq(sort_bam_pe.out.bam)
+    }
     sort_bam(genome_mapping.out.aligned)
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
