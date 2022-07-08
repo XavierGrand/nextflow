@@ -53,8 +53,6 @@ process fastp_default {
   """
   fastp --thread ${task.cpus} \
     --qualified_quality_phred 30 \
-    --disable_length_filtering \
-    --detect_adapter_for_pe \
     ${params.fastp} \
     --in1 ${reads[0]} \
     --in2 ${reads[1]} \
@@ -68,7 +66,6 @@ process fastp_default {
   """
   fastp --thread ${task.cpus} \
     --qualified_quality_phred 20 \
-    --disable_length_filtering \
     ${params.fastp} \
     --in1 ${reads[0]} \
     --out1 ${file_prefix}_trim.fastq.gz \
