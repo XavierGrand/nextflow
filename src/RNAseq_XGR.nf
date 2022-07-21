@@ -65,7 +65,7 @@ params.gtf = ""
 params.fasta = ""
 
 params.fastp_out = "$params.project/fastp/"
-params.star_mapping_fastq_out = "$params.project/STAR/"
+// params.star_mapping_fastq_out = "$params.project/STAR/"
 
 /*
  ****************************************************************
@@ -87,12 +87,12 @@ Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
 
-Channel
+/* Channel
   .fromPath( params.genome )
   .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
   .set { genome }
 
-/* Channel
+Channel
   .fromPath( params.gtf )
   .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
   .set { gtf }
@@ -144,10 +144,10 @@ workflow {
 
   //############ GENOME INDEXATION AND MAPPING ###################
 
-  if (params.genome != "") {
+  /* if (params.genome != "") {
     mapping_fastq(genome, fastp.out.fastq)
   } else {
     index_with_gtf(fasta, gtf)
     mapping_fastq(index_with_gtf.out.index, fastp.out.fastq)
-  }
+  } */
 }
