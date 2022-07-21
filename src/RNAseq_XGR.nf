@@ -59,7 +59,7 @@ if (params.help || params.h) {
  
 /* Arguments */
 project = params.project
-params.fastq = "${project}/fastq/*R{1,2}.fastq.gz"
+params.fastq = "${project}/fastq/*_{1,2}.fastq.gz"
 params.genome = ""
 params.gtf = ""
 params.fasta = ""
