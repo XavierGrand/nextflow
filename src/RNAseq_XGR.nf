@@ -22,7 +22,7 @@ def helpMessage() {
     Usage:
     The typical command for running the pipeline is as follows:
 
-      nextflow ./src/star_fusion.nf -c ./src/nextflow.config -profile singularity
+      nextflow ./src/RNAseq_XGR.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
       --project [path]                Path to the project folder. Results are saved in this folder.

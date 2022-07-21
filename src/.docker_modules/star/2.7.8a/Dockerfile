@@ -1,0 +1,2 @@
+FROM quay.io/biocontainers/star:2.7.8a--0
+MAINTAINER Xavier Grand

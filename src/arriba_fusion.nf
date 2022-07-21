@@ -30,10 +30,10 @@ def helpMessage() {
                                       Available: docker, singularity, podman, psmn, ccin2p3
     
     Input:
-      --fastq [path]                  Path to fastq folder.
-      --bam [path]                    Path to the bam-containing folder.
+      --fastq [path]                  Path to fastq files.
+      --bam [path]                    Path to the bam files.
 
-    References:
+    References:                       Can be downloaded with download_references.sh (not implemented in pipeline).
       --genome [path]                 Path to genome reference fasta file.
       --gtf [path]                    Path to genome annotation gtf file.
 
@@ -61,10 +61,11 @@ if (params.help || params.h) {
 */
  
 params.project = ""
+params.bam_folder = ""
+params.genome = ""
+params.gtf = ""
 params.bam = ""
 params.fastq = ""
-if (params.genome) { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
-if (params.gtf) { params.gtf = path(params.gtf, checkIfExists: true) } else { exit 1, "No annotation specified." }
 
 /* Params out */
 params.fastp_out = "$params.project/fastp/"
@@ -80,6 +81,12 @@ params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
 
 log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
+if(params.bam_folder != "") {
+  log.info "bam files (--bam): ${bam}"
+}
+else {
+  log.info "fastq files (--fastq): ${params.fastq}"
+}
 
 /*
  ****************************************************************
@@ -87,23 +94,28 @@ log.info "Genome annotation : ${params.gtf}"
  ****************************************************************
 */
 
-if(params.bam != "") {
+if(params.bam_folder != "") {
     Channel
         .fromPath( params.bam )
+        .ifEmpty { error "Cannot find any bam files in: ${params.bam}" }
+        .map { it -> [it.simpleName, it]}
         .set { bam_files }
 }
 else {
     Channel
-        .fromFilePairs( params.fastq, size = -1 )
-        .set(fastq_files)    
+        .fromFilePairs( params.fastq, size: -1)
+        .set { fastq_files }
 }
 
 Channel
   .fromPath( params.genome )
+  .ifEmpty { error "Cannot find any fasta files in: ${params.genome}" }
+  .map { it -> [it.simpleName, it]}
   .set { genome }
 
 Channel
   .fromPath( params.gtf )
+  .ifEmpty { error "Cannot find any annotation files in: ${params.gtf}" }
   .set { gtf }
 
 /*
@@ -113,9 +125,11 @@ Channel
 */
 
 include { fastp } from './nf_modules/fastp/main.nf'
-include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/01_fastqc_raw/")
-include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
+include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: "$params.project/01_fastqc_raw/")
+include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
 include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "$params.project/QC/")
+include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf' addParams(star_mapping_fastq_out: "$params.project/STAR_index/")
+include { mapping_fastq_withChimeric } from './nf_modules/star/main_2.7.8a.nf' addParams(star_mapping_fastq_out: "$params.project/STAR/")
 include { arriba } from "./nf_modules/arriba/main.nf"
 
 /*
@@ -127,26 +141,20 @@ include { arriba } from "./nf_modules/arriba/main.nf"
 workflow {
 
   if(params.bam == ""){
-    fastp()
-    fastqc_raw()
-    fastqc_preprocessed()
-    multiqc()
-    .mix(
-      fastqc_preprocessed.out.report
-      ).collect()
-    index_fasta()
-    mapping_fastq()
-    filter_bam_quality()
-    sort_bam()
-    index_bam()
+    fastp(fastq_files)
+    // fastqc_raw(fastq_files.collect())
+    // fastqc_preprocessed(fastp_out.fastq.collect())
+    // multiqc(fastqc_raw_out.report)
+    // .mix(
+    //   fastqc_preprocessed.out.report
+    //   ).collect()
+    index_with_gtf(genome, gtf)
+    // mapping_fastq_withChimeric(index_fasta_out.index, fastp_out.fastq)
+    // filter_bam_quality(mapping_fastq_withChimeric_out.bam)
+    // arriba()
   }
-
-
-
-  //###################### ARRIBA FUSION ########################
-
-  arriba(fastq_files, gtf, genome)
-
-  //################ GRAPHICAL REPRESENTATIONS ##################
+  else {
+    arriba(bam_files, gtf, genome)
+  }
 
 }
