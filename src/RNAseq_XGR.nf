@@ -87,14 +87,12 @@ Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
 
-/*
 Channel
   .fromPath( params.genome )
   .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
   .set { genome }
-*/
 
-Channel
+/* Channel
   .fromPath( params.gtf )
   .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
   .set { gtf }
@@ -103,7 +101,7 @@ Channel
   .fromPath( params.fasta )
   .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
   .set( fasta )
-
+ */
 /*
  ****************************************************************
                           Imports
