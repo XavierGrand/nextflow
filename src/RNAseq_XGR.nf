@@ -63,6 +63,7 @@ params.fastq = "${project}/fastq/*_{1,2}.fq.gz"
 params.genome = ""
 params.gtf = ""
 params.fasta = ""
+params.idx = ""
 
 params.fastp_out = "$params.project/fastp/"
 // params.star_mapping_fastq_out = "$params.project/STAR/"
@@ -87,21 +88,6 @@ Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
 
-/* Channel
-  .fromPath( params.genome )
-  .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
-  .set { genome }
-
-Channel
-  .fromPath( params.gtf )
-  .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
-  .set { gtf }
-
-Channel
-  .fromPath( params.fasta )
-  .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
-  .set( fasta )
- */
 /*
  ****************************************************************
                           Imports
@@ -115,6 +101,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "
 include { fastp } from "./nf_modules/fastp/main.nf"
 include { index_with_gtf } from "./nf_modules/star/main.nf"
 include { mapping_fastq } from "./nf_modules/star/main.nf"
+include { htseq_count_with_gff } from "./nf_modules/htseq/main.nf"
 
 /*
  ****************************************************************
@@ -143,6 +130,30 @@ workflow {
   )
 
   //############ GENOME INDEXATION AND MAPPING ###################
+
+  if (params.idx == "") {
+    Channel
+      .fromPath( params.genome )
+      .ifEmpty { error "Cannot find any files matching: ${params.genome}" }
+      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+      .set { genome_file }
+    
+    index_with_gtf(params.genome)
+    mapping_fastq(index_with_gtf.out.index, fastq_files)
+  }
+  else {
+    idx_genome = "${params.idx}/*"
+    Channel
+      .fromPath( idx_genome )
+      .ifEmpty { error "Cannot find idexed genome reference files" }
+      .set { genome_indexed_input }
+    mapping_fastq(genome_indexed_input, fastq_files)
+  }
+
+  //######################## HTseq COUNT #########################
+
+  htseq_count_with_gff(mapping_fastq.out.bam, params.gtf)
+
 
   /* if (params.genome != "") {
     mapping_fastq(genome, fastp.out.fastq)
