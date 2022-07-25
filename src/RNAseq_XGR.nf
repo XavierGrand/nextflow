@@ -65,7 +65,8 @@ params.fasta = ""
 params.idx = ""
 
 params.fastp_out = "$params.project/fastp/"
-// params.star_mapping_fastq_out = "$params.project/STAR/"
+params.star_mapping_fastq_out = "$params.project/STAR/"
+params.star_index_out = "$params.project/STARindex/"
 
 /*
  ****************************************************************
