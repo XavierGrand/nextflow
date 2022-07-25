@@ -136,7 +136,7 @@ workflow {
   if (params.idx == "") {
     Channel
       .fromPath( params.fasta )
-      .ifEmpty { error "Cannot find any files matching: ${params.genome}" }
+      .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
       .set { genome_file }
     
