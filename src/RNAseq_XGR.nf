@@ -90,10 +90,6 @@ Channel
   .fromPath( params.gtf )
   .set { gtf_file }
 
-Channel
-  .fromPath( params.gtf )
-  .map { it -> [(it.baseName =~ /([^\.]*)/)[0][1], it] }
-  .set { gtf_tuple }
 /*
  ****************************************************************
                           Imports
