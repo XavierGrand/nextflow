@@ -116,7 +116,7 @@ workflow {
 
   //########################## PREPROCESSING ####################   
   // fastp
-  fastp(fastq_files)
+  fastp(fastq_files.collect())
 
   //########################## QUALITY CHECKS ###################
 
@@ -142,7 +142,7 @@ workflow {
       .set { genome_file }
     
     index_with_gtf(genome_file, gtf_file.collect())
-    mapping_fastq(index_with_gtf.out.index, fastq_files)
+    mapping_fastq(index_with_gtf.out.index, fastp.out.fastq)
   }
   else {
     idx_genome = "${params.idx}/*"
@@ -150,7 +150,7 @@ workflow {
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
       .set { genome_indexed_input }
-    mapping_fastq(genome_indexed_input, fastq_files)
+    mapping_fastq(genome_indexed_input, fastp.out.fastq)
   }
 
   //######################## HTseq COUNT #########################
