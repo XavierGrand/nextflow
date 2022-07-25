@@ -144,7 +144,7 @@ workflow {
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
       .set { genome_file }
     
-    index_with_gtf(genome_file)
+    index_with_gtf(genome_file, gtf_file.collect())
     mapping_fastq(index_with_gtf.out.index, fastq_files)
   }
   else {
