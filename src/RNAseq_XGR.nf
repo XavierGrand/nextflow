@@ -76,6 +76,7 @@ params.star_index_out = "$params.project/STARindex/"
 
 log.info "Annotation: ${params.gtf}"
 log.info "Genome fasta file: ${params.fasta}"
+log.info "Genome index location: ${params.idx}"
 
 /*
  ****************************************************************
@@ -104,6 +105,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "
 include { fastp } from "./nf_modules/fastp/main.nf"
 include { index_with_gtf } from "./nf_modules/star/main_2.7.8a.nf"
 include { mapping_fastq } from "./nf_modules/star/main_2.7.8a.nf"
+include { mapping_withindex } from "./nf_modules/star/main_2.7.8a.nf"
 include { htseq_count } from "./nf_modules/htseq/main.nf"
 
 /*
@@ -150,7 +152,7 @@ workflow {
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
       .set { genome_indexed_input }
-    mapping_fastq(genome_indexed_input, fastp.out.fastq)
+    mapping_withindex(genome_indexed_input, fastp.out.fastq)
   }
 
   //######################## HTseq COUNT #########################
