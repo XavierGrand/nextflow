@@ -145,6 +145,7 @@ workflow {
     
     index_with_gtf(genome_file, gtf_file.collect())
     mapping_fastq(index_with_gtf.out.index.collect(), fastp.out.fastq)
+    htseq_count(mapping_fastq.out.bam, gtf_file)
   }
   else {
     idx_genome = "${params.idx}/*"
@@ -154,16 +155,6 @@ workflow {
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
       .set { genome_indexed_input }
     mapping_withindex(genome_indexed_input, fastp.out.fastq)
+    htseq_count(mapping_withindex.out.bam, gtf_file)
   }
-
-  //######################## HTseq COUNT #########################
-
-  htseq_count(mapping_fastq.out.bam, gtf_file)
-
-  /* if (params.genome != "") {
-    mapping_fastq(genome, fastp.out.fastq)
-  } else {
-    index_with_gtf(fasta, gtf)
-    mapping_fastq(index_with_gtf.out.index, fastp.out.fastq)
-  } */
 }
