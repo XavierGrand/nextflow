@@ -123,7 +123,7 @@ workflow {
   //########################## QUALITY CHECKS ###################
 
   // fastqc_rawdata
-  fastqc_raw(fastq_files.collect())
+  fastqc_raw(fastq_files)
   // fastqc_processed
   fastqc_preprocessed(fastp.out.fastq.map { it -> [it [0], it[1]]})
   // multiqc
