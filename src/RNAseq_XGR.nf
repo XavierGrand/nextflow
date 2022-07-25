@@ -87,7 +87,7 @@ Channel
   .set { fastq_files }
 
 Channel
-  .fromPath( params.gtf, size: 1 )
+  .fromPath( params.gtf )
   .set { gtf_file }
 
 /*
