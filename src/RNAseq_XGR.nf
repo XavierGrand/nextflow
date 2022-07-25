@@ -86,6 +86,10 @@ Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
 
+Channel
+  .fromPath( params.gtf, size: 1 )
+  .set { gtf_file }
+
 /*
  ****************************************************************
                           Imports
@@ -136,21 +140,21 @@ workflow {
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
       .set { genome_file }
     
-    index_with_gtf(params.genome)
+    index_with_gtf(genome_file)
     mapping_fastq(index_with_gtf.out.index, fastq_files)
   }
-  /* else {
+  else {
     idx_genome = "${params.idx}/"
     Channel
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
       .set { genome_indexed_input }
     mapping_fastq(genome_indexed_input, fastq_files)
-  } */
+  }
 
   //######################## HTseq COUNT #########################
 
-  htseq_count_with_gff(mapping_fastq.out.bam, params.gtf)
+  htseq_count_with_gff(mapping_fastq.out.bam, gtf_file)
 
   /* if (params.genome != "") {
     mapping_fastq(genome, fastp.out.fastq)
