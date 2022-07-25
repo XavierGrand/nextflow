@@ -60,7 +60,6 @@ if (params.help || params.h) {
 /* Arguments */
 project = params.project
 params.fastq = "${project}/fastq/*_{1,2}.fq.gz"
-params.genome = ""
 params.gtf = ""
 params.fasta = ""
 params.idx = ""
@@ -74,7 +73,6 @@ params.fastp_out = "$params.project/fastp/"
  ****************************************************************
 */
 
-log.info "Genome: ${params.genome}"
 log.info "Annotation: ${params.gtf}"
 log.info "Genome fasta file: ${params.fasta}"
 
@@ -142,7 +140,7 @@ workflow {
     mapping_fastq(index_with_gtf.out.index, fastq_files)
   }
   else {
-    idx_genome = "${params.idx}/*"
+    idx_genome = "${params.idx}/"
     Channel
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
