@@ -116,7 +116,7 @@ workflow {
 
   //########################## PREPROCESSING ####################   
   // fastp
-  fastp(fastq_files.collect())
+  fastp(fastq_files)
 
   //########################## QUALITY CHECKS ###################
 
