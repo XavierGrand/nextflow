@@ -105,8 +105,8 @@ include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_ou
 include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
 include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "$params.project/QC/")
 include { fastp } from "./nf_modules/fastp/main.nf"
-include { index_with_gtf } from "./nf_modules/star/main.nf"
-include { mapping_fastq } from "./nf_modules/star/main.nf"
+include { index_with_gtf } from "./nf_modules/star/main_2.7.8a.nf"
+include { mapping_fastq } from "./nf_modules/star/main_2.7.8a.nf"
 include { htseq_count } from "./nf_modules/htseq/main.nf"
 
 /*
@@ -148,7 +148,7 @@ workflow {
     mapping_fastq(index_with_gtf.out.index, fastq_files)
   }
   else {
-    idx_genome = "${params.idx}/"
+    idx_genome = "${params.idx}/*"
     Channel
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
