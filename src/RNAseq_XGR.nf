@@ -142,7 +142,7 @@ workflow {
       .set { genome_file }
     
     index_with_gtf(genome_file, gtf_file.collect())
-    mapping_fastq(index_with_gtf.out.index, fastp.out.fastq)
+    mapping_fastq(index_with_gtf.out.index.collect(), fastp.out.fastq)
   }
   else {
     idx_genome = "${params.idx}/*"
