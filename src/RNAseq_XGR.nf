@@ -139,19 +139,18 @@ workflow {
     index_with_gtf(params.genome)
     mapping_fastq(index_with_gtf.out.index, fastq_files)
   }
-  else {
+  /* else {
     idx_genome = "${params.idx}/"
     Channel
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
       .set { genome_indexed_input }
     mapping_fastq(genome_indexed_input, fastq_files)
-  }
+  } */
 
   //######################## HTseq COUNT #########################
 
   htseq_count_with_gff(mapping_fastq.out.bam, params.gtf)
-
 
   /* if (params.genome != "") {
     mapping_fastq(genome, fastp.out.fastq)
