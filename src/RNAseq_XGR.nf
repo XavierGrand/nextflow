@@ -107,7 +107,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "
 include { fastp } from "./nf_modules/fastp/main.nf"
 include { index_with_gtf } from "./nf_modules/star/main.nf"
 include { mapping_fastq } from "./nf_modules/star/main.nf"
-include { htseq_count_with_gff } from "./nf_modules/htseq/main.nf"
+include { htseq_count } from "./nf_modules/htseq/main.nf"
 
 /*
  ****************************************************************
@@ -158,7 +158,7 @@ workflow {
 
   //######################## HTseq COUNT #########################
 
-  htseq_count_with_gff(mapping_fastq.out.bam, gtf_file)
+  htseq_count(mapping_fastq.out.bam, gtf_file)
 
   /* if (params.genome != "") {
     mapping_fastq(genome, fastp.out.fastq)
