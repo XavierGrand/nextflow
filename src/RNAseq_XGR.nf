@@ -148,7 +148,7 @@ workflow {
     htseq_count(mapping_fastq.out.bam, gtf_file)
   }
   else {
-    idx_genome = "${params.idx}/*"
+    idx_genome = "${params.idx}"
     Channel
       .fromPath( idx_genome )
       .ifEmpty { error "Cannot find idexed genome reference files" }
