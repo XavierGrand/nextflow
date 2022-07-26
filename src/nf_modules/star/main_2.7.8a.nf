@@ -194,7 +194,7 @@ process mapping_withindex {
   }
 
   input:
-    tuple val(index_id), path(index)
+    path(index)
     tuple val(reads_id), path(reads) 
 
   output:

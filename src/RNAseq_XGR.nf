@@ -31,8 +31,8 @@ def helpMessage() {
 
     References:
       --fasta [path]                  Path to genome fasta file.
-      --genome [path]                 Path to STAR indexed genome. (To avoid the time consumming indexation of "STAR genome generate" step)
       --gtf [path]                    Path to the gtf annotation file.
+      --idx [path]                    Path to the STAR indexed genome (optional). (If allready computed)
 
     Help:                             Display this help message.
       --help
