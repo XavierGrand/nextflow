@@ -154,7 +154,7 @@ workflow {
       .ifEmpty { error "Cannot find idexed genome reference files" }
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
       .set { genome_indexed_input }
-    mapping_withindex(genome_indexed_input, fastp.out.fastq)
+    mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
     htseq_count(mapping_withindex.out.bam, gtf_file)
   }
 }
