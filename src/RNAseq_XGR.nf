@@ -20,6 +20,7 @@ Maintainer Xavier Grand <xavier.grand@ens-lyon.fr>
 def helpMessage() {
     log.info"""
     Usage:
+    Pipeline dedicated to transcriptomic analysis of short-reads paired-ends RNAseq.
     The typical command for running the pipeline is as follows:
 
       nextflow ./src/RNAseq_XGR.nf -c ./src/nextflow.config -profile singularity
@@ -63,6 +64,7 @@ params.fastq = "${project}/fastq/*_{1,2}.fq.gz"
 params.gtf = ""
 params.fasta = ""
 params.idx = ""
+params.filter_bam = "-F 268 -f 1 -q 10"
 
 params.fastp_out = "$params.project/fastp/"
 params.star_mapping_fastq_out = "$params.project/STAR/"
@@ -107,6 +109,10 @@ include { index_with_gtf } from "./nf_modules/star/main_2.7.8a.nf"
 include { mapping_fastq } from "./nf_modules/star/main_2.7.8a.nf"
 include { mapping_withindex } from "./nf_modules/star/main_2.7.8a.nf"
 include { htseq_count } from "./nf_modules/htseq/main.nf"
+include { filter_bam } from "./nf_modules/samtools/main.nf"
+include { stats_bam } from "./nf_modules/samtools/main.nf"
+include { sort_bam } from "./nf_modules/samtools/main.nf"
+include { index_bam } from "./nf_modules/samtools/main.nf"
 
 /*
  ****************************************************************
@@ -120,7 +126,32 @@ workflow {
   // fastp
   fastp(fastq_files)
 
-  //########################## QUALITY CHECKS ###################
+  //############ GENOME INDEXATION AND MAPPING ###################
+
+  if (params.idx == "") {
+    Channel
+      .fromPath( params.fasta )
+      .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
+      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+      .set { genome_file }
+    
+    index_with_gtf(genome_file, gtf_file.collect())
+    mapping_fastq(index_with_gtf.out.index.collect(), fastp.out.fastq)
+    
+  }
+  else {
+    idx_genome = "${params.idx}"
+    Channel
+      .of( idx_genome )
+      .set { genome_indexed_input }
+    genome_indexed_input.view()
+    mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
+    htseq_count(mapping_withindex.out.bam, gtf_file)
+  }
+
+  htseq_count(mapping_fastq.out.bam, gtf_file)
+
+    //########################## QUALITY CHECKS ###################
 
   // fastqc_rawdata
   fastqc_raw(fastq_files)
@@ -133,27 +164,4 @@ workflow {
       fastqc_preprocessed.out.report
       ).collect()
   )
-
-  //############ GENOME INDEXATION AND MAPPING ###################
-
-  if (params.idx == "") {
-    Channel
-      .fromPath( params.fasta )
-      .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
-      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
-      .set { genome_file }
-    
-    index_with_gtf(genome_file, gtf_file.collect())
-    mapping_fastq(index_with_gtf.out.index.collect(), fastp.out.fastq)
-    htseq_count(mapping_fastq.out.bam, gtf_file)
-  }
-  else {
-    idx_genome = "${params.idx}"
-    Channel
-      .of( idx_genome )
-      .set { genome_indexed_input }
-    genome_indexed_input.view()
-    mapping_withindex(fastp.out.fastq)
-    htseq_count(mapping_withindex.out.bam, gtf_file)
-  }
 }
