@@ -150,7 +150,7 @@ workflow {
   else {
     idx_genome = "${params.idx}"
     Channel
-      .fromPath( idx_genome )
+      .of( idx_genome )
       .set { genome_indexed_input }
     mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
     htseq_count(mapping_withindex.out.bam, gtf_file)
