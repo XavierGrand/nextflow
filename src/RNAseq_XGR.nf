@@ -153,7 +153,7 @@ workflow {
       .of( idx_genome )
       .set { genome_indexed_input }
     genome_indexed_input.view()
-    mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
+    mapping_withindex(fastp.out.fastq)
     htseq_count(mapping_withindex.out.bam, gtf_file)
   }
 }

@@ -185,7 +185,7 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
 }
 
-
+params.idx = ""
 process mapping_withindex {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -194,7 +194,6 @@ process mapping_withindex {
   }
 
   input:
-    val(index)
     tuple val(reads_id), path(reads) 
 
   output:
@@ -211,7 +210,7 @@ if (reads_id instanceof List){
 if (reads.size() == 2)
 """
 STAR --runThreadN ${task.cpus} \
---genomeDir ${index} \
+--genomeDir ${params.idx} \
 --readFilesCommand zcat \
 --readFilesIn ${reads[0]} ${reads[1]} \
 --outFileNamePrefix ${reads_id}. \
@@ -224,7 +223,7 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 else
 """
 STAR --runThreadN ${task.cpus} \
---genomeDir ${index} \
+--genomeDir ${params.idx} \
 --readFilesCommand zcat \
 --readFilesIn ${reads} \
 --outFileNamePrefix ${reads_id}. \
