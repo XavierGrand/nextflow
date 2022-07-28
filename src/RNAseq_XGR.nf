@@ -89,6 +89,7 @@ log.info "Genome index location: ${params.idx}"
 Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
+  .view()
 
 Channel
   .fromPath( params.gtf )
@@ -122,8 +123,6 @@ include { index_bam } from "./nf_modules/samtools/main.nf"
 */
 
 workflow {
-
-  fastq_files.view()
 
   //########################## PREPROCESSING ####################   
   // fastp
