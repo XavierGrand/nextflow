@@ -59,7 +59,7 @@ if (params.help || params.h) {
 */
  
 /* Arguments */
-params.fastq = "$params.project/*.fastq*"
+params.fastq = "$params.project/*{1,2}.fastq*"
 params.gtf = ""
 params.fasta = ""
 params.idx = ""
@@ -88,7 +88,6 @@ log.info "Genome index location: ${params.idx}"
 Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
-  .view()
 
 Channel
   .fromPath( params.gtf )
