@@ -94,8 +94,6 @@ Channel
   .fromPath( params.gtf )
   .set { gtf_file }
 
-fastq_files.view()
-
 /*
  ****************************************************************
                           Imports
@@ -124,6 +122,8 @@ include { index_bam } from "./nf_modules/samtools/main.nf"
 */
 
 workflow {
+
+  fastq_files.view()
 
   //########################## PREPROCESSING ####################   
   // fastp
