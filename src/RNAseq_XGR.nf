@@ -94,7 +94,7 @@ Channel
   .fromPath( params.gtf )
   .set { gtf_file }
 
-log.info "Fastq file : ${fastq_files.view()}"
+fastq_files.view()
 
 /*
  ****************************************************************
