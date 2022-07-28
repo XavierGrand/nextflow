@@ -71,6 +71,7 @@ params.star_mapping_fastq_out = "STAR/"
 params.star_index_out = "STARindex/"
 params.sort_bam_out = "STAR/"
 params.filter_bam_out = "STAR/"
+params.htseq_out = "HTseq/"
 
 /*
  ****************************************************************
