@@ -26,7 +26,7 @@ def helpMessage() {
       nextflow ./src/RNAseq_XGR.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
-      --project [path]                Path to the project folder. Results are saved in this folder.
+      --project [path]                Path to the fastq folder.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
 
@@ -59,16 +59,15 @@ if (params.help || params.h) {
 */
  
 /* Arguments */
-project = params.project
-params.fastq = "${project}/fastq/*_{1,2}.fastq"
+params.fastq = "$params.project/*.fastq*"
 params.gtf = ""
 params.fasta = ""
 params.idx = ""
 params.filter_bam_mapped = "-F 268 -f 1 -q 10"
 
-params.fastp_out = "$params.project/fastp/"
-params.star_mapping_fastq_out = "$params.project/STAR/"
-params.star_index_out = "$params.project/STARindex/"
+params.fastp_out = "fastp/"
+params.star_mapping_fastq_out = "STAR/"
+params.star_index_out = "STARindex/"
 
 /*
  ****************************************************************
