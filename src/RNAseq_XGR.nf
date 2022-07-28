@@ -101,9 +101,9 @@ Channel
 */
 
 fastqc_mod = "./nf_modules/fastqc/main.nf"
-include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/01_fastqc_raw/")
-include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
-include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "$params.project/QC/")
+include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "01_fastqc_raw/")
+include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "02_fastqc_preprocessed/")
+include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "QC/")
 include { fastp } from "./nf_modules/fastp/main.nf"
 include { index_with_gtf } from "./nf_modules/star/main_2.7.8a.nf"
 include { mapping_fastq } from "./nf_modules/star/main_2.7.8a.nf"
