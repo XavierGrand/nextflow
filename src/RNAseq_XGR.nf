@@ -154,8 +154,8 @@ workflow {
   }
 
   sort_bam(filter_bam_mapped.out.bam)
-  index_bam(sort_bam.out.bam.collect())
-  htseq_count(sort_bam.out.bam, gtf_file.collect())
+  index_bam(sort_bam.out.bam)
+  htseq_count(sort_bam.out.bam, gtf_file)
 
     //########################## QUALITY CHECKS ###################
 
