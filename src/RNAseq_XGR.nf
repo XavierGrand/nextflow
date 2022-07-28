@@ -69,6 +69,8 @@ params.filter_bam_mapped = "-F 268 -f 1 -q 10"
 params.fastp_out = "fastp/"
 params.star_mapping_fastq_out = "STAR/"
 params.star_index_out = "STARindex/"
+params.sort_bam_out = "STAR/"
+params.filter_bam_out = "STAR/"
 
 /*
  ****************************************************************
