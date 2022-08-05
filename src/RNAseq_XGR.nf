@@ -146,7 +146,7 @@ workflow {
   else {
     idx_genome = "${params.idx}"
     Channel
-      .fromPath( idx_genome, type: 'dir' )
+      .of( idx_genome )
       .set { genome_indexed_input }
     mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
     stats_bam(mapping_withindex.out.bam)
