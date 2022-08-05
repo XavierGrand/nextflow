@@ -165,7 +165,7 @@ workflow {
     Channel
       .fromPath( "${params.idx}/*" )
       .set { genome_indexed_input }
-    mapping_withindex(idx_genome, fastp.out.fastq)
+    mapping_withindex(genome_indexed_input, fastp.out.fastq)
     stats_bam(mapping_withindex.out.bam)
     filter_bam_mapped(mapping_withindex.out.bam)
   }
