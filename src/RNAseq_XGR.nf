@@ -145,9 +145,26 @@ workflow {
   }
   else {
     idx_genome = "${params.idx}"
-    Channel
-      .of( idx_genome )
-      .set { genome_indexed_input }
+    ref_1  = Channel.fromPath(params.idx +'/chrStart.txt')
+	  ref_2  = Channel.fromPath(params.idx +'/chrNameLength.txt')
+	  ref_3  = Channel.fromPath(params.idx +'/chrName.txt')
+	  ref_4  = Channel.fromPath(params.idx +'/chrLength.txt')
+	  ref_5  = Channel.fromPath(params.idx +'/exonGeTrInfo.tab')
+	  ref_6  = Channel.fromPath(params.idx +'/exonInfo.tab')
+	  ref_7  = Channel.fromPath(params.idx +'/geneInfo.tab')
+	  ref_8  = Channel.fromPath(params.idx +'/Genome')
+	  ref_9  = Channel.fromPath(params.idx +'/genomeParameters.txt')
+	  ref_10 = Channel.fromPath(params.idx +'/SA')
+	  ref_11 = Channel.fromPath(params.idx +'/SAindex')
+	  ref_12 = Channel.fromPath(params.idx +'/sjdbInfo.txt')
+	  ref_13 = Channel.fromPath(params.idx +'/transcriptInfo.tab')
+	  ref_14 = Channel.fromPath(params.idx +'/sjdbList.fromGTF.out.tab')
+	  ref_15 = Channel.fromPath(params.idx +'/sjdbList.out.tab')
+    
+    genome_indexed_input = ref_1.concat(ref_2,ref_3,ref_4,ref_5,ref_6,ref_7,ref_8,ref_9,ref_10,ref_11,ref_12,ref_13,ref_14,ref_15)
+    // Channel
+    //   .of( idx_genome )
+    //   .set { genome_indexed_input }
     mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
     stats_bam(mapping_withindex.out.bam)
     filter_bam_mapped(mapping_withindex.out.bam)
