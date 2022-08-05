@@ -160,11 +160,11 @@ workflow {
 	  // ref_13 = Channel.fromPath(params.idx +'/transcriptInfo.tab')
 	  // ref_14 = Channel.fromPath(params.idx +'/sjdbList.fromGTF.out.tab')
 	  // ref_15 = Channel.fromPath(params.idx +'/sjdbList.out.tab')
-    
     // genome_indexed_input = ref_1.concat(ref_2,ref_3,ref_4,ref_5,ref_6,ref_7,ref_8,ref_9,ref_10,ref_11,ref_12,ref_13,ref_14,ref_15)
-    // Channel
-    //   .of( idx_genome )
-    //   .set { genome_indexed_input }
+    
+    Channel
+      .fromPath( "${params.idx}/*" )
+      .set { genome_indexed_input }
     mapping_withindex(idx_genome, fastp.out.fastq)
     stats_bam(mapping_withindex.out.bam)
     filter_bam_mapped(mapping_withindex.out.bam)
