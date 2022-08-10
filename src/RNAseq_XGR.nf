@@ -141,6 +141,7 @@ workflow {
     
     index_with_gtf(genome_file, gtf_file.collect())
     mapping_fastq(index_with_gtf.out.index.collect(), fastp.out.fastq)
+    stats_bam(mapping_fastq.out.bam)
     filter_bam_mapped(mapping_fastq.out.bam)
   }
   else {
