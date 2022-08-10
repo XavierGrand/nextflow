@@ -163,7 +163,7 @@ workflow {
     // genome_indexed_input = ref_1.concat(ref_2,ref_3,ref_4,ref_5,ref_6,ref_7,ref_8,ref_9,ref_10,ref_11,ref_12,ref_13,ref_14,ref_15)
     
     Channel
-      .fromPath( "${params.idx}/*" )
+      .fromPath( "${params.idx}" )
       .set { genome_indexed_input }
     mapping_withindex(genome_indexed_input.collect(), fastp.out.fastq)
     stats_bam(mapping_withindex.out.bam)
