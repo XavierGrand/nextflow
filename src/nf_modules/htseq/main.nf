@@ -31,7 +31,7 @@ process htseq_count {
     }
     input:
       tuple val(file_id), path(bam), path(bai)
-      val(gtf)
+      path(gtf)
 
     output:
       path "${file_id}.tsv", emit: counts
