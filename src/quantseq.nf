@@ -174,12 +174,6 @@ sammod = './nf_modules/samtools/main.nf'
 
 include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp', 
                                                    fastp: "${params_fastp}" )
-if (params.paired_end) {
-    include { bam_to_fastq_pairedend as bam_to_fastq} from  bedt_mod addParams(bam_to_fastq_pairedend_out: '05_bam_to_fastq_out')
-    include { sort_bam as sort_bam_pe } from sammod addParams(sort_bam_out: '05_bam_sortname', sort_bam: "-n" )
-} else {
-    include { bam_to_fastq_singleend as bam_to_fastq} from  bedt_mod addParams(bam_to_fastq_singleend_out: '05_bam_to_fastq_out')
-}
 include { genome_mapping; index_fasta } from hisat2_mod addParams(folder: '06_mapping')
 include { sort_bam } from sammod addParams(sort_bam_out: '07_sort_bam' )
 include { index_bam } from sammod addParams(index_bam_out: '08_index_bam' )
@@ -220,9 +214,9 @@ include { multiqc_default as multiqc_default_spike } from multiqc_mod addParams(
  ****************************************************************
 */
 
-def merge_channels(report1, report2, report3, report4, report5, 
+def merge_channels(report1, report2, report3, report4, 
                    fastp_report, hisat2_report) {
-    return report1.concat(report2, report3, report4, report5,
+    return report1.concat(report2, report3, report4,
     fastp_report.map { it -> [it[0], [it[1]]]},
     hisat2_report.map { it -> [it.baseName, [it]]}).map {it -> it[1]}.collect()
 }
@@ -277,12 +271,6 @@ workflow {
             .set { fastqc_spikein_report }
     }
     genome_mapping(fastq_mapping, index_file.collect())
-    if (!params.paired_end) {
-            bam_to_fastq(genome_mapping.out.aligned)
-    } else {
-            sort_bam_pe(genome_mapping.out.aligned)
-            bam_to_fastq(sort_bam_pe.out.bam)
-    }
     sort_bam(genome_mapping.out.aligned)
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
@@ -291,11 +279,10 @@ workflow {
     fastqc1(fastq_files)
     fastqc2(fastp_default.out.fastq)
     fastqc_unaligned(genome_mapping.out.unaligned)
-    fastqc_aligned(bam_to_fastq.out.fastq)
 
     // multiqc
     res = merge_channels(fastqc1.out.report, fastqc2.out.report, fastqc_unaligned.out.report,
-                         fastqc_aligned.out.report, fastqc_spikein_report, fastp_default.out.report,
+                         fastqc_spikein_report, fastp_default.out.report,
                          genome_mapping.out.report)
     multiqc_default(res)
 }
