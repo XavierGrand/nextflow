@@ -71,6 +71,7 @@ params.fastp_out = "$params.project/fastp/"
 params.index_fasta_out = "$params.project/Indexed_genome/"
 params.sort_bam_out = "$params.project/Bam_filtered_sorted/"
 params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
+params.arriba_out = "$params.project/Arriba_results/"
 
 /*
  ****************************************************************
