@@ -25,7 +25,6 @@ def helpMessage() {
       nextflow ./src/arriba_fusion.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
-      --project [path]                Path to the project folder. Results are saved in this folder.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
     
@@ -60,18 +59,17 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
-params.project = ""
 params.bam = ""
 params.genome = ""
 params.gtf = ""
 params.fastq = ""
 
 /* Params out */
-params.fastp_out = "$params.project/fastp/"
-params.index_fasta_out = "$params.project/Indexed_genome/"
-params.sort_bam_out = "$params.project/Bam_filtered_sorted/"
-params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
-params.arriba_out = "$params.project/Arriba_results/"
+params.fastp_out = "Arriba_fastp/"
+params.index_fasta_out = "Arriba_Indexed_genome/"
+params.sort_bam_out = "Arriba_Bam_filtered_sorted/"
+params.index_bam_out = "Arriba_Bam_filt_sort_indexed/"
+params.arriba_out = "Arriba_Arriba_results/"
 
 /*
  ****************************************************************
