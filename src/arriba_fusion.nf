@@ -61,7 +61,7 @@ if (params.help || params.h) {
 */
  
 params.project = ""
-params.bam_folder = ""
+params.bam = ""
 params.genome = ""
 params.gtf = ""
 params.bam = ""
@@ -94,7 +94,7 @@ else {
  ****************************************************************
 */
 
-if(params.bam_folder != "") {
+if(params.bam != "") {
     Channel
         .fromPath( params.bam )
         .ifEmpty { error "Cannot find any bam files in: ${params.bam}" }
@@ -108,13 +108,13 @@ else {
 }
 
 Channel
-  .fromPath( params.genome )
+  .fromPath( params.genome, type : file )
   .ifEmpty { error "Cannot find any fasta files in: ${params.genome}" }
   .map { it -> [it.simpleName, it]}
   .set { genome }
 
 Channel
-  .fromPath( params.gtf )
+  .fromPath( params.gtf, type : file )
   .ifEmpty { error "Cannot find any annotation files in: ${params.gtf}" }
   .set { gtf }
 
