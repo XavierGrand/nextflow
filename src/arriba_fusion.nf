@@ -108,13 +108,13 @@ else {
 }
 
 Channel
-  .fromPath( params.genome, type : file )
+  .fromPath( params.genome )
   .ifEmpty { error "Cannot find any fasta files in: ${params.genome}" }
   .map { it -> [it.simpleName, it]}
   .set { genome }
 
 Channel
-  .fromPath( params.gtf, type : file )
+  .fromPath( params.gtf )
   .ifEmpty { error "Cannot find any annotation files in: ${params.gtf}" }
   .set { gtf }
 
