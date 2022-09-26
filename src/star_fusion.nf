@@ -26,7 +26,7 @@ def helpMessage() {
 
     Mandatory arguments:
       --project [path]                Path to the project folder. Results are saved in this folder.
-      --fastq [path]                  Path to fastq folder.
+      --fastq [path]                  Path to the folder containing fastq files.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
 
@@ -58,7 +58,7 @@ if (params.help || params.h) {
 */
  
 project = params.project
-params.fastq = "${project}/fastq/*R{1,2}.fastq.gz"
+params.fastq = "$params.fastq/*R{1,2}.fastq.gz"
 
 /*
 if (params.genome)          { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
@@ -108,7 +108,5 @@ workflow {
   //######################## STAR FUSION ########################
 
   star_fusion(lib_folder, fastq_files)
-
-  //################ GRAPHICAL REPRESENTATIONS ##################
 
 }
