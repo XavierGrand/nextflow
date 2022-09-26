@@ -64,7 +64,6 @@ params.project = ""
 params.bam = ""
 params.genome = ""
 params.gtf = ""
-params.bam = ""
 params.fastq = ""
 
 /* Params out */
