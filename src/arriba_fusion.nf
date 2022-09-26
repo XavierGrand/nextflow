@@ -81,7 +81,7 @@ params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
 log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
 if(params.bam != "") {
-  log.info "bam files (--bam): ${bam}"
+  log.info "bam files (--bam): ${params.bam}"
 }
 else {
   log.info "fastq files (--fastq): ${params.fastq}"
