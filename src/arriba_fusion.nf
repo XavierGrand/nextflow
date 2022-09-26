@@ -116,6 +116,7 @@ Channel
 Channel
   .fromPath( params.gtf )
   .ifEmpty { error "Cannot find any annotation files in: ${params.gtf}" }
+  .map { it -> [it.simpleName, it]}
   .set { gtf }
 
 /*
