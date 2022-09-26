@@ -81,7 +81,8 @@ params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
 log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
 if(params.bam != "") {
-  log.info "bam files (--bam): ${params.bam}"
+  bam_list = "${params.bam}/*.bam"
+  log.info "bam files (--bam): ${bam_list}"
 }
 else {
   log.info "fastq files (--fastq): ${params.fastq}"
@@ -95,7 +96,7 @@ else {
 
 if(params.bam != "") {
     Channel
-        .fromPath( params.bam )
+        .fromPath( bam_list )
         .ifEmpty { error "Cannot find any bam files in: ${params.bam}" }
         .map { it -> [it.simpleName, it]}
         .set { bam_files }
