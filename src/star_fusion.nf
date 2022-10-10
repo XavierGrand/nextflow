@@ -25,7 +25,6 @@ def helpMessage() {
       nextflow ./src/star_fusion.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
-      --project [path]                Path to the project folder. Results are saved in this folder.
       --fastq [path]                  Path to fastq folder.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
@@ -56,13 +55,8 @@ if (params.help || params.h) {
                       Default Parameters
  ****************************************************************
 */
- 
-project = params.project
-params.fastq = "${project}/fastq/*R{1,2}.fastq.gz"
 
-/*
-if (params.genome)          { params.genome = path(params.genome, checkIfExists: true) } else { exit 1, "No genome specified." }
-*/
+fastq = "${params.fastq}/*R{1,2}.fastq.gz"
 
 /* Params out */
 params.star_fusion_out = "$params.project/predicted_fusion/"
@@ -107,7 +101,7 @@ workflow {
 
   //######################## STAR FUSION ########################
 
-  star_fusion(lib_folder, fastq_files)
+  star_fusion(lib_folder.collect(), fastq_files)
 
   //################ GRAPHICAL REPRESENTATIONS ##################
 
