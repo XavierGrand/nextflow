@@ -174,14 +174,9 @@ sammod = './nf_modules/samtools/main.nf'
 
 include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp', 
                                                    fastp: "${params_fastp}" )
-if (params.paired_end) {
-    include { bam_to_fastq_pairedend as bam_to_fastq} from  bedt_mod addParams(bam_to_fastq_pairedend_out: '05_bam_to_fastq_out')
-    include { sort_bam as sort_bam_pe } from sammod addParams(sort_bam_out: '05_bam_sortname', sort_bam: "-n" )
-} else {
-    include { bam_to_fastq_singleend as bam_to_fastq} from  bedt_mod addParams(bam_to_fastq_singleend_out: '05_bam_to_fastq_out')
-}
 include { genome_mapping; index_fasta } from hisat2_mod addParams(folder: '06_mapping')
 include { sort_bam } from sammod addParams(sort_bam_out: '07_sort_bam' )
+include { stats_bam } from sammod addParams(stats_bam_out: "07_bam_stats")
 include { index_bam } from sammod addParams(index_bam_out: '08_index_bam' )
 include { htseq_count } from htseq_mod addParams(htseq_out: '09_htseq_count', htseq_param: "${params.htseq_param}" )
 
@@ -189,7 +184,6 @@ include { htseq_count } from htseq_mod addParams(htseq_out: '09_htseq_count', ht
 include { fastqc_fastq as fastqc1} from fastqc_mod addParams(fastqc_fastq_out: '01_fastqc')
 include { fastqc_fastq as fastqc2} from fastqc_mod addParams(fastqc_fastq_out: '03_fastqc_trimmed')
 include { fastqc_fastq as fastqc3} from fastqc_mod addParams(fastqc_fastq_out: '04_fastqc_nospikein')
-include { fastqc_fastq as fastqc_aligned } from fastqc_mod addParams(fastqc_fastq_out: '06_fastqc_aligned')
 include { fastqc_fastq as fastqc_unaligned} from fastqc_mod addParams(fastqc_fastq_out: '06_fastqc_unaligned')
 include { multiqc_default } from multiqc_mod addParams(multiqc: '--interactive', multiqc_out: "06_multiqc")
 
@@ -277,13 +271,8 @@ workflow {
             .set { fastqc_spikein_report }
     }
     genome_mapping(fastq_mapping, index_file.collect())
-    if (!params.paired_end) {
-            bam_to_fastq(genome_mapping.out.aligned)
-    } else {
-            sort_bam_pe(genome_mapping.out.aligned)
-            bam_to_fastq(sort_bam_pe.out.bam)
-    }
     sort_bam(genome_mapping.out.aligned)
+    stats_bam(sort_bam.out.bam)
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
 
@@ -291,11 +280,10 @@ workflow {
     fastqc1(fastq_files)
     fastqc2(fastp_default.out.fastq)
     fastqc_unaligned(genome_mapping.out.unaligned)
-    fastqc_aligned(bam_to_fastq.out.fastq)
 
     // multiqc
     res = merge_channels(fastqc1.out.report, fastqc2.out.report, fastqc_unaligned.out.report,
-                         fastqc_aligned.out.report, fastqc_spikein_report, fastp_default.out.report,
+                         stats_bam.out.tsv, fastqc_spikein_report, fastp_default.out.report,
                          genome_mapping.out.report)
     multiqc_default(res)
 }

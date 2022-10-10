@@ -115,7 +115,7 @@ params.hisat2 = ""
 params.notaligned_name = "notaligned"
 process genome_mapping {
   tag "$file_id"
-  label "multi_thread"
+  label "big_mem_multi_cpus"
   container = "${container_url}"
   publishDir "results/${params.folder}", mode: 'copy'
 

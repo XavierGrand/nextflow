@@ -25,7 +25,6 @@ def helpMessage() {
       nextflow ./src/arriba_fusion.nf -c ./src/nextflow.config -profile singularity
 
     Mandatory arguments:
-      --project [path]                Path to the project folder. Results are saved in this folder.
       -profile [str]                  Configuration profile to use.
                                       Available: docker, singularity, podman, psmn, ccin2p3
     
@@ -60,18 +59,17 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
-params.project = ""
-params.bam_folder = ""
+params.bam = ""
 params.genome = ""
 params.gtf = ""
-params.bam = ""
 params.fastq = ""
 
 /* Params out */
-params.fastp_out = "$params.project/fastp/"
-params.index_fasta_out = "$params.project/Indexed_genome/"
-params.sort_bam_out = "$params.project/Bam_filtered_sorted/"
-params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
+params.fastp_out = "Arriba_fastp/"
+params.index_fasta_out = "Arriba_Indexed_genome/"
+params.sort_bam_out = "Arriba_Bam_filtered_sorted/"
+params.index_bam_out = "Arriba_Bam_filt_sort_indexed/"
+params.arriba_out = "Arriba_Arriba_results/"
 
 /*
  ****************************************************************
@@ -81,8 +79,9 @@ params.index_bam_out = "$params.project/Bam_filt_sort_indexed/"
 
 log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
-if(params.bam_folder != "") {
-  log.info "bam files (--bam): ${bam}"
+if(params.bam != "") {
+  bam_list = "${params.bam}/*.bam"
+  log.info "bam files (--bam): ${bam_list}"
 }
 else {
   log.info "fastq files (--fastq): ${params.fastq}"
@@ -94,9 +93,9 @@ else {
  ****************************************************************
 */
 
-if(params.bam_folder != "") {
+if(params.bam != "") {
     Channel
-        .fromPath( params.bam )
+        .fromPath( bam_list )
         .ifEmpty { error "Cannot find any bam files in: ${params.bam}" }
         .map { it -> [it.simpleName, it]}
         .set { bam_files }
@@ -116,6 +115,7 @@ Channel
 Channel
   .fromPath( params.gtf )
   .ifEmpty { error "Cannot find any annotation files in: ${params.gtf}" }
+  .map { it -> [it.simpleName, it]}
   .set { gtf }
 
 /*

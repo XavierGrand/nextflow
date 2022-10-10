@@ -59,7 +59,7 @@ if (params.help || params.h) {
 fastq = "${params.fastq}/*R{1,2}.fastq.gz"
 
 /* Params out */
-params.star_fusion_out = "$params.project/predicted_fusion/"
+params.star_fusion_out = "predicted_fusion/"
 
 /*
  ****************************************************************
@@ -102,7 +102,5 @@ workflow {
   //######################## STAR FUSION ########################
 
   star_fusion(lib_folder.collect(), fastq_files)
-
-  //################ GRAPHICAL REPRESENTATIONS ##################
 
 }
