@@ -116,5 +116,5 @@ include { rtranger } from "./nf_modules/rtranger/main.nf"
 */
 
 workflow {
-    rtranger(gtf_file)
+  rtranger(gtf_file)
 }
