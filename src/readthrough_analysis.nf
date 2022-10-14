@@ -23,7 +23,7 @@ def helpMessage() {
     Pipeline dedicated to readthrough analysis of short-reads paired-ends RNAseq.
     The typical command for running the pipeline is as follows:
 
-      nextflow ./src/Readthrough_analysis.nf -c ./src/nextflow.config -profile singularity
+      nextflow ./src/readthrough_analysis.nf -c ./src/nextflow.config -profile singularity
 
     Configuration argument:
       -profile [str]                  Configuration profile to use.
@@ -61,8 +61,13 @@ if (params.help || params.h) {
                       Default Parameters
  ****************************************************************
 */
- 
-params.fastp_out = "fastp/"
+
+// params.fastq = "${params.fastq}/*{1,2}.fastq.gz"
+params.gtf = ""
+params.fasta = ""
+// params.rt_length = 10000
+
+params.rtranger_out = "05_rtranger/"
 
 /*
  ****************************************************************
@@ -70,9 +75,8 @@ params.fastp_out = "fastp/"
  ****************************************************************
 */
 
-log.info "Annotation: ${params.gtf}"
-log.info "Genome fasta file: ${params.fasta}"
-log.info "Genome index location: ${params.idx}"
+log.info "Genome gtf file: ${params.gtf}"
+// log.info "Genome fasta file: ${params.fasta}"
 
 /*
  ****************************************************************
@@ -84,11 +88,11 @@ log.info "Genome index location: ${params.idx}"
 Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
+*/
 
 Channel
   .fromPath( params.gtf )
   .set { gtf_file }
-*/
 
 /*
  ****************************************************************
@@ -96,11 +100,14 @@ Channel
  ****************************************************************
 */
 
+/*
 fastqc_mod = "./nf_modules/fastqc/main.nf"
 include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "01_fastqc_raw/")
 include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "02_fastqc_preprocessed/")
-include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "QC/")
-include { fastp } from "./nf_modules/fastp/main.nf"
+include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "03_MultiQC/")
+include { fastp } from "./nf_modules/fastp/main.nf" addParams(params.fastp_out = "04_fastp/")
+*/
+include { rtranger } from "./nf_modules/rtranger/main.nf"
 
 /*
  ****************************************************************
@@ -109,5 +116,5 @@ include { fastp } from "./nf_modules/fastp/main.nf"
 */
 
 workflow {
-
+    rtranger(gtf_file)
 }

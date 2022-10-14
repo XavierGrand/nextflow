@@ -1,21 +1,22 @@
 version = "1.0"
 container_url = "xgrand/rtranger:${version}"
 
-process porechop {
+params.rt_length=10000
+process rtranger {
     container = "${container_url}"
     label "big_mem_mono_cpus"
-    tag "$file_id"
+    tag "rt range computation"
     if (params.rtranger_out != "") {
     publishDir "results/${params.rtranger_out}", mode: 'copy'
   }
 
   input:
-    tuple val(file_id), path(gtf)
+    path(gtf)
 
   output:
-    tuple val(file_id), path("*.bed"), emit: bed
+    path("*.bed"), emit: bed
   script:
 """
-rtranger.py --gtf ${gtf} --output . --length ${rt_length}
+rtranger.py --gtf ${gtf} --output . --length ${params.rt_length}
 """
 }
