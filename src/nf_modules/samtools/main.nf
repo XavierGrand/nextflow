@@ -185,6 +185,7 @@ samtools sort -@ ${task.cpus} ${params.sort_bam} -O BAM -o ${bam.simpleName}_sor
 
 params.split_bam = ""
 params.split_bam_out = ""
+params.flag_value = "0x10"
 process split_bam {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -202,9 +203,9 @@ process split_bam {
   script:
 """
 samtools view -@ ${Math.round(task.cpus/2)} ${params.split_bam} \
-  -hb -F 0x10 ${bam} > ${bam.simpleName}_forward.bam &
+  -hb -F ${flag_value} ${bam} > ${bam.simpleName}_forward.bam &
 samtools view -@ ${Math.round(task.cpus/2)} ${params.split_bam} \
-  -hb -f 0x10 ${bam} > ${bam.simpleName}_reverse.bam
+  -hb -f ${flag_value} ${bam} > ${bam.simpleName}_reverse.bam
 """
 }
 
@@ -311,5 +312,32 @@ process idxstat_2_multiqc {
     tuple val(file_id), path("*.txt"), emit: report
 """
 mv ${tsv} ${tsv.simpleName}.idxstats.txt
+"""
+}
+
+params.split_rt_bam = ""
+params.split_rt_bam_out = ""
+params.flag_fwd = '"99","147"'
+params.flag_rev = '"83","163"'
+process split_rt_bam {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  tag "$file_id"
+  if (params.split_bam_out != "") {
+    publishDir "results/${params.split_bam_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(file_id), path(bam)
+
+  output:
+    tuple val(file_id), path("*_forward.bam*"), emit: bam_forward
+    tuple val(file_id), path("*_reverse.bam*"), emit: bam_reverse
+  script:
+"""
+samtools view -@ ${Math.round(task.cpus/2)} ${params.split_bam} \
+  -hb -F ${flag_fwd} ${bam} > ${bam.simpleName}_forward.bam &
+samtools view -@ ${Math.round(task.cpus/2)} ${params.split_bam} \
+  -hb -F ${flag_rev} ${bam} > ${bam.simpleName}_reverse.bam
 """
 }

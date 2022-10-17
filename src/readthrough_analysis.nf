@@ -30,7 +30,8 @@ def helpMessage() {
                                       Available: docker, singularity, podman, psmn, ccin2p3
 
     Samples:
-      -fastq [path]                   Path to fastq folder.
+      --fastq [path]                  Path to fastq folder.
+      --bam [path]                    Path to bam folder.
 
     References:
       --fasta [path]                  Path to genome fasta file.
@@ -62,12 +63,14 @@ if (params.help || params.h) {
  ****************************************************************
 */
 
-// params.fastq = "${params.fastq}/*{1,2}.fastq.gz"
+// params.fastq = "*{1,2}.fastq"
+params.bam = "data/*.bam"
 params.gtf = ""
 params.fasta = ""
 // params.rt_length = 10000
 
 params.rtranger_out = "05_rtranger/"
+params.split_rt_bam_out = "06_splited_bam/"
 
 /*
  ****************************************************************
@@ -76,7 +79,8 @@ params.rtranger_out = "05_rtranger/"
 */
 
 log.info "Genome gtf file: ${params.gtf}"
-// log.info "Genome fasta file: ${params.fasta}"
+log.info "Genome fasta file: ${params.fasta}"
+log.info "Bam files: ${params.bam}"
 
 /*
  ****************************************************************
@@ -85,13 +89,22 @@ log.info "Genome gtf file: ${params.gtf}"
 */
 
 /*
-Channel
+if (params.fastq != "") {
+  Channel
   .fromFilePairs( params.fastq, size: -1 )
   .set { fastq_files }
+}
 */
 
 Channel
+  .fromPath( params.bam )
+  .ifEmpty { error "Cannot find any bam files matching: ${params.bam}" }
+  .map( it -> [it.baseName, it])
+  .set( bam_files )
+
+Channel
   .fromPath( params.gtf )
+  .ifEmpty { error "Cannot find any gtf files matching: ${params.gtf}" }
   .set { gtf_file }
 
 /*
@@ -108,6 +121,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "
 include { fastp } from "./nf_modules/fastp/main.nf" addParams(params.fastp_out = "04_fastp/")
 */
 include { rtranger } from "./nf_modules/rtranger/main.nf"
+include { split_rt_bam } from "./nf_modules/samtools/main.nf"
 
 /*
  ****************************************************************
