@@ -14,9 +14,11 @@ process rtranger {
     path(gtf)
 
   output:
+    path("readthrough_range.tsv"), emit: rtrange_tsv
+    path("first_last_exons.tsv"), emit: fl_exon_tsv
     path("*.bed"), emit: bed
   script:
 """
-python3 rtranger.py --gtf ${gtf} --output . --length ${params.rt_length}
+python3 /app/rtranger.py --gtf ${gtf} --output . --length ${params.rt_length}
 """
 }
