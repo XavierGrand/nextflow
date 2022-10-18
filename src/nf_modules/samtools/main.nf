@@ -317,14 +317,14 @@ mv ${tsv} ${tsv.simpleName}.idxstats.txt
 
 params.split_rt_bam = ""
 params.split_rt_bam_out = ""
-params.flag_fwd = '"99","147"'
-params.flag_rev = '"83","163"'
+params.flag_fwd = "99,147"
+params.flag_rev = "83,163"
 process split_rt_bam {
   container = "${container_url}"
   label "big_mem_multi_cpus"
   tag "$file_id"
-  if (params.split_bam_out != "") {
-    publishDir "results/${params.split_bam_out}", mode: 'copy'
+  if (params.split_rt_bam_out != "") {
+    publishDir "results/${params.split_rt_bam_out}", mode: 'copy'
   }
 
   input:
@@ -333,11 +333,12 @@ process split_rt_bam {
   output:
     tuple val(file_id), path("*_forward.bam*"), emit: bam_forward
     tuple val(file_id), path("*_reverse.bam*"), emit: bam_reverse
+
   script:
 """
-samtools view -@ ${Math.round(task.cpus/2)} ${params.split_bam} \
-  -hb -F ${flag_fwd} ${bam} > ${bam.simpleName}_forward.bam &
-samtools view -@ ${Math.round(task.cpus/2)} ${params.split_bam} \
-  -hb -F ${flag_rev} ${bam} > ${bam.simpleName}_reverse.bam
+samtools view -@ ${Math.round(task.cpus/2)} ${params.split_rt_bam} \
+  -hb -F${params.flag_fwd} ${bam} > ${bam.simpleName}_forward.bam &
+samtools view -@ ${Math.round(task.cpus/2)} ${params.split_rt_bam} \
+  -hb -F${params.flag_rev} ${bam} > ${bam.simpleName}_reverse.bam
 """
 }

@@ -67,7 +67,8 @@ if (params.help || params.h) {
 params.bam = "data/*.bam"
 params.gtf = ""
 params.fasta = ""
-// params.rt_length = 10000
+params.flag_fwd = "99,147"
+params.flag_rev = "83,163"
 
 params.rtranger_out = "05_rtranger/"
 params.split_rt_bam_out = "06_splited_bam/"
@@ -78,9 +79,11 @@ params.split_rt_bam_out = "06_splited_bam/"
  ****************************************************************
 */
 
-log.info "Genome gtf file: ${params.gtf}"
-log.info "Genome fasta file: ${params.fasta}"
+// log.info "Genome gtf file: ${params.gtf}"
+// log.info "Genome fasta file: ${params.fasta}"
 log.info "Bam files: ${params.bam}"
+log.info "FLAG value for Forward read pairs: ${params.flag_fwd}"
+log.info "FLAG value for Reverse read pairs: ${params.flag_rev}"
 
 /*
  ****************************************************************
@@ -98,9 +101,9 @@ if (params.fastq != "") {
 
 Channel
   .fromPath( params.bam )
-  .ifEmpty { error "Cannot find any bam files matching: ${params.bam}" }
+  .ifEmpty { error "Cannot find any genome files matching: ${params.bam}" }
   .map( it -> [it.baseName, it])
-  .set( bam_files )
+  .set { bam_input }
 
 Channel
   .fromPath( params.gtf )
@@ -131,4 +134,5 @@ include { split_rt_bam } from "./nf_modules/samtools/main.nf"
 
 workflow {
   rtranger(gtf_file)
+  split_rt_bam(bam_input)
 }
