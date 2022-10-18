@@ -121,10 +121,12 @@ fastqc_mod = "./nf_modules/fastqc/main.nf"
 include { fastqc_fastq as fastqc_raw } from fastqc_mod addParams(fastqc_fastq_out: "01_fastqc_raw/")
 include { fastqc_fastq as fastqc_preprocessed } from fastqc_mod addParams(fastqc_fastq_out: "02_fastqc_preprocessed/")
 include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "03_MultiQC/")
-include { fastp } from "./nf_modules/fastp/main.nf" addParams(params.fastp_out = "04_fastp/")
+include { fastp } from "./nf_modules/fastp/main.nf" addParams(fastp_out = "04_fastp/")
 */
 include { rtranger } from "./nf_modules/rtranger/main.nf"
 include { split_rt_bam } from "./nf_modules/samtools/main.nf"
+include { index_bam as index_bam_fwd } from "./nf_modules/samtools/main.nf" addParams(index_bam_out: "06_splited_bam/")
+include { index_bam as index_bam_rev } from "./nf_modules/samtools/main.nf" addParams(index_bam_out: "06_splited_bam/")
 
 /*
  ****************************************************************
@@ -135,4 +137,7 @@ include { split_rt_bam } from "./nf_modules/samtools/main.nf"
 workflow {
   rtranger(gtf_file)
   split_rt_bam(bam_input)
+  index_bam_fwd(split_rt_bam.out.bam_forward)
+  index_bam_rev(split_rt_bam.out.bam_reverse)
+
 }

@@ -331,14 +331,14 @@ process split_rt_bam {
     tuple val(file_id), path(bam)
 
   output:
-    tuple val(file_id), path("*_forward.bam*"), emit: bam_forward
-    tuple val(file_id), path("*_reverse.bam*"), emit: bam_reverse
+    tuple val(file_id), path("*_forward.bam"), emit: bam_forward
+    tuple val(file_id), path("*_reverse.bam"), emit: bam_reverse
 
   script:
 """
 samtools view -@ ${Math.round(task.cpus/2)} ${params.split_rt_bam} \
-  -hb -F${params.flag_fwd} ${bam} > ${bam.simpleName}_forward.bam &
+  -hb -f ${params.flag_fwd} ${bam} > ${bam.simpleName}_forward.bam &
 samtools view -@ ${Math.round(task.cpus/2)} ${params.split_rt_bam} \
-  -hb -F${params.flag_rev} ${bam} > ${bam.simpleName}_reverse.bam
+  -hb -f ${params.flag_rev} ${bam} > ${bam.simpleName}_reverse.bam
 """
 }
