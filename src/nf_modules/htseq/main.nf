@@ -24,7 +24,7 @@ gffread ${gff3_file} -T -o ${genome_id}.gtf
 params.htseq_param = "yes"
 process htseq_count {
     container = "${container_url}"
-    label "big_mem_multi_cpus"
+    label "big_mem_mono_cpus"
     tag "file_id: $file_id"
     if (params.htseq_out != "") {
         publishDir "results/${params.htseq_out}", mode: 'copy'
@@ -38,7 +38,7 @@ process htseq_count {
 
   script:
 """
-htseq-count -n ${task.cpus} -r pos -a 10 -s ${params.htseq_param} -t exon -i gene_id $bam $gtf > ${file_id}.tsv
+htseq-count -r pos -a 10 -s ${params.htseq_param} -t exon -i gene_id $bam $gtf > ${file_id}.tsv
 """
 }
 
