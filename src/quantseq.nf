@@ -233,7 +233,7 @@ workflow spikein_analysis {
             bam_to_fastq_spike(genome_mapping_spike.out.aligned)
         } else {
             sort_bam_pe_spike(genome_mapping_spike.out.aligned)
-            bam_to_fastq_spike(sort_bam_spike.out.bam)
+            bam_to_fastq_spike(sort_bam_pe_spike.out.bam)
         }
         sort_bam_spike(genome_mapping_spike.out.aligned)
         index_bam_spike(sort_bam_spike.out.bam)
