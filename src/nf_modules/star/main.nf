@@ -151,3 +151,56 @@ STAR --runThreadN ${task.cpus} \
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
 }
+
+
+process mapping2fusion {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  if (params.star_mapping2fusion_fastq_out != "") {
+    publishDir "results/${params.star_mapping2fusion_fastq_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(index_id), path(index)
+    tuple val(reads_id), path(reads) 
+
+  output:
+    path "*.Log.final.out", emit: report
+    tuple val(reads_id), path("*.bam"), emit: bam
+
+  script:
+if (reads_id instanceof List){
+    file_prefix = reads_id[0]
+  } else {
+    file_prefix = reads_id
+  }
+
+"""
+mkdir -p index
+mv ${index} index/
+STAR --runThreadN ${task.cpus} \
+--genomeDir index/ \
+--readFilesCommand zcat \
+--readFilesIn ${reads[0]} ${reads[1]} \
+--outFileNamePrefix ${reads_id}. \
+--chimSegmentMin 12 \
+--chimJunctionOverhangMin 8 \
+--chimOutJunctionFormat 1 \
+--alignSJDBoverhangMin 10 \
+--alignMatesGapMax 100000 \
+--alignIntronMax 100000 \
+--alignSJstitchMismatchNmax 5 -1 5 5 \
+--outSAMattrRGline ID:GRPundef \
+--chimMultimapScoreRange 3 \
+--chimScoreJunctionNonGTAG -4 \
+--chimMultimapNmax 20 \
+--chimNonchimScoreDropMin 10 \
+--peOverlapNbasesMin 12 \
+--peOverlapMMp 0.1 \
+--alignInsertionFlush Right \
+--alignSplicedMateMapLminOverLmate 0 \
+--alignSplicedMateMapLmin 30
+
+mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
+"""
+}

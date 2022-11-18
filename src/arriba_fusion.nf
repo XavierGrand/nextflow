@@ -29,12 +29,22 @@ def helpMessage() {
                                       Available: docker, singularity, podman, psmn, ccin2p3
     
     Input:
-      --fastq [path]                  Path to fastq files.
-      --bam [path]                    Path to the bam files.
+      --fastq [path]                  Path to fastq folder.
+      --bam [path]                    Path to the bam folder (indexed and sorted).
 
     References:                       Can be downloaded with download_references.sh (not implemented in pipeline).
       --genome [path]                 Path to genome reference fasta file.
+      --index [path]                  Path to STAR-indexed genome folder.
       --gtf [path]                    Path to genome annotation gtf file.
+
+    Optionnal:
+      --arriba_options [str]          Tunable options for arriba, among: [-c Chimeric.out.sam] [-b blacklists.tsv] 
+                                      [-k known_fusions.tsv] [-d structural_variants_from_WGS.tsv] [-t tags.tsv] 
+                                      [-p protein_domains.gff3] [OPTIONS]
+                                      Options have to be given between quotes, i.e.: 
+                                      --arriba_options "-c Chimeric.out.sam -b blacklists.tsv"
+                                      Except: -x Aligned.out.sam -g annotation.gtf -a assembly.fa -o fusions.tsv 
+                                      -O fusions.discarded.tsv
 
     Help:                             Display this help message.
       --help
@@ -65,11 +75,12 @@ params.gtf = ""
 params.fastq = ""
 
 /* Params out */
-params.fastp_out = "Arriba_fastp/"
-params.index_fasta_out = "Arriba_Indexed_genome/"
-params.sort_bam_out = "Arriba_Bam_filtered_sorted/"
-params.index_bam_out = "Arriba_Bam_filt_sort_indexed/"
-params.arriba_out = "Arriba_Arriba_results/"
+params.fastp_out = "02_fastp"
+params.index_fasta_out = "04_Indexed_genome"
+params.star_mapping2fusion_fastq_out = "06_mapping2fusion"
+params.sort_bam_out = "07_sort_bam"
+params.index_bam_out = "08_index_bam"
+params.arriba_out = "09_Arriba_results"
 
 /*
  ****************************************************************
@@ -80,10 +91,11 @@ params.arriba_out = "Arriba_Arriba_results/"
 log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
 if(params.bam != "") {
-  bam_list = "${params.bam}/*.bam"
+  bam_list = "${params.bam}/*_aligned_sorted.bam"
   log.info "bam files (--bam): ${bam_list}"
 }
 else {
+  fastq_list = "${params.fastq}/*_{1,2}.fastq"
   log.info "fastq files (--fastq): ${params.fastq}"
 }
 
@@ -125,11 +137,11 @@ Channel
 */
 
 include { fastp } from './nf_modules/fastp/main.nf'
-include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: "$params.project/01_fastqc_raw/")
-include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: "$params.project/02_fastqc_preprocessed/")
-include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: "$params.project/QC/")
-include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf' addParams(star_mapping_fastq_out: "$params.project/STAR_index/")
-include { mapping_fastq_withChimeric } from './nf_modules/star/main_2.7.8a.nf' addParams(star_mapping_fastq_out: "$params.project/STAR/")
+include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf'
+include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf'
+include { multiqc } from './nf_modules/multiqc/main.nf'
+include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
+include { mapping_fastq_withChimeric } from './nf_modules/star/main_2.7.8a.nf'
 include { arriba } from "./nf_modules/arriba/main.nf"
 
 /*
