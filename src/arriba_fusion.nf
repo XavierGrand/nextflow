@@ -69,10 +69,10 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
+params.fastq = ""
 params.bam = ""
 params.genome = ""
 params.gtf = ""
-params.fastq = ""
 
 /* Params out */
 params.fastp_out = "02_fastp"
@@ -92,11 +92,11 @@ log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
 if(params.bam) {
   bam_list = "${params.bam}/*_aligned_sorted.bam"
-  log.info "bam files (--bam): ${bam_list}"
+  log.info "Loaded bam files (--bam): ${bam_list}"
 }
 else {
   fastq_list = "${params.fastq}/*_{R1,R2}.fastq.gz"
-  log.info "fastq files (--fastq): ${fastq_list}"
+  log.info "Loaded fastq files (--fastq): ${fastq_list}"
 }
 
 /*
