@@ -120,7 +120,7 @@ Channel
 if(params.bam) {
     Channel
         .fromPath( bam_list )
-        .ifEmpty { error "Cannot find any bam files in: ${params.bam}" }
+        .ifEmpty { error "Cannot find any bam files matching: ${params.bam_file}" }
         .map { it -> [it.simpleName, it]}
         .set { bam_files }
 }

@@ -32,6 +32,10 @@ RUN cpanm Carp::Assert
 RUN cpanm JSON::XS
 RUN cpanm PerlIO::gzip
 
+# make dir
+RUN mkdir /Xnfs
+RUN mkdir /scratch
+
 # download and install star aligner dependency
 WORKDIR /usr/local/bin/
 RUN curl -SL https://github.com/alexdobin/STAR/archive/${star_version}.tar.gz \
