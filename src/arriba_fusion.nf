@@ -76,7 +76,7 @@ params.fastq = ""
 
 /* Params out */
 params.fastp_out = "02_fastp"
-params.index_fasta_out = "04_Indexed_genome"
+params.star_index_out = "04_Indexed_genome"
 params.star_mapping2fusion_fastq_out = "06_mapping2fusion"
 params.sort_bam_out = "07_sort_bam"
 params.index_bam_out = "08_index_bam"
@@ -90,13 +90,13 @@ params.arriba_out = "09_Arriba_results"
 
 log.info "Reference genome : ${params.genome}"
 log.info "Genome annotation : ${params.gtf}"
-if(params.bam != "") {
+if(params.bam) {
   bam_list = "${params.bam}/*_aligned_sorted.bam"
   log.info "bam files (--bam): ${bam_list}"
 }
 else {
-  fastq_list = "${params.fastq}/*_{1,2}.fastq"
-  log.info "fastq files (--fastq): ${params.fastq}"
+  fastq_list = "${params.fastq}/*_{R1,R2}.fastq.gz"
+  log.info "fastq files (--fastq): ${fastq_list}"
 }
 
 /*
@@ -105,7 +105,19 @@ else {
  ****************************************************************
 */
 
-if(params.bam != "") {
+Channel
+  .fromPath( params.genome )
+  .ifEmpty { error "Cannot find any genome files matching: ${params.genome}" }
+  .map( it -> [it.baseName, it])
+  .set { genome_file }
+
+Channel
+    .fromPath( params.gtf )
+    .ifEmpty { error "Cannot find any gtf files matching: ${params.gtf}" }
+    .map( it -> [it.baseName, it])
+    .set { gtf_file }
+
+if(params.bam) {
     Channel
         .fromPath( bam_list )
         .ifEmpty { error "Cannot find any bam files in: ${params.bam}" }
@@ -114,21 +126,9 @@ if(params.bam != "") {
 }
 else {
     Channel
-        .fromFilePairs( params.fastq, size: -1)
+        .fromFilePairs( fastq_list, size: -1)
         .set { fastq_files }
 }
-
-Channel
-  .fromPath( params.genome )
-  .ifEmpty { error "Cannot find any fasta files in: ${params.genome}" }
-  .map { it -> [it.simpleName, it]}
-  .set { genome }
-
-Channel
-  .fromPath( params.gtf )
-  .ifEmpty { error "Cannot find any annotation files in: ${params.gtf}" }
-  .map { it -> [it.simpleName, it]}
-  .set { gtf }
 
 /*
  ****************************************************************
@@ -141,7 +141,7 @@ include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf'
 include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf'
 include { multiqc } from './nf_modules/multiqc/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
-include { mapping_fastq_withChimeric } from './nf_modules/star/main_2.7.8a.nf'
+include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
 include { arriba } from "./nf_modules/arriba/main.nf"
 
 /*
@@ -152,21 +152,21 @@ include { arriba } from "./nf_modules/arriba/main.nf"
 
 workflow {
 
-  if(params.bam == ""){
+  if(params.fastq != ""){
     fastp(fastq_files)
-    // fastqc_raw(fastq_files.collect())
-    // fastqc_preprocessed(fastp_out.fastq.collect())
-    // multiqc(fastqc_raw_out.report)
-    // .mix(
-    //   fastqc_preprocessed.out.report
-    //   ).collect()
-    index_with_gtf(genome, gtf)
-    // mapping_fastq_withChimeric(index_fasta_out.index, fastp_out.fastq)
-    // filter_bam_quality(mapping_fastq_withChimeric_out.bam)
-    // arriba()
+    fastqc_raw(fastq_files.collect())
+    fastqc_preprocessed(fastp.out.fastq.collect())
+    /* multiqc(fastqc_raw.out.report)
+     .mix(
+       fastqc_preprocessed.out.report
+       ).collect()
+    */
+    index_with_gtf(genome_file, gtf_file)
+    mapping2fusion(index_with_gtf.out.index, fastp.out.fastq)
+    filter_bam_quality(mapping2fusion.out.bam)
+    arriba(filter_bam_quality.out.bam, gtf_file, genome_file)
   }
   else {
-    arriba(bam_files, gtf, genome)
+    arriba(bam_files, gtf_file, genome_file)
   }
-
 }

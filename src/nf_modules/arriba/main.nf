@@ -6,7 +6,7 @@ params.arriba_options = "-f blacklist"
 process arriba{
   container = "${container_url}"
   label "big_mem_multi_cpus"
-  tag "${file_id}"
+  tag "${bam_id}"
   if (params.arriba_out != "") {
     publishDir "results/${params.arriba_out}", mode: 'copy'
   }

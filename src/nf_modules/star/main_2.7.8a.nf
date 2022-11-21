@@ -234,3 +234,87 @@ STAR --runThreadN ${task.cpus} \
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
 }
+
+process mapping2fusion {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  if (params.star_mapping2fusion_out != "") {
+    publishDir "results/${params.star_mapping2fusion_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(index_id), path(index)
+    tuple val(reads_id), path(reads) 
+
+  output:
+    path "*.Log.final.out", emit: report
+    tuple val(reads_id), path("*.bam"), emit: bam
+
+  script:
+if (reads_id instanceof List){
+    file_prefix = reads_id[0]
+  } else {
+    file_prefix = reads_id
+  }
+
+if (reads.size() == 2)
+"""
+mkdir -p index
+mv ${index} index/
+STAR --runThreadN ${task.cpus} \
+--genomeDir index/ \
+--readFilesCommand zcat \
+--readFilesIn ${reads[0]} ${reads[1]} \
+--outFileNamePrefix ${reads_id}. \
+--alignIntronMax 10000 \
+--outSAMtype BAM SortedByCoordinate \
+--outSAMstrandField intronMotif \
+--chimOutType WithinBAM HardClip
+--outStd BAM_SortedByCoordinate \
+--outSAMunmapped Within \
+--outBAMcompression 0 \
+--outFilterMultimapNmax 50 \
+--peOverlapNbasesMin 10 \
+--alignSplicedMateMapLminOverLmate 0.5 \
+--alignSJstitchMismatchNmax 5 -1 5 5 \
+--chimSegmentMin 10 \
+--chimJunctionOverhangMin 10 
+--chimScoreDropMax 30 \
+--chimScoreJunctionNonGTAG 0 \
+--chimScoreSeparation 1 \
+--chimSegmentReadGapMax 3 \
+--chimMultimapNmax 50
+
+mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
+"""
+else
+"""
+mkdir -p index
+mv ${index} index/
+STAR --runThreadN ${task.cpus} \
+--genomeDir index/ \
+--readFilesCommand zcat \
+--readFilesIn ${reads} \
+--outFileNamePrefix ${reads_id}. \
+--alignIntronMax 10000 \
+--outSAMtype BAM SortedByCoordinate \
+--outSAMstrandField intronMotif \
+--chimOutType WithinBAM HardClip
+--outStd BAM_SortedByCoordinate \
+--outSAMunmapped Within \
+--outBAMcompression 0 \
+--outFilterMultimapNmax 50 \
+--peOverlapNbasesMin 10 \
+--alignSplicedMateMapLminOverLmate 0.5 \
+--alignSJstitchMismatchNmax 5 -1 5 5 \
+--chimSegmentMin 10 \
+--chimJunctionOverhangMin 10 
+--chimScoreDropMax 30 \
+--chimScoreJunctionNonGTAG 0 \
+--chimScoreSeparation 1 \
+--chimSegmentReadGapMax 3 \
+--chimMultimapNmax 50
+
+mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
+"""
+}
