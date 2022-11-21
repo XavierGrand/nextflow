@@ -95,7 +95,7 @@ if(params.bam) {
   log.info "Loaded bam files (--bam): ${bam_list}"
 }
 else {
-  fastq_list = "${params.fastq}/*_{R1,R2}.fastq.gz"
+  fastq_list = "${params.fastq}/*_{R1,R2}.fastq"
   log.info "Loaded fastq files (--fastq): ${fastq_list}"
 }
 
