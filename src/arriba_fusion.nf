@@ -77,7 +77,7 @@ params.gtf = ""
 /* Params out */
 params.fastp_out = "02_fastp"
 params.star_index_out = "04_Indexed_genome"
-params.star_mapping2fusion_fastq_out = "06_mapping2fusion"
+params.star_mapping2fusion_out = "06_mapping2fusion"
 params.sort_bam_out = "07_sort_bam"
 params.index_bam_out = "08_index_bam"
 params.arriba_out = "09_Arriba_results"
@@ -95,7 +95,7 @@ if(params.bam) {
   log.info "Loaded bam files (--bam): ${bam_list}"
 }
 else {
-  fastq_list = "${params.fastq}/*_{R1,R2}.fastq"
+  fastq_list = "${params.fastq}"
   log.info "Loaded fastq files (--fastq): ${fastq_list}"
 }
 
@@ -113,8 +113,6 @@ Channel
 
 Channel
     .fromPath( params.gtf )
-    .ifEmpty { error "Cannot find any gtf files matching: ${params.gtf}" }
-    .map( it -> [it.baseName, it])
     .set { gtf_file }
 
 if(params.bam) {
@@ -140,6 +138,7 @@ include { fastp } from './nf_modules/fastp/main.nf'
 include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf'
 include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf'
 include { multiqc } from './nf_modules/multiqc/main.nf'
+include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
 include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
 include { arriba } from "./nf_modules/arriba/main.nf"
@@ -154,8 +153,8 @@ workflow {
 
   if(params.fastq != ""){
     fastp(fastq_files)
-    fastqc_raw(fastq_files.collect())
-    fastqc_preprocessed(fastp.out.fastq.collect())
+    fastqc_raw(fastq_files)
+    // fastqc_preprocessed(fastp.out.fastq)
     /* multiqc(fastqc_raw.out.report)
      .mix(
        fastqc_preprocessed.out.report

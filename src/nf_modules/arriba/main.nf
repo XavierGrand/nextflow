@@ -13,7 +13,7 @@ process arriba{
 
   input:
   tuple val(bam_id), path(bam)
-  tuple val(gtf_id), path(gtf)
+  path(gtf)
   tuple val(genome_id), path(genome)
 
   output:
