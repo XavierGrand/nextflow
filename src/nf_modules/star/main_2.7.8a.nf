@@ -39,7 +39,7 @@ STAR --runThreadN ${task.cpus} --runMode genomeGenerate \
 --genomeDir ./ \
 --genomeFastaFiles ${genome_fasta}  \
 --sjdbGTFfile ${gtf_file} \
---genomeSAindexNbases 13 # min(14, log2(GenomeLength)/2 - 1)
+--limitGenomeGenerateRAM 48000000000
 """
 }
 
@@ -269,8 +269,7 @@ STAR --runThreadN ${task.cpus} \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
---chimOutType WithinBAM HardClip
---outStd BAM_SortedByCoordinate \
+--chimOutType WithinBAM HardClip \
 --outSAMunmapped Within \
 --outBAMcompression 0 \
 --outFilterMultimapNmax 50 \
@@ -278,7 +277,7 @@ STAR --runThreadN ${task.cpus} \
 --alignSplicedMateMapLminOverLmate 0.5 \
 --alignSJstitchMismatchNmax 5 -1 5 5 \
 --chimSegmentMin 10 \
---chimJunctionOverhangMin 10 
+--chimJunctionOverhangMin 10 \
 --chimScoreDropMax 30 \
 --chimScoreJunctionNonGTAG 0 \
 --chimScoreSeparation 1 \
@@ -299,7 +298,7 @@ STAR --runThreadN ${task.cpus} \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
---chimOutType WithinBAM HardClip
+--chimOutType WithinBAM HardClip \
 --outStd BAM_SortedByCoordinate \
 --outSAMunmapped Within \
 --outBAMcompression 0 \
@@ -308,7 +307,7 @@ STAR --runThreadN ${task.cpus} \
 --alignSplicedMateMapLminOverLmate 0.5 \
 --alignSJstitchMismatchNmax 5 -1 5 5 \
 --chimSegmentMin 10 \
---chimJunctionOverhangMin 10 
+--chimJunctionOverhangMin 10 \
 --chimScoreDropMax 30 \
 --chimScoreJunctionNonGTAG 0 \
 --chimScoreSeparation 1 \

@@ -73,14 +73,13 @@ params.fastq = ""
 params.bam = ""
 params.genome = ""
 params.gtf = ""
+params.index = ""
 
 /* Params out */
 params.fastp_out = "02_fastp"
 params.star_index_out = "04_Indexed_genome"
 params.star_mapping2fusion_out = "06_mapping2fusion"
-params.sort_bam_out = "07_sort_bam"
-params.index_bam_out = "08_index_bam"
-params.arriba_out = "09_Arriba_results"
+params.arriba_out = "10_Arriba_results"
 
 /*
  ****************************************************************
@@ -93,10 +92,14 @@ log.info "Genome annotation : ${params.gtf}"
 if(params.bam) {
   bam_list = "${params.bam}/*_aligned_sorted.bam"
   log.info "Loaded bam files (--bam): ${bam_list}"
-}
-else {
+} else {
   fastq_list = "${params.fastq}"
   log.info "Loaded fastq files (--fastq): ${fastq_list}"
+}
+if(params.index) {
+  index_list = "${params.index}/*"
+} else {
+  index_list = ""
 }
 
 /*
@@ -128,6 +131,16 @@ else {
         .set { fastq_files }
 }
 
+/* index file */
+if (params.index != "") {
+    Channel
+        .fromPath( index_list )
+        .ifEmpty { error "Cannot find any index files matching: ${params.index}" }
+        .collect()
+        .map { it -> [ "STAR_index", it ]}
+        .set { index_file }
+}
+
 /*
  ****************************************************************
                           Imports
@@ -135,8 +148,8 @@ else {
 */
 
 include { fastp } from './nf_modules/fastp/main.nf'
-include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf'
-include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf'
+include { fastqc_fastq as fastqc_raw } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: '01_fastqc')
+include { fastqc_fastq as fastqc_preprocessed } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: '03_fastqc_trimmed')
 include { multiqc } from './nf_modules/multiqc/main.nf'
 include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
@@ -154,14 +167,18 @@ workflow {
   if(params.fastq != ""){
     fastp(fastq_files)
     fastqc_raw(fastq_files)
-    // fastqc_preprocessed(fastp.out.fastq)
+    fastqc_preprocessed(fastp.out.fastq)
     /* multiqc(fastqc_raw.out.report)
      .mix(
        fastqc_preprocessed.out.report
        ).collect()
     */
-    index_with_gtf(genome_file, gtf_file)
-    mapping2fusion(index_with_gtf.out.index, fastp.out.fastq)
+    if(params.index == "") {
+      index_with_gtf(genome_file, gtf_file)
+      mapping2fusion(index_with_gtf.out.index, fastp.out.fastq)
+    } else {
+      mapping2fusion(index_file, fastp.out.fastq)
+    }
     filter_bam_quality(mapping2fusion.out.bam)
     arriba(filter_bam_quality.out.bam, gtf_file, genome_file)
   }
