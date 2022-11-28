@@ -35,6 +35,8 @@ RUN cpanm PerlIO::gzip
 # make dir
 RUN mkdir /Xnfs
 RUN mkdir /scratch
+RUN mkdir /scratch/Bio
+RUN chmod o+w -R /scratch/Bio
 
 # download and install star aligner dependency
 WORKDIR /usr/local/bin/

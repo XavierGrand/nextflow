@@ -79,6 +79,7 @@ params.index = ""
 params.fastp_out = "02_fastp"
 params.star_index_out = "04_Indexed_genome"
 params.star_mapping2fusion_out = "06_mapping2fusion"
+params.filter_bam_quality_out = "07_Filtered_bam"
 params.arriba_out = "10_Arriba_results"
 
 /*
