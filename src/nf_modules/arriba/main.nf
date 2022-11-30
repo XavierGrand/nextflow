@@ -30,3 +30,29 @@ arriba -x ${bam} \
        ${params.arriba_options}
 """
 }
+
+process draw_fusions{
+  container = "${container_url}"
+  label "big_mem_mono_cpus"
+  tag "${bam_id}"
+  if (params.draw_fusions_out != "") {
+    publishDir "results/${params.draw_fusions_out}", mode: 'copy'
+  }
+
+  input:
+  tuple val(fusion_id), path(fusions)
+  tuple val(bam_id), path(bam)
+  path(gtf)
+
+  output:
+  tuple val(fusion_id), path("*.pdf"), emit: drawn_fusions
+
+  script:
+"""
+./draw_fusions.R \
+    --fusions=${fusions} \
+    --alignments=${bam} \
+    --output=${fusion_id}_fusions.pdf \
+    --annotation=${gtf}
+"""
+}
