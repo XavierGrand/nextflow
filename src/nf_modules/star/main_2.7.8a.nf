@@ -39,7 +39,7 @@ STAR --runThreadN ${task.cpus} --runMode genomeGenerate \
 --genomeDir ./ \
 --genomeFastaFiles ${genome_fasta}  \
 --sjdbGTFfile ${gtf_file} \
---limitGenomeGenerateRAM 48000000000
+--limitGenomeGenerateRAM ${task.memory}
 """
 }
 

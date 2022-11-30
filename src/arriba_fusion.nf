@@ -81,7 +81,7 @@ params.star_index_out = "04_Indexed_genome"
 params.star_mapping2fusion_out = "06_mapping2fusion"
 params.filter_bam_quality_out = "07_Filtered_bam"
 params.arriba_out = "10_Arriba_results"
-// params.draw_fusions_out = "11_drawn_fusions"
+params.draw_fusions_out = "11_drawn_fusions"
 
 /*
  ****************************************************************
@@ -157,7 +157,7 @@ include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
 include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
 include { arriba } from "./nf_modules/arriba/main.nf"
-// include { draw_fusions } from "./nf_modules/arriba/main.nf"
+include { draw_fusions } from "./nf_modules/arriba/main.nf"
 
 /*
  ****************************************************************
