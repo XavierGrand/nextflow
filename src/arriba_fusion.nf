@@ -178,16 +178,16 @@ workflow {
     */
     if(params.index == "") {
       index_with_gtf(genome_file, gtf_file)
-      mapping2fusion(index_with_gtf.out.index, fastp.out.fastq)
+      mapping2fusion(index_with_gtf.out.index.collect(), fastp.out.fastq)
     } else {
-      mapping2fusion(index_file, fastp.out.fastq)
+      mapping2fusion(index_file.collect(), fastp.out.fastq)
     }
     filter_bam_quality(mapping2fusion.out.bam)
-    arriba(filter_bam_quality.out.bam, gtf_file, genome_file)
+    arriba(filter_bam_quality.out.bam, gtf_file.collect(), genome_file.collect())
     // draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file)
   }
   else {
-    arriba(bam_files, gtf_file, genome_file)
+    arriba(bam_files, gtf_file.collect(), genome_file.collect())
     // draw_fusions(arriba.out.fusions, bam_files, gtf_file)
   }
 }
