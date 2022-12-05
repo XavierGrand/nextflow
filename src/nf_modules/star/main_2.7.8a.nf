@@ -34,6 +34,7 @@ process index_with_gtf {
     tuple val(genome_id), path ("*"), emit: index
 
   script:
+  memory = "${task.memory}" - ~/\s*GB/
 """
 STAR --runThreadN ${task.cpus} --runMode genomeGenerate \
 --genomeDir ./ \
@@ -250,6 +251,7 @@ process mapping2fusion {
     tuple val(reads_id), path("*.bam"), emit: bam
 
   script:
+  memory = "${task.memory}" - ~/\s*GB/
 if (reads_id instanceof List){
     file_prefix = reads_id[0]
   } else {
@@ -281,7 +283,8 @@ STAR --runThreadN ${task.cpus} \
 --chimScoreJunctionNonGTAG 0 \
 --chimScoreSeparation 1 \
 --chimSegmentReadGapMax 3 \
---chimMultimapNmax 50
+--chimMultimapNmax 50 \
+--limitBAMsortRAM ${memory}000000000
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
@@ -311,7 +314,8 @@ STAR --runThreadN ${task.cpus} \
 --chimScoreJunctionNonGTAG 0 \
 --chimScoreSeparation 1 \
 --chimSegmentReadGapMax 3 \
---chimMultimapNmax 50
+--chimMultimapNmax 50 \
+--limitBAMsortRAM ${memory}000000000
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
