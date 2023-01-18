@@ -2,7 +2,7 @@ version = "2.3.0"
 // container_url = "lbmc/arriba:${version}"
 container_url = "xgrand/arriba:${version}"
 
-params.arriba_options = "-f blacklist"
+params.arriba_options = "-f blacklist -E 1 -R 5000 -A 15 -M 2 -U 1000"
 process arriba{
   container = "${container_url}"
   label "big_mem_multi_cpus"
