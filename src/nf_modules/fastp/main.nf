@@ -1,4 +1,4 @@
-version = "0.23.2"
+version = "0.20.1"
 container_url = "lbmc/fastp:${version}"
 
 params.fastp_protocol = ""
