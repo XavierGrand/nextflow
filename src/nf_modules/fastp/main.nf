@@ -1,5 +1,5 @@
-version = "0.20.1"
-container_url = "lbmc/fastp:${version}"
+version = "0.23.2--h79da9fb_0"
+container_url = "quay.io/biocontainers/fastp:${version}"
 
 params.fastp_protocol = ""
 
