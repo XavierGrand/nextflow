@@ -1,5 +1,5 @@
-version = "2.7.8a"
-container_url = "xgrand/star:${version}"
+version = "2.7.8a--0"
+container_url = "quay.io/biocontainers/star:${version}"
 
 params.star_mapping_fastq_out = ""
 
