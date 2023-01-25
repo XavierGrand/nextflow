@@ -184,10 +184,10 @@ workflow {
     }
     filter_bam_quality(mapping2fusion.out.bam)
     arriba(filter_bam_quality.out.bam, gtf_file.collect(), genome_file.collect())
-    // draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file)
+    draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file)
   }
   else {
     arriba(bam_files, gtf_file.collect(), genome_file.collect())
-    // draw_fusions(arriba.out.fusions, bam_files, gtf_file)
+    draw_fusions(arriba.out.fusions, bam_files, gtf_file)
   }
 }
