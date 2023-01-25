@@ -6,6 +6,8 @@ LABEL MAINTAINER="Xavier Grand" EMAIL="xavier.grand@ens-lyon.fr"
 ENV star_version 2.7.10a
 ENV arriba_version v2.3.0
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 ## run update and install necessary tools
 RUN apt-get update -y && apt-get install -y \
     build-essential \
@@ -22,7 +24,11 @@ RUN apt-get update -y && apt-get install -y \
     liblzma-dev \
     cpanminus \
     libcurl4-openssl-dev \
-    libdb-dev
+    libdb-dev \
+    r-base \
+    r-bioc-genomicalignments \
+    r-bioc-genomicranges \
+    libxml2
 
 # install perl requirements
 RUN cpanm DB_File
@@ -55,6 +61,7 @@ WORKDIR /usr/local/bin/arriba_${arriba_version}/
 RUN make
 
 ENV PATH="/usr/local/bin/arriba_${arriba_version}/:${PATH}"
+RUN echo 'alias draw_fusions.R=Rscript /usr/local/bin/arriba*/draw_fusions.R' >> ~/.bashrc
 
 WORKDIR /home/
 
