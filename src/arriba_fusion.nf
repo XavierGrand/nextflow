@@ -156,6 +156,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf'
 include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
 include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
+include { index_bam } from './nf_modules/samtools/main.nf'
 include { arriba } from "./nf_modules/arriba/main.nf"
 include { draw_fusions } from "./nf_modules/arriba/main.nf"
 
@@ -183,11 +184,13 @@ workflow {
       mapping2fusion(index_file.collect(), fastp.out.fastq)
     }
     filter_bam_quality(mapping2fusion.out.bam)
+    index_bam(filter_bam_quality.out.bam)
     arriba(filter_bam_quality.out.bam, gtf_file.collect(), genome_file.collect())
-    draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file)
+    draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file, index_bam.out.bai)
   }
   else {
+    index_bam(bam_files.collect())
     arriba(bam_files, gtf_file.collect(), genome_file.collect())
-    draw_fusions(arriba.out.fusions, bam_files, gtf_file)
+    draw_fusions(arriba.out.fusions, bam_files, gtf_file, index_bam.out.bam_idx)
   }
 }
