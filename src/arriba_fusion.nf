@@ -184,9 +184,9 @@ workflow {
       mapping2fusion(index_file.collect(), fastp.out.fastq)
     }
     filter_bam_quality(mapping2fusion.out.bam)
-    index_bam(filter_bam_quality.out.bam)
+    index_bam(filter_bam_quality.out.bam.collect())
     arriba(filter_bam_quality.out.bam, gtf_file.collect(), genome_file.collect())
-    draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file, index_bam.out.bai)
+    draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file, index_bam.out.bam_idx)
   }
   else {
     index_bam(bam_files.collect())
