@@ -43,7 +43,7 @@ process draw_fusions{
   tuple val(fusion_id), path(fusions)
   tuple val(bam_id), path(bam)
   path(gtf)
-  tuple val(bai_id), path(bai)
+  path(bai)
 
   output:
   tuple val(fusion_id), path("*.pdf"), emit: drawn_fusions
