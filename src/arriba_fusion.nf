@@ -185,12 +185,12 @@ workflow {
     }
     filter_bam_quality(mapping2fusion.out.bam)
     index_bam(filter_bam_quality.out.bam.collect())
-    arriba(filter_bam_quality.out.bam, gtf_file.collect(), genome_file.collect())
-    draw_fusions(arriba.out.fusions, filter_bam_quality.out.bam, gtf_file, index_bam.out.bam_idx)
+    arriba(index_bam.out.bam_idx.collect(), gtf_file.collect(), genome_file.collect())
+    draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file)
   }
   else {
     index_bam(bam_files.collect())
-    arriba(bam_files, gtf_file.collect(), genome_file.collect())
-    draw_fusions(arriba.out.fusions, bam_files, gtf_file, index_bam.out.bam_idx)
+    arriba(index_bam.out.bam_idx.collect(), gtf_file.collect(), genome_file.collect())
+    draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file)
   }
 }
