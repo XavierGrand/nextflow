@@ -168,23 +168,50 @@ include { draw_fusions } from "./nf_modules/arriba/main.nf"
 
 workflow {
 
+/*
+ ****************************************************************
+                      Preprocessing & QC
+ ****************************************************************
+*/
+
   if(params.fastq != ""){
     fastp(fastq_files)
     fastqc_raw(fastq_files)
     fastqc_preprocessed(fastp.out.fastq)
-    /* multiqc(fastqc_raw.out.report)
+    multiqc(fastqc_raw.out.report)
      .mix(
        fastqc_preprocessed.out.report
        ).collect()
-    */
+
+/*
+ ****************************************************************
+                          Mapping
+ ****************************************************************
+*/
+
+
     if(params.index == "") {
       index_with_gtf(genome_file, gtf_file)
       mapping2fusion(index_with_gtf.out.index.collect(), fastp.out.fastq)
     } else {
       mapping2fusion(index_file.collect(), fastp.out.fastq)
     }
+
+/*
+ ****************************************************************
+                    Filtering & indexing
+ ****************************************************************
+*/
+
     filter_bam_quality(mapping2fusion.out.bam)
     index_bam(filter_bam_quality.out.bam.collect())
+
+/*
+ ****************************************************************
+                      Fusion detection
+ ****************************************************************
+*/
+
     arriba(index_bam.out.bam_idx.collect(), gtf_file.collect(), genome_file.collect())
     draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file)
   }
@@ -193,4 +220,11 @@ workflow {
     arriba(index_bam.out.bam_idx.collect(), gtf_file.collect(), genome_file.collect())
     draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file)
   }
+
+/*
+ ****************************************************************
+              Parsing results & statistical analysis
+ ****************************************************************
+*/
+
 }
