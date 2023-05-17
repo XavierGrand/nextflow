@@ -69,11 +69,11 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
-params.fastq = ""
+params.fastq = "./data/fastq/*_{1,2}.fq*"
 params.bam = ""
-params.genome = ""
-params.gtf = ""
-params.index = ""
+params.genome = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.dna.primary_assembly.fa"
+params.gtf = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.87.gtf"
+params.index = "/home/xavier/Data/Genome/hg19/STAR"
 
 /* Params out */
 params.fastp_out = "02_fastp"
