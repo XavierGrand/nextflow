@@ -74,6 +74,7 @@ params.bam = ""
 params.genome = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.dna.primary_assembly.fa"
 params.gtf = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.87.gtf"
 params.index = "/home/xavier/Data/Genome/hg19/STAR"
+params.htseq_param = "yes"
 
 /* Params out */
 params.fastp_out = "02_fastp"
@@ -103,6 +104,7 @@ if(params.index) {
 } else {
   index_list = ""
 }
+log.info "htseq param: -s ${params.htseq_param}"
 
 /*
  ****************************************************************
@@ -157,6 +159,7 @@ include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
 include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
 include { index_bam } from './nf_modules/samtools/main.nf'
+include { htseq_count } from './nf_modules/htseq/main.nf' addParams(htseq_out: '09_htseq_count', htseq_param: "${params.htseq_param}" )
 include { arriba } from "./nf_modules/arriba/main.nf"
 include { draw_fusions } from "./nf_modules/arriba/main.nf"
 
@@ -176,13 +179,13 @@ workflow {
 
   if(params.fastq != ""){
     fastp(fastq_files)
-    fastqc_raw(fastq_files)
+    /* fastqc_raw(fastq_files)
     fastqc_preprocessed(fastp.out.fastq)
     multiqc(fastqc_raw.out.report)
      .mix(
        fastqc_preprocessed.out.report
        ).collect()
-
+  */
 /*
  ****************************************************************
                           Mapping
@@ -205,6 +208,7 @@ workflow {
 
     filter_bam_quality(mapping2fusion.out.bam)
     index_bam(filter_bam_quality.out.bam.collect())
+    htseq_count(index_bam.out.bam_idx.collect(), gtf_file.collect())
 
 /*
  ****************************************************************
@@ -217,6 +221,7 @@ workflow {
   }
   else {
     index_bam(bam_files.collect())
+    htseq_count(index_bam.out.bam_idx.collect(), gtf_file.collect())
     arriba(index_bam.out.bam_idx.collect(), gtf_file.collect(), genome_file.collect())
     draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file)
   }

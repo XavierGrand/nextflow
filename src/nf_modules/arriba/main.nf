@@ -49,7 +49,7 @@ process draw_fusions{
 
   script:
 """
-draw_fusions.R \
+Rscript /usr/local/bin/arriba_v${version}/draw_fusions.R \
     --fusions=${fusions} \
     --alignments=${bam} \
     --output=${fusion_id}_fusions.pdf \
