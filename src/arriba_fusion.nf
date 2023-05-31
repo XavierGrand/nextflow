@@ -31,6 +31,7 @@ def helpMessage() {
     Input:
       --fastq [path]                  Path to fastq folder.
       --bam [path]                    Path to the bam folder (indexed and sorted).
+      --design [path]                 Path to the design file.
 
     References:                       Can be downloaded with download_references.sh (not implemented in pipeline).
       --genome [path]                 Path to genome reference fasta file.
@@ -83,6 +84,8 @@ params.star_mapping2fusion_out = "06_mapping2fusion"
 params.filter_bam_quality_out = "07_Filtered_bam"
 params.arriba_out = "10_Arriba_results"
 params.draw_fusions_out = "11_drawn_fusions"
+params.concat_fusion_out = "12_concat_fusions"
+params.fusion_out = "13_DFG"
 
 /*
  ****************************************************************
@@ -121,6 +124,10 @@ Channel
 Channel
     .fromPath( params.gtf )
     .set { gtf_file }
+
+Channel
+    .fromPath( params.design )
+    .set { design }
 
 if(params.bam) {
     Channel
@@ -162,6 +169,8 @@ include { index_bam } from './nf_modules/samtools/main.nf'
 include { htseq_count } from './nf_modules/htseq/main.nf' addParams(htseq_out: '09_htseq_count', htseq_param: "${params.htseq_param}" )
 include { arriba } from "./nf_modules/arriba/main.nf"
 include { draw_fusions } from "./nf_modules/arriba/main.nf"
+include { concat_fusion } from "./nf_modules/concatenate/main.nf"
+include { parsefusion } from "./nf_modules/fusion_parser/main.nf"
 
 /*
  ****************************************************************
@@ -232,4 +241,6 @@ workflow {
  ****************************************************************
 */
 
+  concat_fusion(arriba.out.fusions, arriba.out.discarded)
+  parsefusion(concat_fusion.out.concatenated_fusions)
 }

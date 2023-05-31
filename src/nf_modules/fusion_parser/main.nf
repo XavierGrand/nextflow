@@ -1,6 +1,7 @@
 version = "1.0"
 container_url = "xgrand/fusion_parser:${version}"
 
+params.fusion_out = ""
 process parsefusion{
   container = "${container_url}"
   label "big_mem_multi_cpus"
