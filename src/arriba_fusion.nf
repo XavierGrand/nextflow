@@ -70,7 +70,7 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
-params.fastq = "./data/fastq/*_{1,2}.fq*"
+params.fastq = "./data/fastq/*_R{1,2}.fastq.gz"
 params.bam = ""
 params.genome = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.dna.primary_assembly.fa"
 params.gtf = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.87.gtf"
@@ -242,5 +242,5 @@ workflow {
 */
 
   concat_fusion(arriba.out.fusions, arriba.out.discarded)
-  parsefusion(concat_fusion.out.concatenated_fusions)
+  parsefusion(concat_fusion.out.concatenated_fusions, htseq_count.out.counts, design.collect())
 }
