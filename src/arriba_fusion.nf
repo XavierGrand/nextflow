@@ -247,9 +247,8 @@ workflow {
 */
 
   arriba(index_bam.out.bam_idx, gtf_file.collect(), genome_file.collect())
-  /* if (params.cyto != "") { draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file.collect(), cytobands.collect()) }
+  if (params.cyto != "") { draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file.collect(), cytobands.collect()) }
   else { draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file.collect()) }
-  */
 
 /*
  ****************************************************************
