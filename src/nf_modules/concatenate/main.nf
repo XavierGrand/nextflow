@@ -26,23 +26,22 @@ gzip --quiet merged.fastq
 
 params.concat_fusion_out = ""
 process concat_fusion {
-    tag "concat_fusion"
+    tag "$file_id"
     label "big_mem_mono_cpus"
 
-    if (params.fastq_out != "") {
-        publishDir "results/${concat_fusion_out}", mode: 'copy'
+    if (params.concat_fusion_out != "") {
+        publishDir "results/${params.concat_fusion_out}", mode: 'copy'
     }
 
     input:
-        path fusions
-        path discarded_fusions
+        tuple val(file_id), path(fusions), path(discarded_fusions)
 
     output:
-        path "*_fusions.tsv", emit: concatenated_fusions
+        path("${file_id}_concat_fusions.tsv"), emit: concatenated_fusions // tupple val(fusions_id), path("*_fusions.tsv"), emit: concatenated_fusions
 
     script:
 """
-cat ${fusions} > res_fusions.tsv
-tail +2 ${discarded_fusions} >> res_fusions.tsv
+cat ${fusions} > ${file_id}_concat_fusions.tsv
+tail +2 ${discarded_fusions} >> ${file_id}_concat_fusions.tsv
 """
 }

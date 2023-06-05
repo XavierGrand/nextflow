@@ -43,7 +43,7 @@ process filter_bam_quality {
     tuple val(file_id), path(bam)
 
   output:
-    tuple val(file_id), path("*_filtered.bam"), emit: bam
+    tuple val(file_id), path("${bam.simpleName}_filtered.bam"), emit: bam
   script:
 """
 samtools view -@ ${task.cpus} -hb ${bam} ${params.filter_bam_quality} > \

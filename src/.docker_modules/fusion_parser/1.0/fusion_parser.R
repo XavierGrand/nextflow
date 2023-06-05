@@ -16,14 +16,10 @@
 # }
 
 pacman::p_load(optparse, tidyverse, stringr, DESeq2, tibble, BiocParallel,
-               furrr, future, future.batchtools, vsn)
+               furrr, future, future.batchtools, vsn, gtools)
 
 # Option parser and loading data:
 option_list = list(
-  make_option(c("-f", "--fusion"), type="character", default=NULL, 
-              help="fusions folder path", metavar="character"),
-  make_option(c("-c", "--count"), type="character", default=NULL,
-              help="htseq counts folder path.", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL,
               help="path to design table", metavar="character"),
   make_option(c("-t", "--threads"), type="integer", default=4,
@@ -48,11 +44,17 @@ options(future.globals.maxSize = ((opt$memory*1000)*1024^2))
 design <- read.table(file = opt$design, header = TRUE, row.names = NULL)
 list_sample <- as.list(design$sample)
 
+# create comparision list:
+uniq_conditions <- unique(design$condition)
+comp <- combinations(n = length(uniq_conditions), r = 2, 
+                     repeats.allowed = F, v = uniq_conditions)
+list_comparaison <- split(comp, seq(nrow(comp)))
+
 # Function to parse all file from a list:
 parse_fusion <- function(ech) {
   # read fusion file:
-  fusion_file <- paste0(ech, "_fusions.tsv")
-  df1 <- read.table(file = paste0(opt$fusion, fusion_file))
+  fusion_file <- paste0(ech, "_concat_fusions.tsv")
+  df1 <- read.table(file = fusion_file)
   colnames(df1) <- c("gene1","gene2","strand1",
                      "strand2","breakpoint1","breakpoint2","site1",
                      "site2","type","split_reads1","split_reads2",
@@ -74,7 +76,7 @@ parse_fusion <- function(ech) {
                         discordant_mates, type, gene_id1, gene_id2)
   
   htseq_file <- paste0(ech, ".tsv")
-  htseq_df <- read.table(file = paste0(opt$count, htseq_file), header = FALSE)
+  htseq_df <- read.table(file = htseq_file, header = FALSE)
   colnames(htseq_df) <- c("gene_id", "count")
   
   df1 <- left_join(df1, htseq_df, by = join_by(gene_id1 == gene_id),
@@ -105,7 +107,7 @@ parse_fusion <- function(ech) {
                                  "discordant_mates", "type", "count1", "count2",
                                  "strand")))
   
-  write.table(df1, file = paste0(opt$output, ech, "_parsed_fusion.csv"), 
+  write.table(df1, file = paste0(ech, "_parsed_fusion.csv"), 
               sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
   
   df2$ID <- as.factor(df2$ID)
@@ -114,7 +116,7 @@ parse_fusion <- function(ech) {
 
 # all_results <- map(list_sample, parse_fusion)
 all_results <- furrr::future_map(list_sample, parse_fusion)
-gc()
+gc(verbose = FALSE)
 concat_res <- purrr::reduce(all_results, full_join, by = "ID")
 concat_res[is.na(concat_res)] <- 0
 
@@ -123,8 +125,8 @@ concat_res[is.na(concat_res)] <- 0
 deseq_df <- as.matrix(concat_res %>% column_to_rownames(var = "ID"))
 exp_design <- design %>% column_to_rownames(var = "sample")
 exp_design$condition <- as.factor(exp_design$condition)
-exp_design$rep <- as.factor((exp_design$rep))
 
+exp_design$rep <- as.factor((exp_design$rep))
 dds <- DESeq2::DESeqDataSetFromMatrix(countData=deseq_df, 
                                       colData=exp_design, 
                                       design=~condition + rep, 
@@ -134,10 +136,10 @@ dds <- DESeq2::DESeqDataSetFromMatrix(countData=deseq_df,
 keep <- rowSums(counts(dds) > 1) >= 3
 dds <- dds[keep,]
 
-dds <- DESeq2::DESeq(dds)
+dds <- DESeq2::DESeq(dds, quiet = TRUE)
 
 # Plots:
-pdf(paste0(opt$output, "rplot.pdf"))
+pdf("rplot.pdf")
 res <- results(dds)
 plotMA(res) #, ylim=c(-2,2))
 plotDispEsts(dds)
@@ -152,7 +154,7 @@ save_deseq <- function(comparaison, dds) {
   tmp <- as.data.frame(DESeq2::results(dds, contrast=c("condition",comparaison)))
   tmp <- tibble::rownames_to_column(tmp, "ID")
   write.table(tmp, 
-              file = paste0(opt$output, comparaison[1], "_", comparaison[2], ".tsv"), 
+              file = paste0(comparaison[1], "_", comparaison[2], ".tsv"), 
               row.names = FALSE,
               dec = ",",
               sep = "\t",

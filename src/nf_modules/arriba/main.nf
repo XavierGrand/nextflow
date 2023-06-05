@@ -12,13 +12,12 @@ process arriba{
   }
 
   input:
-  tuple val(bam_id), path(bam)
+  tuple val(bam_id), path(bam), path(bai)
   path(gtf)
   tuple val(genome_id), path(genome)
 
   output:
-  tuple val(bam_id), path("*fusions.tsv"), emit: fusions
-  tuple val(bam_id), path("*fusions.discarded.tsv"), emit: discarded
+  tuple val(bam_id), path("${bam_id}_fusions.tsv"), path("${bam_id}_fusions.discarded.tsv"), emit: fusions
 
   script:
 """
@@ -40,19 +39,21 @@ process draw_fusions{
   }
 
   input:
-  tuple val(fusion_id), path(fusions)
-  tuple val(bam_id), path(bam), path("*.bam.bai")
+  tuple val(fusion_id), path(fusions), path(discarded)
+  tuple val(bam_id), path(bam), path(bai)
   path(gtf)
+  //path(cyto)
 
   output:
-  tuple val(fusion_id), path("*.pdf"), emit: drawn_fusions
+  path("${fusion_id}_fusions.pdf")
 
   script:
 """
 Rscript /usr/local/bin/arriba_v${version}/draw_fusions.R \
     --fusions=${fusions} \
-    --alignments=${bam} \
+    --alignments=$bam \
     --output=${fusion_id}_fusions.pdf \
     --annotation=${gtf}
 """
+// --cytobands=${cyto}
 }

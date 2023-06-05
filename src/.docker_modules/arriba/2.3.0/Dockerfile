@@ -1,5 +1,5 @@
-# work from 18.04 LTS ubuntu release
-FROM ubuntu:18.04
+FROM rocker/r-ubuntu:22.04
+
 LABEL MAINTAINER="Xavier Grand" EMAIL="xavier.grand@ens-lyon.fr"
 
 # set the environment variables
@@ -29,6 +29,11 @@ RUN apt-get update -y && apt-get install -y \
     r-bioc-genomicalignments \
     r-bioc-genomicranges \
     libxml2
+
+# install R packages
+# COPY install_pkgs.R .
+# RUN Rscript install_pkgs.R
+RUN R -e "install.packages(c('circlize'))"
 
 # install perl requirements
 RUN cpanm DB_File

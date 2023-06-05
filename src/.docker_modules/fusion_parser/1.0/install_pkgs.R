@@ -3,7 +3,7 @@ list.of.packages <- c("optparse", "dplyr", "tidyr", "stringr", "BiocManager",
                       "tidyverse", "tibble", "purrr", "furrr", "future", "vsn",
                       "pacman", "gargle", "ids", "systemfonts", "textshaping",
                       "googledrive", "googlesheets4", "httr", "ragg", "rvest",
-                      "xml2", "textshaping", "ragg")
+                      "xml2", "textshaping", "ragg", "gtools")
 
 new.packages <- list.of.packages[!(list.of.packages %in%
 installed.packages()[,"Package"])]

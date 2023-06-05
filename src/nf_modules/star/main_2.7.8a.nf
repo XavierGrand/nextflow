@@ -188,6 +188,7 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 process mapping_withindex {
   container = "${container_url}"
   label "big_mem_multi_cpus"
+  tag "$reads_id"
   if (params.star_mapping_fastq_out != "") {
     publishDir "results/${params.star_mapping_fastq_out}", mode: 'copy'
   }
@@ -238,6 +239,7 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 process mapping2fusion {
   container = "${container_url}"
   label "big_mem_multi_cpus"
+  tag "$reads_id"
   if (params.star_mapping2fusion_out != "") {
     publishDir "results/${params.star_mapping2fusion_out}", mode: 'copy'
   }
