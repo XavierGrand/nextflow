@@ -132,11 +132,12 @@ Channel
     .fromPath( params.design )
     .set { design }
 
-if (params.cyto) {
+if ( params.cyto ) {
     Channel
         .fromPath( params.cyto )
         .set { cytobands }
 }
+else { params.cyto = "" }
 
 if(params.bam) {
     Channel

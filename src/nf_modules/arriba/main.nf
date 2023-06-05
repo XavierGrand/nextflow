@@ -42,7 +42,7 @@ process draw_fusions{
   tuple val(fusion_id), path(fusions), path(discarded)
   tuple val(bam_id), path(bam), path(bai)
   path(gtf)
-  //path(cyto)
+  path(cyto)
 
   output:
   path("${fusion_id}_fusions.pdf")
@@ -53,7 +53,7 @@ Rscript /usr/local/bin/arriba_v${version}/draw_fusions.R \
     --fusions=${fusions} \
     --alignments=$bam \
     --output=${fusion_id}_fusions.pdf \
-    --annotation=${gtf}
+    --annotation=${gtf} \
+    --cytobands=${cyto}
 """
-// --cytobands=${cyto}
 }
