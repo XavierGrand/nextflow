@@ -171,7 +171,7 @@ if (params.index != "") {
 include { fastp } from './nf_modules/fastp/main.nf'
 include { fastqc_fastq_multi as fastqc_raw } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: '01_fastqc')
 include { fastqc_fastq_multi as fastqc_preprocessed } from './nf_modules/fastqc/main.nf' addParams(fastqc_fastq_out: '03_fastqc_trimmed')
-include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: '06_multiqc')
+include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: '04_multiqc')
 include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
 include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
