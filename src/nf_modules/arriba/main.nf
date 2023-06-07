@@ -5,7 +5,7 @@ container_url = "xgrand/arriba:${version}"
 params.arriba_options = "-f blacklist -E 1 -R 5000 -A 15 -M 2 -U 1000"
 process arriba{
   container = "${container_url}"
-  label "big_mem_multi_cpus"
+  label "small_mem_mono_cpus"
   tag "${bam_id}"
   if (params.arriba_out != "") {
     publishDir "results/${params.arriba_out}", mode: 'copy'

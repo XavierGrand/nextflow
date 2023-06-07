@@ -100,6 +100,12 @@ parse_fusion <- function(ech) {
            ) %>%
     dplyr::select(ID, reads_total)
   
+  filtered_df1 <- df1 %>% dplyr::select(all_of(c("ID","gene1","gene2","strand",
+                                                 "type","gene_id1","gene_id2",
+                                                 "count1","count2")))
+  filtered_df1 <- filtered_df1[!duplicated(filtered_df1$ID),]
+  df3 <- dplyr::left_join(df2, filtered_df1, by = "ID")
+  
   colnames(df2)[2] <- ech
   
   df1 <- df1 %>% select(all_of(c("ID", "gene_id1", "gene_id2", 
@@ -107,7 +113,7 @@ parse_fusion <- function(ech) {
                                  "discordant_mates", "type", "count1", "count2",
                                  "strand")))
   
-  write.table(df1, file = paste0(ech, "_parsed_fusion.csv"), 
+  write.table(df3, file = paste0(ech, "_parsed_fusion.csv"), 
               sep = "\t", col.names = TRUE, row.names = FALSE, quote = FALSE)
   
   df2$ID <- as.factor(df2$ID)

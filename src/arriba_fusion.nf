@@ -79,6 +79,9 @@ params.gtf = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.87.gtf"
 params.index = "/home/xavier/Data/Genome/hg19/STAR"
 params.htseq_param = "yes"
 
+/* Specific Arriba parameters */
+params.arriba_options = "-f blacklist,read_through -E 1 -R 5000 -A 15 -M 2 -U 1000"
+
 /* Params out */
 params.fastp_out = "02_fastp"
 params.star_index_out = "05_Indexed_genome"
