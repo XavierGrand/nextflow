@@ -19,6 +19,6 @@ process rtranger {
     path("*.bed"), emit: bed
   script:
 """
-python3 /app/rtranger.py --gtf ${gtf} --output . --length ${params.rt_length}
+rtranger.py --gtf ${gtf} --output . --length ${params.rt_length}
 """
 }

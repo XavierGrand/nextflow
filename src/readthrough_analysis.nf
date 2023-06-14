@@ -30,8 +30,8 @@ def helpMessage() {
                                       Available: docker, singularity, podman, psmn, ccin2p3
 
     Samples:
-      --fastq [path]                  Path to fastq folder.
-      --bam [path]                    Path to bam folder.
+      --fastq [path]                  Path to fastq files.
+      --bam [path]                    Path to bam files.
 
     References:
       --fasta [path]                  Path to genome fasta file.

@@ -286,7 +286,9 @@ STAR --runThreadN ${task.cpus} \
 --chimScoreSeparation 1 \
 --chimSegmentReadGapMax 3 \
 --chimMultimapNmax 50 \
---limitBAMsortRAM ${memory}000000000 > ${reads_id}.bam
+--limitBAMsortRAM ${memory}000000000
+
+mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
 else
 """
@@ -315,6 +317,8 @@ STAR --runThreadN ${task.cpus} \
 --chimScoreSeparation 1 \
 --chimSegmentReadGapMax 3 \
 --chimMultimapNmax 50 \
---limitBAMsortRAM ${memory}000000000 > ${reads_id}.bam
+--limitBAMsortRAM ${memory}000000000
+
+mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
 }

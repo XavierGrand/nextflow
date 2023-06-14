@@ -5,3 +5,5 @@ work/
 results
 workspace.code-workspace
 src/nextflow_XGR.config
+src/test.nf
+clean.sh
