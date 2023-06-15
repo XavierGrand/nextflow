@@ -74,7 +74,7 @@ if (params.help || params.h) {
 params.fastq = "./data/fastq/*_R{1,2}.fastq.gz"
 params.bam = ""
 params.genome = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.dna.primary_assembly.fa"
-params.cyto = "/home/xavier/Programs/arriba_v2.3.0/database/cytobands_hg19_hs37d5_GRCh37_v2.3.0.tsv"
+params.cyto = "/usr/local/bin/arriba_v2.3.0/database/cytobands_hg19_hs37d5_GRCh37_v2.3.0.tsv"
 params.gtf = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.87.gtf"
 params.index = "/home/xavier/Data/Genome/hg19/STAR"
 params.htseq_param = "yes"
