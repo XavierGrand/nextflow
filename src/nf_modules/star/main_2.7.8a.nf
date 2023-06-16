@@ -274,7 +274,6 @@ STAR --runThreadN ${task.cpus} \
 --outSAMstrandField intronMotif \
 --chimOutType WithinBAM HardClip \
 --outSAMunmapped Within \
---outBAMcompression 0 \
 --outFilterMultimapNmax 50 \
 --peOverlapNbasesMin 10 \
 --alignSplicedMateMapLminOverLmate 0.5 \
@@ -305,7 +304,6 @@ STAR --runThreadN ${task.cpus} \
 --chimOutType WithinBAM HardClip \
 --outStd BAM_SortedByCoordinate \
 --outSAMunmapped Within \
---outBAMcompression 0 \
 --outFilterMultimapNmax 50 \
 --peOverlapNbasesMin 10 \
 --alignSplicedMateMapLminOverLmate 0.5 \
