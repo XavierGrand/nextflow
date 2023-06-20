@@ -45,3 +45,6 @@ RUN cd /docker_main / && \
 
 # Set default working path
 WORKDIR /docker_main
+
+RUN mkdir /scratch
+RUN mkdir /Xnfs

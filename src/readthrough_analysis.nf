@@ -65,8 +65,8 @@ if (params.help || params.h) {
 
 // params.fastq = "*{1,2}.fastq"
 params.bam = "data/*.bam"
-params.gtf = ""
-params.fasta = ""
+params.gtf = "/home/xavier/Data/Genome/hg19/DL_genome/ENSEMBL87.gtf"
+params.fasta = "/home/xavier/Data/Genome/hg19/DL_genome/hg19.fa"
 params.flag_fwd = "99,147"
 params.flag_rev = "83,163"
 
@@ -79,8 +79,8 @@ params.split_rt_bam_out = "06_splited_bam/"
  ****************************************************************
 */
 
-// log.info "Genome gtf file: ${params.gtf}"
-// log.info "Genome fasta file: ${params.fasta}"
+log.info "Genome gtf file: ${params.gtf}"
+log.info "Genome fasta file: ${params.fasta}"
 log.info "Bam files: ${params.bam}"
 log.info "FLAG value for Forward read pairs: ${params.flag_fwd}"
 log.info "FLAG value for Reverse read pairs: ${params.flag_rev}"
