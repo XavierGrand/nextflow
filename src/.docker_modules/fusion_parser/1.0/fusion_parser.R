@@ -162,7 +162,7 @@ save_deseq <- function(comparaison, dds) {
   write.table(tmp, 
               file = paste0(comparaison[1], "_", comparaison[2], ".tsv"), 
               row.names = FALSE,
-              dec = ",",
+              dec = ".",
               sep = "\t",
               qmethod = "double"
   )
