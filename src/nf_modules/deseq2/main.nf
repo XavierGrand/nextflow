@@ -9,7 +9,7 @@ params.lfc_threshold = 0
 params.deseq2_out = ""
 process deseq2_analysis {
   container = "${container_url}"
-  label "small_mem_mono_cpus"
+  label "big_mem_mono_cpus"
 
   if (params.deseq2_out != "") {
     publishDir "results/${params.deseq2_out}", mode: 'copy'

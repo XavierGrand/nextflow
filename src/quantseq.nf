@@ -107,6 +107,24 @@ params.lfc_threshold = 0
 */
 
 
+/*                          TopGO parameters                           */
+
+// TopGo can only run if deseq2 has been launched and if the top parameter is defined
+params.top = 0
+/* The number of top enriched go term to display
+@type: interger
+*/
+
+params.id = "symbol"
+/* The id identifying the genes in de_file. It
+can take the following values: 'entrez',
+'genbank', 'alias', 'ensembl', 'symbol',
+'genename', 'unigene'. Defaults to 'symbol'
+
+@type string
+*/
+
+
 
 
 params.fastp = ""
@@ -152,8 +170,7 @@ spike_in_analysis = params.spikein_fasta != "" && params.spikein_gtf != ""
  ****************************************************************
 */
 
-log.info "**** General parameter parameter ****\n"
-
+log.info "**** General parameter parameter ****"
 
 log.info "paired-end data: ${params.paired_end}"
 log.info "fastq files : ${params.fastq}"
@@ -166,7 +183,7 @@ log.info "spike-in fasta: ${params.spikein_fasta}"
 log.info "spike-in gtf: ${params.spikein_gtf}"
 
 if (params.design != "") {
-    log.info "\n**** DESEQ2 parameter ****\n"
+    log.info "\n**** DESEQ2 parameter ****"
 
     log.info "Design file: ${params.design}"
     log.info "Optional file used to filter genes in DE analysis : ${params.filter}"
@@ -176,6 +193,13 @@ if (params.design != "") {
     log.info "Gene expresion threshold filter (prior DE): ${params.gene_expression_threshold}"
     log.info "Gene expresion threshold filter (after DE): ${params.basemean_threshold}"
     log.info "Log2foldchange threshold: ${params.lfc_threshold}"
+
+    if (params.top > 0) {
+        log.info "\n**** TopGo parameter ****"
+
+        log.info "Top enriched term to display: ${params.top}"
+        log.info "ID gene in GTF file: ${params.id}"
+    }
 }
 
 
@@ -268,6 +292,7 @@ bedt_mod = './nf_modules/bedtools/main.nf'
 htseq_mod = './nf_modules/htseq/main.nf'
 sammod = './nf_modules/samtools/main.nf'
 deseqmod = "./nf_modules/deseq2/main.nf"
+topgomod = "./nf_modules/topgo/main.nf"
 
 
 /*   ****************************** Main imports  ******************************************* */
@@ -285,6 +310,11 @@ if (params.design != "") {
         gene_expression_threshold: "${params.gene_expression_threshold}",
         basemean_threshold: "${params.basemean_threshold}",
         lfc_threshold: "${params.lfc_threshold}")
+    include { topgo_analysis } from topgomod addParams(topgo_out: "11_topgo",
+        basemean_threshold: "${params.basemean_threshold}",
+        lfc_threshold: "${params.lfc_threshold}",
+        top: "${params.top}",
+        id: "${params.id}")
 }
 
 include { fastqc_fastq as fastqc1} from fastqc_mod addParams(fastqc_fastq_out: '01_fastqc')
@@ -357,6 +387,23 @@ workflow spikein_analysis {
         fastq_filtered = genome_mapping_spike.out.unaligned
 }
 
+workflow differential_expression {
+    take:
+        design_file
+        filter_file
+        gene_name_file
+        counts
+    main:
+    if (params.design != "") {
+        deseq2_analysis(design_file, filter_file.collect(),
+        gene_name_file.collect(), counts.collect())
+        if (params.top > 0) {
+            topgo_analysis(deseq2_analysis.out.results)
+        }
+
+    }
+}
+
 
 workflow {
     fastp_default(fastq_files)
@@ -381,10 +428,8 @@ workflow {
     stats_bam(sort_bam.out.bam)
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
-    if (params.design != "") {
-        deseq2_analysis(design_file, filter_file.collect(),
-        gene_name_file.collect(), htseq_count.out.counts.collect())
-    }
+
+    differential_expression(design_file, filter_file, gene_name_file, htseq_count.out.counts)
 
     // Quality control
     fastqc1(fastq_files)
