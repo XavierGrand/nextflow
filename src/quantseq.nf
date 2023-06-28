@@ -9,6 +9,8 @@ nextflow.enable.dsl=2
  ****************************************************************
 */
 
+/*                  GENERAL PARAMETERS                         */
+
 params.paired_end = true
 /* false for single end data, true for paired-end data
 
@@ -44,6 +46,69 @@ params.index = ""
 */
 
 
+/*                  DESEQ2 PARAMETERS                         */
+
+params.design = ""
+/* The file containing the design to use for deseq2 differential expression
+analysis.
+See https://gitbio.ens-lyon.fr/LBMC/regards/deseq2-wrapper for details
+This parameter is optional. If not set: the differential expression process is skipped
+
+@type: File
+*/
+
+params.filter = ""
+/* An optional parameter used to only keep a subset of gene for differential
+expression analysis
+See https://gitbio.ens-lyon.fr/LBMC/regards/deseq2-wrapper for details
+@type: Optional File
+*/
+
+params.gene_name = ""
+/* An optional file that can be used to link gene id (ex ensembl! gene id) to
+gene symbol
+See https://gitbio.ens-lyon.fr/LBMC/regards/deseq2-wrapper for details
+@type: Optional file
+*/
+
+params.formula = "~ condition"
+/*
+The formula to use for differential expression, the columns specified here
+should be present in the design file. See
+https://gitbio.ens-lyon.fr/LBMC/regards/deseq2-wrapper for details
+
+@type: String
+*/
+
+params.comparison = "condition-TEST-CTRL"
+/* The comparisons to perform. See
+https://gitbio.ens-lyon.fr/LBMC/regards/deseq2-wrapper for details
+
+@type: String
+*/
+
+params.gene_expression_threshold = 2
+/* Minimum expression a gene should have to be concidered prior the diffrential
+expression analysis
+
+@type: int
+*/
+
+params.basemean_threshold = 0
+/*   A threshold to keep significant genes with at least this baseMean
+(after deseq2 analysis)
+@type: int
+*/
+
+params.lfc_threshold = 0
+/*
+ A threshold to keep significant genes with at least this log2fc
+@type: int
+*/
+
+
+
+
 params.fastp = ""
 if(params.fastp == "") {
     if (!params.paired_end) {
@@ -73,12 +138,12 @@ params.spikein_gtf = ""
 */
 
 
-if (params.spikein_fasta != "" &&  params.spikein_gtf == "" || 
+if (params.spikein_fasta != "" &&  params.spikein_gtf == "" ||
     params.spikein_fasta == "" &&  params.spikein_gtf != "" ) {
     println "\033[91mError: Only one of the parameters spikein_fasta and \
 spikein_gtf were set !\u001B[0m"
     System.exit(1)
-} 
+}
 spike_in_analysis = params.spikein_fasta != "" && params.spikein_gtf != ""
 
 /*
@@ -86,6 +151,8 @@ spike_in_analysis = params.spikein_fasta != "" && params.spikein_gtf != ""
                               Logs
  ****************************************************************
 */
+
+log.info "**** General parameter parameter ****\n"
 
 
 log.info "paired-end data: ${params.paired_end}"
@@ -97,6 +164,19 @@ log.info "index file: ${params.index}"
 log.info "fastp parameters: ${params_fastp}"
 log.info "spike-in fasta: ${params.spikein_fasta}"
 log.info "spike-in gtf: ${params.spikein_gtf}"
+
+if (params.design != "") {
+    log.info "\n**** DESEQ2 parameter ****\n"
+
+    log.info "Design file: ${params.design}"
+    log.info "Optional file used to filter genes in DE analysis : ${params.filter}"
+    log.info "Optional file linking gene id to symbol : ${params.gene_name}"
+    log.info "Formula for DE ${params.formula}"
+    log.info "Comparisons for DE ${params.comparison}"
+    log.info "Gene expresion threshold filter (prior DE): ${params.gene_expression_threshold}"
+    log.info "Gene expresion threshold filter (after DE): ${params.basemean_threshold}"
+    log.info "Log2foldchange threshold: ${params.lfc_threshold}"
+}
 
 
 /*
@@ -145,12 +225,31 @@ if (spike_in_analysis) {
         .ifEmpty { error "Cannot load spike-in fasta files matching : ${params.spikein_fasta}"}
         .map( it -> [it.baseName, it])
         .set { spikein_fasta_file }
-    
+
     Channel
         .fromPath( params.spikein_gtf )
         .ifEmpty { error "Cannot load spike-in gtf files matching : ${params.spikein_gtf}"}
         .set {spikein_gtf_file }
+}
 
+
+
+if (params.design != "") {
+
+    Channel
+        .fromPath( params.design )
+        .ifEmpty { error "Cannot find design file matching : ${params.design}"}
+        .set { design_file }
+
+    pfilter = params.filter == "" ? "NONE" : params.filter
+    Channel
+        .fromPath( pfilter )
+        .set { filter_file }
+
+    pgene_name = params.gene_name == "" ? "EMPTY" : params.gene_name
+    Channel
+        .fromPath( pgene_name )
+        .set { gene_name_file }
 
 }
 
@@ -168,18 +267,25 @@ multiqc_mod = './nf_modules/multiqc/main.nf'
 bedt_mod = './nf_modules/bedtools/main.nf'
 htseq_mod = './nf_modules/htseq/main.nf'
 sammod = './nf_modules/samtools/main.nf'
+deseqmod = "./nf_modules/deseq2/main.nf"
 
 
 /*   ****************************** Main imports  ******************************************* */
 
-include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp', 
+include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp',
                                                    fastp: "${params_fastp}" )
 include { genome_mapping; index_fasta } from hisat2_mod addParams(folder: '06_mapping')
 include { sort_bam } from sammod addParams(sort_bam_out: '07_sort_bam' )
 include { stats_bam } from sammod addParams(stats_bam_out: "07_bam_stats")
 include { index_bam } from sammod addParams(index_bam_out: '08_index_bam' )
 include { htseq_count } from htseq_mod addParams(htseq_out: '09_htseq_count', htseq_param: "${params.htseq_param}" )
-
+if (params.design != "") {
+    include { deseq2_analysis } from deseqmod addParams(deseq2_out: "10_deseq2",
+        formula: "${params.formula}", comparison: "${params.comparison}",
+        gene_expression_threshold: "${params.gene_expression_threshold}",
+        basemean_threshold: "${params.basemean_threshold}",
+        lfc_threshold: "${params.lfc_threshold}")
+}
 
 include { fastqc_fastq as fastqc1} from fastqc_mod addParams(fastqc_fastq_out: '01_fastqc')
 include { fastqc_fastq as fastqc2} from fastqc_mod addParams(fastqc_fastq_out: '03_fastqc_trimmed')
@@ -214,7 +320,7 @@ include { multiqc_default as multiqc_default_spike } from multiqc_mod addParams(
  ****************************************************************
 */
 
-def merge_channels(report1, report2, report3, report4, report5, 
+def merge_channels(report1, report2, report3, report4, report5,
                    fastp_report, hisat2_report) {
     return report1.concat(report2, report3, report4, report5,
     fastp_report.map { it -> [it[0], [it[1]]]},
@@ -275,6 +381,10 @@ workflow {
     stats_bam(sort_bam.out.bam)
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
+    if (params.design != "") {
+        deseq2_analysis(design_file, filter_file.collect(),
+        gene_name_file.collect(), htseq_count.out.counts.collect())
+    }
 
     // Quality control
     fastqc1(fastq_files)
