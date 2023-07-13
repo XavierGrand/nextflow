@@ -8,9 +8,9 @@ RUN apt install -y libxml2-dev libfontconfig1-dev libssl-dev \
                    libtiff5-dev libjpeg-dev procps
 
 ## copy Rscript files
-COPY fusion_parser.R install_pkgs.R /bin/
+COPY fusion_parser.R install_pkgs.R .
 
-RUN Rscript /bin/install_pkgs.R
+RUN Rscript install_pkgs.R
 
 # command to run on container start
 CMD [ "bash" ]

@@ -73,7 +73,8 @@ parse_fusion <- function(ech) {
   df1 <- df1 %>% filter(strand1 %in% c("+/+", "-/-"))
   
   df1 <- df1 %>% select(gene1, gene2, strand1, split_reads1, split_reads2, 
-                        discordant_mates, type, gene_id1, gene_id2)
+                        discordant_mates, type, gene_id1, gene_id2, 
+                        reading_frame)
   
   htseq_file <- paste0(ech, ".tsv")
   htseq_df <- read.table(file = htseq_file, header = FALSE)
@@ -81,14 +82,22 @@ parse_fusion <- function(ech) {
   
   df1 <- left_join(df1, htseq_df, by = join_by(gene_id1 == gene_id),
                    suffix = c(".x", ".y"))
-  colnames(df1)[10] <- "count1"
+  df1 <- df1 %>% dplyr::rename(count1 = count)
   df1 <- left_join(df1, htseq_df, by = join_by(gene_id2 == gene_id),
                    suffix = c(".x", ".y"))
-  colnames(df1)[11] <- "count2"
-  colnames(df1)[3] <- "strand"
+  df1 <- df1 %>% dplyr::rename(count2 = count, strand = strand1)
 
-  df1 <- df1 %>% dplyr::mutate(ID = paste0(gene1, "_", gene2))
-
+  df1 <- df1 %>% dplyr::mutate(ID = paste0(gene1, "_", gene2)) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(readsum = sum(split_reads1,split_reads2,discordant_mates))
+  
+  tmp_df <- df1 %>% dplyr::group_by(ID) %>%
+    dplyr::slice_max(readsum, n=1, with_ties = TRUE) %>% 
+    dplyr::mutate(in_frame = case_when(reading_frame == "in-frame" ~ "yes",
+                                       reading_frame != "in-frame" ~ "no"))
+  
+  tmp_df <- tmp_df %>% dplyr::select(all_of(c("ID","in_frame")))
+  
   df2 <- df1 %>% dplyr::group_by(ID) %>%
     dplyr::summarise(reads1=sum(split_reads1),
                      reads2=sum(split_reads2),
@@ -96,8 +105,7 @@ parse_fusion <- function(ech) {
     dplyr::rowwise() %>% 
     dplyr::mutate(reads_total = sum(reads1, 
                                   reads2, 
-                                  discordant)
-           ) %>%
+                                  discordant)) %>%
     dplyr::select(ID, reads_total)
   
   filtered_df1 <- df1 %>% dplyr::select(all_of(c("ID","gene1","gene2","strand",
@@ -105,10 +113,11 @@ parse_fusion <- function(ech) {
                                                  "count1","count2")))
   filtered_df1 <- filtered_df1[!duplicated(filtered_df1$ID),]
   df3 <- dplyr::left_join(df2, filtered_df1, by = "ID")
+  df3 <- dplyr::left_join(df3, tmp_df, by = "ID")
   
   colnames(df2)[2] <- ech
   
-  df1 <- df1 %>% select(all_of(c("ID", "gene_id1", "gene_id2", 
+  df1 <- df1 %>% dplyr::select(all_of(c("ID", "gene_id1", "gene_id2", 
                                  "split_reads1", "split_reads2", 
                                  "discordant_mates", "type", "count1", "count2",
                                  "strand")))
