@@ -20,12 +20,17 @@ pacman::p_load(optparse, tidyverse, stringr, DESeq2, tibble, BiocParallel,
 
 # Option parser and loading data:
 option_list = list(
+  # make_option(c("-f", "--fusion"), type="character", default=NULL, 
+  #             help="fusions folder path", metavar="character"),
+  # make_option(c("-c", "--count"), type="character", default=NULL,
+  #             help="htseq counts folder path.", metavar="character"),
   make_option(c("-d", "--design"), type="character", default=NULL,
               help="path to design table", metavar="character"),
   make_option(c("-t", "--threads"), type="integer", default=4,
               help="number of threads", metavar="integer"),
   make_option(c("-m", "--memory"), type="integer", default=8,
-              help="memory in Gbytes", metavar="integer")
+              help="memory in Gbytes", metavar="integer") # ,
+  # make_option(c("-o", "--output"), type="character", default=NULL)
 )
 
 opt_parser = OptionParser(option_list=option_list)
