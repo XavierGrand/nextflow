@@ -95,7 +95,7 @@ params.filter_bam_quality_out = "07_Filtered_bam"
 params.index_bam_out = "07_Filtered_bam"
 params.arriba_out = "10_Arriba_results"
 params.draw_fusions_out = "11_drawn_fusions"
-params.concat_fusion_out = "12_concat_fusions"
+params.concat_fusion_out = "10_Arriba_results"
 params.fusion_out = "13_DFG"
 
 /*
