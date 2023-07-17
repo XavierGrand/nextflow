@@ -8,7 +8,7 @@ nextflow.enable.dsl=2
 ========================================================================================================================
 
 star_fusion pipeline :
- * Pipeline dedicated to rna fusion from transcriptomic data using STAR-Fusion software.
+ * Pipeline dedicated to rna fusion from transcriptomic data using STAR and Arriba software.
 
 Maintainer Xavier Grand <xavier.grand@ens-lyon.fr>
 
@@ -73,6 +73,7 @@ if (params.help || params.h) {
  
 params.fastq = "./data/fastq/*_R{1,2}.fastq.gz"
 params.bam = ""
+params.design = ""
 params.genome = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.dna.primary_assembly.fa"
 params.cyto = "/home/xavier/Programs/arriba_v2.3.0/database/cytobands_hg19_hs37d5_GRCh37_v2.3.0.tsv"
 params.gtf = "/home/xavier/Data/Genome/hg19/Homo_sapiens.GRCh37.87.gtf"
