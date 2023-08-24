@@ -22,6 +22,6 @@ process parsefusion{
   memory = "${task.memory}" - ~/\s*GB/
 
 """
-Rscript fusion_parser.R --design ${design} --threads ${task.cpus} --memory ${memory}
+Rscript /fusion_parser.R --design ${design} --threads ${task.cpus} --memory ${memory}
 """
 }
