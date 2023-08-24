@@ -254,6 +254,9 @@ process mapping2fusion {
 
   script:
   memory = "${task.memory}" - ~/\s*GB/
+  if (${task.cpus} > 16) {
+    nb_threads = 16
+  } else {nb_threads = ${task.cpus}}
 if (reads_id instanceof List){
     file_prefix = reads_id[0]
   } else {
@@ -264,7 +267,7 @@ if (reads.size() == 2)
 """
 mkdir -p index
 mv ${index} index/
-STAR --runThreadN ${task.cpus} \
+STAR --runThreadN ${nb_threads} \
 --genomeDir index/ \
 --readFilesCommand zcat \
 --readFilesIn ${reads[0]} ${reads[1]} \
@@ -293,7 +296,7 @@ else
 """
 mkdir -p index
 mv ${index} index/
-STAR --runThreadN ${task.cpus} \
+STAR --runThreadN ${nb_threads} \
 --genomeDir index/ \
 --readFilesCommand zcat \
 --readFilesIn ${reads} \
