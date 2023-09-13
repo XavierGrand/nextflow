@@ -429,7 +429,9 @@ workflow {
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
 
-    differential_expression(design_file, filter_file, gene_name_file, htseq_count.out.counts)
+    if (params.design != "") {
+        differential_expression(design_file, filter_file, gene_name_file, htseq_count.out.counts)
+    }
 
     // Quality control
     fastqc1(fastq_files)
