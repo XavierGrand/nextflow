@@ -255,9 +255,10 @@ process mapping2fusion {
   script:
   memory = "${task.memory}" - ~/\s*GB/
 
-  if (${task.cpus} > 16) {
+  Integer nb_threads = ${task.cpus} as Integer
+  if (nb_threads > 16) {
     nb_threads = 16
-  } else {nb_threads = ${task.cpus}}
+  }
 
   if (reads_id instanceof List){
     file_prefix = reads_id[0]
