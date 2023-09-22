@@ -236,6 +236,9 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
 }
 
+if (${task.cpus} > 16) {
+  nb_threads = 16
+} else {nb_threads = ${task.cpus}}
 process mapping2fusion {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -254,9 +257,6 @@ process mapping2fusion {
 
   script:
   memory = "${task.memory}" - ~/\s*GB/
-  if (${task.cpus} > 16) {
-    nb_threads = 16
-  } else {nb_threads = ${task.cpus}}
 if (reads_id instanceof List){
     file_prefix = reads_id[0]
   } else {
