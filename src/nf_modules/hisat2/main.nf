@@ -146,7 +146,7 @@ process genome_mapping {
       -1 ${fastq_filtred[0]} -2  ${fastq_filtred[1]} \
       --un-conc-gz ${file_prefix}_notaligned.fastq.gz \
       ${params.hisat2} \
-      2> ${file_prefix}_hisat2_report.txt | samtools view -@ ${task.cpus} -bS -f 2 -F 268 -q 10 -o ${file_prefix}_aligned.bam -
+      2> ${file_prefix}_hisat2_report.txt | samtools view -@ ${task.cpus} -bS -f 2 -F 268 -q 10 -o ${file_prefix}_aligned.bam
 
       mv ${file_prefix}_notaligned.fastq.1.gz ${file_prefix}_${params.notaligned_name}_1.fastq.gz
       mv ${file_prefix}_notaligned.fastq.2.gz ${file_prefix}_${params.notaligned_name}_2.fastq.gz
@@ -160,7 +160,7 @@ process genome_mapping {
       hisat2 -x ${index_id} -p ${task.cpus} \
       -U ${fastq_filtred} --un-gz ${file_prefix}_${params.notaligned_name}.fastq.gz \
       \
-      2> ${file_prefix}_hisat2_report.txt | samtools view -@ ${task.cpus} -bS -F 260 -q 10 -o ${file_prefix}_aligned.bam -
+      2> ${file_prefix}_hisat2_report.txt | samtools view -@ ${task.cpus} -bS -F 260 -q 10 -o ${file_prefix}_aligned.bam
 
       if grep -q "Error" ${file_prefix}_hisat2_report.txt; then
       exit 1
