@@ -16,18 +16,11 @@ Pipeline to perform viral integration analysis and discovery, using both DNA and
 ****************************************************************
 */
  
-/* Arguments */
+/* Define some arguments for cli */
 params.project = ""
 params.fastq = "${params.project}/fastq/*_{R1,R2}_*.fq.gz"
-params.gtf = ""
 params.fasta = ""
 params.idx = ""
-params.filter_bam_mapped = "-F 268 -f 1 -q 10"
-
-params.star_mapping_fastq_out = "STAR/"
-params.star_index_out = "STARindex/"
-params.sort_bam_out = "STAR/"
-params.filter_bam_out = "STAR/"
 
 /*
  ****************************************************************
@@ -35,7 +28,6 @@ params.filter_bam_out = "STAR/"
  ****************************************************************
 */
 
-log.info "Annotation: ${params.gtf}"
 log.info "Genome fasta file: ${params.fasta}"
 log.info "Genome index location: ${params.idx}"
 
