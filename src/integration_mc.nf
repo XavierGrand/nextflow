@@ -83,12 +83,12 @@ workflow {
     mapping_fastq_bwa(genome_indexed_input, fastq_files)
   }
 
-  //#####################BAM INDEXING
-  index_bam(mapping_fastq_bwa.out.bam)
   //#####################DUPLICATE MARKING
   mark_dup(index_bam.out.bam)
   //#####################COORDINATE SORTING
   sort_bam(mark_dup.out.bam)
+  //#####################BAM INDEXING
+  index_bam(mapping_fastq_bwa.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
   //#####################REALIGNMENT
   //#####################GET SV
