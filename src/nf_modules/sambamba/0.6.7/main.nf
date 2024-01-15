@@ -37,6 +37,25 @@ sambamba sort -t ${task.cpus} ${params.sort_bam} -o ${bam.baseName}_sorted.bam $
 """
 }
 
+params.mark_dup = ""
+process mark_dup {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  tag "$file_id"
+
+  input:
+    tuple val(file_id), path(bam)
+
+  output:
+    tuple val(file_id), path("*.bam*"), emit: bam
+
+  script:
+"""
+sambamba markdup -t ${task.cpus} ${params.mark_dup} -o ${bam.baseName}_markdup.bam ${bam}
+"""
+}
+
+
 params.split_bam = ""
 process split_bam {
   container = "${container_url}"

@@ -58,7 +58,7 @@ include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf"
 
 workflow {
 
-  //############ GENOME INDEXATION AND MAPPING ###################
+  //############ GENOME INDEXING AND MAPPING ###################
 
   if (params.idx == "") {
     Channel
@@ -80,5 +80,13 @@ workflow {
     mapping_fastq_bwa(genome_indexed_input, fastq_files)
   }
 
-
+  //#####################BAM INDEXING
+  index_bam(mapping_fastq_bwa.out.bam)
+  //#####################DUPLICATE MARKING
+  mark_dup(index_bam.out.bam)
+  //#####################COORDINATE SORTING
+  sort_bam(mark_dup.out.bam)
+  //#####################SOFT CLIPPED READS EXTRACTION
+  //#####################REALIGNMENT
+  //#####################GET SV
 }
