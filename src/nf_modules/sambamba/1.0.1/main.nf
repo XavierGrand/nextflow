@@ -51,7 +51,7 @@ process mark_dup {
 
   script:
 """
-sambamba markdup -t ${task.cpus} ${params.mark_dup} -o ${bam.baseName}_markdup.bam ${bam}
+sambamba markdup -t ${task.cpus} ${params.mark_dup} ${bam} ${bam.baseName}_markdup.bam
 """
 }
 
