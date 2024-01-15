@@ -11,7 +11,7 @@ process index_bam {
     tuple val(file_id), path(bam)
 
   output:
-    tuple val(file_id), path("*.bam*"), emit: bam
+    tuple val(file_id), path("*.bai*"), emit: bai
 
   script:
 """
