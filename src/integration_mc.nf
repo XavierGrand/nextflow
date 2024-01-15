@@ -84,11 +84,11 @@ workflow {
   }
 
   //#####################DUPLICATE MARKING
-  mark_dup(index_bam.out.bam)
+  mark_dup(mapping_fastq_bwa.out.bam)
   //#####################COORDINATE SORTING
   sort_bam(mark_dup.out.bam)
   //#####################BAM INDEXING
-  index_bam(mapping_fastq_bwa.out.bam)
+  index_bam(sort_bam.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
   //#####################REALIGNMENT
   //#####################GET SV
