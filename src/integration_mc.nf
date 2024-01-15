@@ -50,6 +50,9 @@ Channel
 include { mapping } from "./nf_modules/bwa/main.nf"
 include { index_fasta as index_fasta_bwa  } from "./nf_modules/bwa/main.nf"
 include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf"
+include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
 /*
  ****************************************************************
                           Workflow
