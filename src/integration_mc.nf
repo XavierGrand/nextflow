@@ -88,8 +88,10 @@ workflow {
   //#####################COORDINATE SORTING
   sort_bam(mark_dup.out.bam)
   //#####################BAM INDEXING
-  index_bam(sort_bam.out.bam)
+  //this is not needed since the sorting from sambamba generates already the index
+  //index_bam(sort_bam.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
+  
   //#####################REALIGNMENT
   //#####################GET SV
 }
