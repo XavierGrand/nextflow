@@ -92,7 +92,9 @@ workflow {
   //this is not needed since the sorting from sambamba generates already the index
   //index_bam(sort_bam.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
-  get_soft_clipped(sort_bam.out.bam)
+  sorted_bam_out = sort_bam.out.bam[1]
+  //get_soft_clipped(sort_bam.out.bam)
+  get_soft_clipped(sorted_bam_out)
   //#####################REALIGNMENT
   //#####################GET SV
 }
