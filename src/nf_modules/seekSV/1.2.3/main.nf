@@ -22,7 +22,7 @@ process get_soft_clipped {
   script:
 //seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
 """
-seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${bam}
+seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${file_id}.bam
 """
 }
 
