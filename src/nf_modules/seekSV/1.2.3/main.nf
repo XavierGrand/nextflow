@@ -21,7 +21,7 @@ process get_soft_clipped {
     tuple val(file_id), path("*.fq.gz*"), emit: clip_fq
 
   script:
-  bam_only=$bam[1][0]  
+  bam_only=bam[1][0]  
   //seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
   """
   seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${bam_only}
