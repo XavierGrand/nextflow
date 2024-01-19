@@ -53,6 +53,7 @@ include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf"
 include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { get_soft_clipped } from "./nf_modules/seekSV/1.2.3/main.nf"
 /*
  ****************************************************************
                           Workflow
@@ -91,7 +92,7 @@ workflow {
   //this is not needed since the sorting from sambamba generates already the index
   //index_bam(sort_bam.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
-  
+  get_soft_clipped(sort_bam.out.bam)
   //#####################REALIGNMENT
   //#####################GET SV
 }
