@@ -1,5 +1,5 @@
 //Need to properly define a container
-version = "1.2.1"
+version = "1.2.3"
 container_url = "lbmc/seekSV:${version}"
 
 //Get soft-clipped reads from original bam file
@@ -21,10 +21,11 @@ process get_soft_clipped {
     tuple val(file_id), path("*.fq.gz*"), emit: clip_fq
 
   script:
-//seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
-"""
-seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${bam}
-"""
+  bam_only=$bam[1][0]  
+  //seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
+  """
+  seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${bam_only}
+  """
 }
 
 /*
