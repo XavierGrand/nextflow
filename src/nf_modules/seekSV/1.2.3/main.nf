@@ -15,7 +15,7 @@ process get_soft_clipped {
 
   input:  
     //tuple val(file_id), path(bam)
-    path(bam)
+    val(bam)
 
   output:
     tuple val(file_id), path("*.fq.gz*"), emit: clip_fq
