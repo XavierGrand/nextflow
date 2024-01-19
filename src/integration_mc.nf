@@ -92,14 +92,14 @@ workflow {
   //this is not needed since the sorting from sambamba generates already the index
   //index_bam(sort_bam.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
-  Channel
+/*  Channel
     .fromFilePairs(sort_bam.out.bam)
-    .set(sorted_bam_out)
+    .set(sorted_bam_out)*/
 
 
   //sort_bam.out.view()
   //get_soft_clipped(sort_bam.out.bam)
-  get_soft_clipped(sorted_bam_out[0])
+  get_soft_clipped(sort_bam.out.bam[0])
   //#####################REALIGNMENT
   //#####################GET SV
 }
