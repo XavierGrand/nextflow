@@ -14,8 +14,8 @@ process get_soft_clipped {
   }
 
   input:  
-    //tuple val(file_id), path(bam)
-    tuple val(file_id), [path(bam), path(bai)]
+    tuple val(file_id), path(bam)
+    //tuple val(file_id), path(bam), path(bai)
 
   output:
     tuple val(file_id), path("*.fq.gz*"), emit: clip_fq
@@ -23,7 +23,7 @@ process get_soft_clipped {
   script:
 //seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
 """
-seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
+seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${bam}
 """
 }
 
