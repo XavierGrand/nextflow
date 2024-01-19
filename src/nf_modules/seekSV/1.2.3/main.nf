@@ -1,6 +1,6 @@
 //Need to properly define a container
-/*version = "1.2.1"
-container_url = "lbmc/seekSV:${version}"*/
+version = "1.2.1"
+container_url = "lbmc/seekSV:${version}"
 
 //Get soft-clipped reads from original bam file
 params.get_soft_clipped = ""
