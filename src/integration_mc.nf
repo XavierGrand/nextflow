@@ -96,10 +96,11 @@ workflow {
     .fromFilePairs(sort_bam.out.bam)
     .set(sorted_bam_out)*/
 
-
+  sort_bam_out=sort_bam.out.bam.map{it.first()}
   //sort_bam.out.view()
   //get_soft_clipped(sort_bam.out.bam)
-  get_soft_clipped(sort_bam.out.bam[0])
+  //get_soft_clipped(sort_bam.out.bam)
+  get_soft_clipped(sort_bam_out)
   //#####################REALIGNMENT
   //#####################GET SV
 }
