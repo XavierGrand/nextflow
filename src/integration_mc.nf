@@ -97,10 +97,32 @@ workflow {
     .set(sorted_bam_out)*/
 
   //sort_bam_out=sort_bam.out.bam.map{it.first()}
-  sort_bam.out.view()
+  //sort_bam.out.view()
   //get_soft_clipped(sort_bam.out.bam)
   get_soft_clipped(sort_bam.out.bam)
+  get_soft_clipped.out.view()
   //get_soft_clipped(sort_bam_out)
   //#####################REALIGNMENT
+  //Need to use the output of index_fasta_bwa or pass the fasta and indexed files as parameters
+  // get only the faasta with the clipped reads
+  /*if (params.idx == "") {
+    Channel
+      .fromPath( params.fasta )
+      .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
+      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+      .set { genome_file }
+    
+    mapping_fastq_bwa(index_fasta_bwa.out.index.collect(), get_soft_clipped_fasta)
+  }
+  else {
+    idx_genome = "${params.idx}"
+    
+    Channel
+      .fromPath( "${params.idx}" )
+      .set { genome_indexed_input }
+
+    mapping_fastq_bwa(genome_indexed_input, fastq_files)
+  }*/
+
   //#####################GET SV
 }

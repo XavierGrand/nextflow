@@ -18,11 +18,11 @@ process get_soft_clipped {
     //tuple val(file_id), path(bam), path(bai)
 
   output:
-    tuple val(file_id), path("*.fq.gz*"), emit: clip_fq
+    tuple val(file_id), path("*.clip.fq.gz"), emit: clip_fq
+    tuple val(file_id), path("*.unmapped_{1,2}.fq.gz"), emit: unmapped_fq
 
   script:
-  bam_only=bam[0][0]  
-  //seeksv getclip ${params.get_soft_clipped} -o ${bam.baseName}_seeksv ${bam}
+  bam_only=bam[0][0]
   """
   seeksv getclip ${params.get_soft_clipped} -o ${file_id}_seeksv ${bam_only}
   """
