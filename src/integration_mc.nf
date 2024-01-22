@@ -101,7 +101,7 @@ workflow {
   //get_soft_clipped(sort_bam.out.bam)
   get_soft_clipped(sort_bam.out.bam)
   get_soft_clipped.out.clip_fq.view()
-  index_fasta_bwa.out.inxed.view()
+  index_fasta_bwa.out.index.view()
   //get_soft_clipped(sort_bam_out)
   //#####################REALIGNMENT
   //Need to use the output of index_fasta_bwa or pass the fasta and indexed files as parameters
