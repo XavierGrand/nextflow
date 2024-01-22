@@ -49,7 +49,9 @@ Channel
 */
 include { mapping } from "./nf_modules/bwa/main.nf"
 include { index_fasta as index_fasta_bwa  } from "./nf_modules/bwa/main.nf"
-include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf"
+//include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf" addParams(mapping_fastq_out: "01_original_alignment")
+include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf" 
+include { mapping_fastq as mapping_fastq_softclip  } from "./nf_modules/bwa/main.nf" addParams(mapping_fastq_out: "02_soft_clip_alignment")
 include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
@@ -106,24 +108,25 @@ workflow {
   //#####################REALIGNMENT
   //Need to use the output of index_fasta_bwa or pass the fasta and indexed files as parameters
   // get only the faasta with the clipped reads
-  /*if (params.idx == "") {
-    Channel
+  if (params.idx == "") {
+   /* Channel
       .fromPath( params.fasta )
       .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
       .set { genome_file }
-    
-    mapping_fastq_bwa(index_fasta_bwa.out.index.collect(), get_soft_clipped_fasta)
+   */ 
+    mapping_fastq_softclip(index_fasta_bwa.out.index.collect(), get_soft_clipped.out.clip_fq)
   }
   else {
+    //this need to be fixed to mimic the output of the index process
     idx_genome = "${params.idx}"
     
     Channel
       .fromPath( "${params.idx}" )
       .set { genome_indexed_input }
 
-    mapping_fastq_bwa(genome_indexed_input, fastq_files)
-  }*/
+    mapping_fastq_softclip(genome_indexed_input.collect(), get_soft_clipped.out.clip_fq)
+  }
 
   //#####################GET SV
 }
