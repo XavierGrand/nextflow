@@ -56,6 +56,7 @@ include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { get_soft_clipped } from "./nf_modules/seekSV/1.2.3/main.nf"
+include { get_sv } from "./nf_modules/seekSV/1.2.3/main.nf" addParams(get_sv_out: "03_sv_detection")
 /*
  ****************************************************************
                           Workflow
@@ -102,8 +103,8 @@ workflow {
   //sort_bam.out.view()
   //get_soft_clipped(sort_bam.out.bam)
   get_soft_clipped(sort_bam.out.bam)
-  get_soft_clipped.out.clip_fq.view()
-  index_fasta_bwa.out.index.view()
+  //get_soft_clipped.out.clip_fq.view()
+  //index_fasta_bwa.out.index.view()
   //get_soft_clipped(sort_bam_out)
   //#####################REALIGNMENT
   //Need to use the output of index_fasta_bwa or pass the fasta and indexed files as parameters
@@ -129,4 +130,5 @@ workflow {
   }
 
   //#####################GET SV
+  get_sv(mapping_fastq_softclip.out.bam,sort_bam.out.bam,get_soft_clipped.out.clip_gz)
 }

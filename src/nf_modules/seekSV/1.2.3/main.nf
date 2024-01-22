@@ -23,6 +23,7 @@ process get_soft_clipped {
 
   output:
     tuple val(file_id), path("*.clip.fq.gz"), emit: clip_fq
+    tuple val(file_id), path("*.clip.gz"), emit: clip_gz
     tuple val(file_id), path("*.unmapped_{1,2}.fq.gz"), emit: unmapped_fq
 
   script:
@@ -32,27 +33,29 @@ process get_soft_clipped {
   """
 }
 
-/*
 params.get_sv = ""
+params.get_sv_out = ""
 process get_sv {
   container = "${container_url}"
   label "big_mem_multi_cpus"
   tag "$file_id"
+  if (params.get_sv_out != "") {
+    publishDir "results/${params.get_sv_out}/${file_id}", mode: 'copy'
+  }
 
   input:  
-    tuple val(file_id), path(bam)
+    tuple val(file_id), path(clip_bam)
+    tuple val(file_id), path(original_bam)
+    tuple val(file_id), path(clip_gz)
+
 
   output:
-    tuple val(file_id), path("*.fq.gz*"), emit: clip_fq
+    tuple val(file_id), path("*.sv.txt"), emit: sv_report
+    tuple val(file_id), path("*.clip.fq.gz"), emit: unmapped_fq
 
   script:
 """
-seeksv getsv ${params.get_sv} -o ${bam.baseName}_seeksv ${bam}
-seeksv getsv /path/to/prefix.clip.bam \
-             /path/to/input.bam \
-             /path/to/prefix.clip.gz \
-             /path/to/outputs/output.sv.txt \
-             /path/to/outputs/output.unmapped.clip.fq.gz
+seeksv getsv ${params.get_sv} ${clip_bam} ${orginal_bam} ${clip_gz} \
+             ${file_id}_seekSV.sv.txt ${file_id}_seekSV.unmapped.clip.fq.gz  
 """
 }
-*/
