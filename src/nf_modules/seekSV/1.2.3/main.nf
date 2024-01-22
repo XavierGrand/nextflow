@@ -39,8 +39,9 @@ process get_sv {
   container = "${container_url}"
   label "big_mem_multi_cpus"
   tag "$file_id"
+
   if (params.get_sv_out != "") {
-    publishDir "results/${params.get_sv_out}/${file_id}", mode: 'copy'
+    publishDir "results/${params.get_sv_out}", mode: 'copy'
   }
 
   input:  
@@ -56,6 +57,6 @@ process get_sv {
   script:
 """
 seeksv getsv ${params.get_sv} ${clip_bam} ${orginal_bam} ${clip_gz} \
-             ${file_id}_seekSV.sv.txt ${file_id}_seekSV.unmapped.clip.fq.gz  
+             ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
 """
 }
