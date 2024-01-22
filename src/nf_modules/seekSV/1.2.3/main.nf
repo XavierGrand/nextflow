@@ -6,6 +6,7 @@ container_url = "lbmc/seekSV:${version}"
 params.get_soft_clipped = ""
 params.soft_clipped_out = ""
 process get_soft_clipped {
+  cache false
   container = "${container_url}"
   label "big_mem_multi_cpus"
   tag "$file_id"
