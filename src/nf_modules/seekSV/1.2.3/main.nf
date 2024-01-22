@@ -5,8 +5,11 @@ container_url = "lbmc/seekSV:${version}"
 //Get soft-clipped reads from original bam file
 params.get_soft_clipped = ""
 params.soft_clipped_out = ""
+params.soft_clipped_cache = ""
 process get_soft_clipped {
-  cache false
+  if (params.soft_clipped_cache != "") {
+    cache false
+  }
   container = "${container_url}"
   label "big_mem_multi_cpus"
   tag "$file_id"
