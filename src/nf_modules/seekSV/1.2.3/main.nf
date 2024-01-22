@@ -55,8 +55,8 @@ process get_sv {
     tuple val(file_id), path("*.clip.fq.gz"), emit: unmapped_fq
 
   script:
-"""
-seeksv getsv ${params.get_sv} ${clip_bam} ${orginal_bam} ${clip_gz} \
-             ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
-"""
+  """
+  seeksv getsv ${params.get_sv} ${clip_bam} ${original_bam} ${clip_gz} \
+               ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
+  """
 }
