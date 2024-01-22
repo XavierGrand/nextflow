@@ -57,6 +57,6 @@ process get_sv {
   script:
   """
   seeksv getsv ${params.get_sv} ${clip_bam} ${original_bam} ${clip_gz} \
-               ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
+  ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
   """
 }
