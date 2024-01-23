@@ -82,6 +82,8 @@ workflow {
     
     Channel
       .fromPath( "${params.idx}" )
+      .ifEmpty { error "Cannot find any files matching: ${params.idx}" }
+      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1],[it]]}
       .set { genome_indexed_input }
 
     mapping_fastq_bwa(genome_indexed_input, fastq_files)
