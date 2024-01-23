@@ -1,0 +1,97 @@
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+/*
+##################################################################
+Integration pipeline
+##################################################################
+
+Pipeline to perform viral integration analysis and discovery, using both DNA and RNA data.
+
+
+/*
+****************************************************************
+                    Default Parameters
+****************************************************************
+*/
+ 
+/* Define some arguments for cli */
+params.project = ""
+params.fastq = "${params.project}/fastq/*_{R1,R2}_*.fq.gz"
+params.fasta = ""
+params.idx = ""
+
+/*
+ ****************************************************************
+                              Logs
+ ****************************************************************
+*/
+
+log.info "Genome fasta file: ${params.fasta}"
+log.info "Genome index location: ${params.idx}"
+
+/*
+ ****************************************************************
+                        Channel definitions
+ ****************************************************************
+*/
+
+Channel
+  .fromFilePairs( params.fastq, size: -1 )
+  .set { fastq_files }
+
+
+/*
+ ****************************************************************
+                          Imports
+ ****************************************************************
+*/
+include { mapping } from "./nf_modules/bwa/main.nf"
+include { index_fasta as index_fasta_bwa  } from "./nf_modules/bwa/main.nf"
+include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf"
+include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
+/*
+ ****************************************************************
+                          Workflow
+ ****************************************************************
+*/
+
+workflow {
+
+  //############ GENOME INDEXING AND MAPPING ###################
+
+  if (params.idx == "") {
+    Channel
+      .fromPath( params.fasta )
+      .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
+      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+      .set { genome_file }
+    
+    index_fasta_bwa(genome_file)
+    mapping_fastq_bwa(index_fasta_bwa.out.index.collect(), fastq_files)
+  }
+  else {
+    idx_genome = "${params.idx}"
+    
+    Channel
+      .fromPath( "${params.idx}" )
+      .set { genome_indexed_input }
+
+    mapping_fastq_bwa(genome_indexed_input, fastq_files)
+  }
+
+  //#####################DUPLICATE MARKING
+  mark_dup(mapping_fastq_bwa.out.bam)
+  //#####################COORDINATE SORTING
+  sort_bam(mark_dup.out.bam)
+  //#####################BAM INDEXING
+  //this is not needed since the sorting from sambamba generates already the index
+  //index_bam(sort_bam.out.bam)
+  //#####################SOFT CLIPPED READS EXTRACTION
+  
+  //#####################REALIGNMENT
+  //#####################GET SV
+}
