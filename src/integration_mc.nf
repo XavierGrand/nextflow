@@ -48,10 +48,9 @@ Channel
  ****************************************************************
 */
 include { mapping } from "./nf_modules/bwa/main.nf"
-include { index_fasta as index_fasta_bwa  } from "./nf_modules/bwa/main.nf"
-//include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf" addParams(mapping_fastq_out: "01_original_alignment")
-include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/main.nf" 
-include { mapping_fastq as mapping_fastq_softclip  } from "./nf_modules/bwa/main.nf" addParams(mapping_fastq_out: "02_soft_clip_alignment")
+include { index_fasta as index_fasta_bwa  } from "./nf_modules/bwa/0.7.17/main.nf"
+include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/0.7.17/main.nf" addParams(mapping_fastq_out: "01_original_alignment")
+include { mapping_fastq as mapping_fastq_softclip  } from "./nf_modules/bwa/0.7.17/main.nf" addParams(mapping_fastq_out: "02_soft_clip_alignment", file_suffix: "_softclip")
 include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
