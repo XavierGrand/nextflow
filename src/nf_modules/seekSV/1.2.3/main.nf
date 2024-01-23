@@ -54,8 +54,8 @@ process get_sv {
 
 
   output:
-    tuple val(file_id), path("*.sv.txt"), emit: sv_report
-    tuple val(file_id), path("*.clip.fq.gz"), emit: unmapped_fq
+    tuple val(file_id), path("${file_id}/*.sv.txt"), emit: sv_report
+    tuple val(file_id), path("${file_id}/*.clip.fq.gz"), emit: unmapped_fq
 
   script:
   if (original_bam instanceof List ){
@@ -64,6 +64,7 @@ process get_sv {
     original_bam_file = original_bam
   }
   """
+  mkdir -p ${file_id}
   seeksv getsv ${params.get_sv} ${clip_bam} ${original_bam_file} ${clip_gz} ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
   """
 }
