@@ -58,8 +58,12 @@ process get_sv {
     tuple val(file_id), path("*.clip.fq.gz"), emit: unmapped_fq
 
   script:
-
+  if (original_bam instanceof List ){
+    original_bam_file = original_bam[0]
+  } else {
+    original_bam_file = original_bam
+  }
   """
-  seeksv getsv ${params.get_sv} ${clip_bam} ${original_bam} ${clip_gz} ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
+  seeksv getsv ${params.get_sv} ${clip_bam} ${original_bam_file} ${clip_gz} ${file_id}/${file_id}_seekSV.sv.txt ${file_id}/${file_id}_seekSV.unmapped.clip.fq.gz  
   """
 }
