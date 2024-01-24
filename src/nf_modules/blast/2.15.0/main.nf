@@ -1,12 +1,11 @@
 version = "2.15.0"
 container_url = "ncbi/blast:${version}"
 
-params.ref_fasta = ""
 params.makeblastdb_out = ""
 process makeblastdb {
   container = "${container_url}"
   label "big_mem_multi_cpus"
-  tag "$file_id"
+  tag "${file_id}_Genomes"
   if (params.makeblastdb_out != "") {
     publishDir "results/${params.makeblastdb_out}", mode: 'copy'
   }
@@ -15,7 +14,7 @@ process makeblastdb {
     tuple val(file_id), path(ref_fasta)
 
   output:
-    tuple val(file_id), path("*.fasta.n*"), emit: blastdb
+    tuple val(ref_fasta.baseName), path("*.fasta.n*"), emit: blastdb
 
   script:
 """
@@ -51,5 +50,36 @@ process dl_hbvdb {
   // else if(){}
 """
 wget --quiet --no-check-certificate -O ${output_name} ${link}
+"""
+}
+
+params.blast_them_all_out = ""
+process blast_them_all {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  tag "${file_id}_Genomes"
+  if (params.blast_them_all_out != "") {
+    publishDir "results/${params.blast_them_all_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(file_id), path(fastq)
+    tuple val(genotype), path(blastdb)
+
+  output:
+    path("${file_id}_hits.txt"), emit: blasthits
+    path("${file_id}_hits_counts.txt"), emit: counthits
+    path("${file_id}_best_ref.txt"), emit: bestref
+
+  script:
+"""
+blastn -db ${genotype}.fasta -query ${fastq} \
+       -task megablast \
+       -max_target_seqs 1 \
+       -max_hsps 1 \
+			 -outfmt "6 qseqid sseqid evalue bitscore slen qlen length pident" \
+			 -out ${file_id}_hits.txt -num_threads ${params.blasthreads}
+cut -f2 ${file_id}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${file_id}_hits_counts.txt
+cut -f2 ${file_id}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head -n1 | sed 's/^ *[0-9]* //g' > ${file_id}_best_ref.txt
 """
 }

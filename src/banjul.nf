@@ -64,8 +64,7 @@ if (params.help || params.h) {
 params.input = "/home/xavier/Data/Gambia_cohort/banjul/01_basecalling/"
 params.fasta = ""
 params.hbvdb = "all"
-
-params.<truc>_out = "00_truc/"
+params.blasthreads = 18 // To override the nextflow.config threads number configuraton
 
 /*
  ****************************************************************
@@ -106,14 +105,17 @@ Channel
  ****************************************************************
 */
 
-include { dl_hbvdb } from "./nf_modules/blast/main.nf" addParams(dl_hbvdb_out: "00_ReferenceFiles/")
-include { splitmultifasta } from "./nf_modules/splitmultifasta/main.nf" addParams(splitmultifasta_out: "00_ReferenceFiles/")
-include { doublefastaref } from "./nf_modules/seqkit/main.nf" addParams(doublefastaref_out: "00_ReferenceFiles/")
-include { groupsfasta } from "./nf_modules/splitmultifasta/main.nf" addParams(groupsfasta_out: "00_ReferenceFiles/")
-include { makeblastdb } from "./nf_modules/blast/main.nf" addParams(makeblastdb_out: "00_ReferenceFiles/")
-include { concatenate } from "./nf_modules/seqkit/main.nf" addParams(fastq_out: "01_fastq/")
-include { sample_fastq } from "./nf_modules/seqtk/main.nf" addParams(sample_fastq_out: "02_Blast/")
-// include { blast } from "./nf_modules/blast/main.nf" addParams(blast_out: "02_Blast/")
+include { dl_hbvdb } from "./nf_modules/blast/2.15.0/main.nf" addParams(dl_hbvdb_out: "00_ReferenceFiles/")
+include { splitmultifasta } from "./nf_modules/splitmultifasta/1.0/main.nf" addParams(splitmultifasta_out: "00_ReferenceFiles/")
+include { doublefastaref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(doublefastaref_out: "00_ReferenceFiles/")
+include { groupsfasta } from "./nf_modules/splitmultifasta/1.0/main.nf" addParams(groupsfasta_out: "00_ReferenceFiles/")
+include { makeblastdb } from "./nf_modules/blast/2.15.0/main.nf" addParams(makeblastdb_out: "00_ReferenceFiles/")
+include { concatenate } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(fastq_out: "01_fastq/")
+include { sample_fastq } from "./nf_modules/seqtk/1.3/main.nf" addParams(sample_fastq_out: "02_Blast/")
+include { blast_them_all } from "./nf_modules/blast/2.15.0/main.nf" addParams(blast_them_all_out: "02_Blast/")
+include { extractref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(extractref_out: "00_ReferenceFiles/")
+include { index_fasta } from "./nf_modules/samtools/1.11/main.nf" addParams(index_fasta_out: "00_ReferenceFiles/")
+include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addParams(mapping_hbv_genome_out: "03_Minimap2/")
 
 /*
  ****************************************************************
@@ -123,8 +125,8 @@ include { sample_fastq } from "./nf_modules/seqtk/main.nf" addParams(sample_fast
 
 workflow {
 
-  // concatenate(barcodes)
-  // sample_fastq(concatenate.out.merged_fastq)
+  concatenate(barcodes)
+  sample_fastq(concatenate.out.merged_fastq)
 
 // Step 1: Download or Upload Reference to blast:
 /*
@@ -155,18 +157,22 @@ else Load user's blastdb.
   splitmultifasta(dl_hbvdb.out.reference_db)
   doublefastaref(splitmultifasta.out.splitedfasta)
   groupsfasta(doublefastaref.out.doubledfasta.groupTuple())
-  groupsfasta.out.groupedfasta.view()
+  makeblastdb(groupsfasta.out.groupedfasta)
 
-/*
 // Step 3 : Blast reads from fastq files on blastdb
-blast, ok
+
+  blast_them_all(sample_fastq.out.sampled_fastq, makeblastdb.out.blastdb)
 
 // Step 4 : Extract best results and corresponding reference sequence
-Need to code new scripts !
+
+  extractref(blast_them_all.out.bestref, groupsfasta.out.groupedfasta)
+  index_fasta(extractref.out.referenceseq)
 
 // Step 5 : Align reads on reference sequence
-minimap2, ok
 
+  mapping_hbv_genome(concatenate.out.merged_fastq, extractref.out.referenceseq)
+
+/*
 // Step 6 : filter mapping results
 samtools, ok
 
