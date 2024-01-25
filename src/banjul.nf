@@ -65,6 +65,9 @@ params.input = "/home/xavier/Data/Gambia_cohort/banjul/01_basecalling/"
 params.fasta = ""
 params.hbvdb = "all"
 params.blasthreads = 18 // To override the nextflow.config threads number configuraton
+params.fwprimer = "CTACTGTTCAAGCCTCCAAGC"
+params.rwprimer = "CGCAGACCAATTTATGCCTAC"
+params.maxlength = 3200
 
 /*
  ****************************************************************
@@ -111,11 +114,15 @@ include { doublefastaref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(do
 include { groupsfasta } from "./nf_modules/splitmultifasta/1.0/main.nf" addParams(groupsfasta_out: "00_ReferenceFiles/")
 include { makeblastdb } from "./nf_modules/blast/2.15.0/main.nf" addParams(makeblastdb_out: "00_ReferenceFiles/")
 include { concatenate } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(fastq_out: "01_fastq/")
+include { grep_primer as pick_fw_primer } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "fw")
+include { grep_primer as pick_rw_primer } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "rw")
 include { sample_fastq } from "./nf_modules/seqtk/1.3/main.nf" addParams(sample_fastq_out: "02_Blast/")
 include { blast_them_all } from "./nf_modules/blast/2.15.0/main.nf" addParams(blast_them_all_out: "02_Blast/")
 include { extractref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(extractref_out: "00_ReferenceFiles/")
 include { index_fasta } from "./nf_modules/samtools/1.11/main.nf" addParams(index_fasta_out: "00_ReferenceFiles/")
 include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addParams(mapping_hbv_genome_out: "03_Minimap2/")
+include { sort_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(sort_bam_out: "03_Minimap2/")
+include { index_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(index_bam_out: "03_Minimap2/")
 
 /*
  ****************************************************************
@@ -126,7 +133,9 @@ include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addPara
 workflow {
 
   concatenate(barcodes)
-  sample_fastq(concatenate.out.merged_fastq)
+  pick_fw_primer(concatenate.out.merged_fastq, params.fwprimer)
+  pick_rw_primer(pick_fw_primer.out.filtered_fastq, params.rwprimer)
+  sample_fastq(pick_rw_primer.out.filtered_fastq)
 
 // Step 1: Download or Upload Reference to blast:
 /*
@@ -172,11 +181,11 @@ else Load user's blastdb.
 
   mapping_hbv_genome(concatenate.out.merged_fastq, extractref.out.referenceseq)
 
-/*
 // Step 6 : filter mapping results
-samtools, ok
+
+  sort_bam(mapping_hbv_genome.out.bam)
+  index_bam(sort_bam.out.bam)
 
 // Step 7 : Variation calling
 
-*/
 }

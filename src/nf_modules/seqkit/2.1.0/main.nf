@@ -135,3 +135,36 @@ process extractref {
     seqkit grep -f ${bestref} ${multifasta} -o ${bestref.baseName}_toMap.fasta
     """
 }
+
+params.grep_primer_out = ""
+params.primerloc = "fw"
+process grep_primer {
+  container = "${container_url}"
+  label "small_mem_multi_cpus"
+  tag "${barcode}"
+  if (params.grep_primer_out != "") {
+    publishDir "results/${params.grep_primer_out}", mode: 'copy'
+  }
+  
+  input:
+    tuple val(barcode), path(fastq)
+    val(primer)
+
+  output:
+    tuple val(barcode), path("${barcode}/${barcode}_${params.primerloc}_filtered.fastq.gz"), emit: filtered_fastq
+    path("${barcode}/*.csv")
+    path("${barcode}/*.txt")
+
+  script:
+    length = Math.round(primer.size().div(10))
+    """
+    mkdir ${barcode}
+    cd ${barcode}/
+    echo "mismatch allowed to ${params.primerloc} primer search: ${length}" >> mismatch.txt
+    echo ${primer} > primer.txt
+    seqkit grep -i -f primer.txt -m ${length} ../${fastq} -o ${barcode}_${params.primerloc}_filtered.fastq -j ${task.cpus}
+    gzip ${barcode}_${params.primerloc}_filtered.fastq
+    seqkit stats ../${fastq} -T -j ${task.cpus} >> ${barcode}_seq_stats.csv
+    seqkit stats ${barcode}_${params.primerloc}_filtered.fastq.gz -T -j ${task.cpus} | tail -n1 >> ${barcode}_seq_stats.csv
+    """
+}
