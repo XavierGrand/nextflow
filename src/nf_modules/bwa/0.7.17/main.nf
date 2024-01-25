@@ -42,6 +42,7 @@ bwa index ${params.index_fasta} -p ${fasta.simpleName} ${fasta} \
 
 params.mapping_fastq = ""
 params.mapping_fastq_out = ""
+params.file_suffix = ""
 process mapping_fastq {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -81,7 +82,7 @@ ${params.mapping_fastq} \
 -R '${bwa_mem_R}' \
 ${index[0].baseName} ${reads[0]} ${reads[1]} 2> \
   ${file_prefix}_bwa_report.txt | \
-  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}.bam
+  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}${file_suffix}.bam
 """
   else
 """
@@ -90,7 +91,7 @@ ${params.mapping_fastq} \
 -R '${bwa_mem_R}' \
 ${index[0].baseName} ${reads} 2> \
   ${file_prefix}_bwa_report.txt | \
-  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}.bam
+  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}${file_suffix}.bam
 """
 }
 
