@@ -20,7 +20,7 @@ process index_fasta {
 """
 if gzip -t ${fasta}; then
   zcat ${fasta} > ${fasta.simpleName}.fasta
-  samtools faidx ${params.index_fasta}  ${fasta.simpleName}.fasta
+  samtools faidx ${params.index_fasta} ${fasta.simpleName}.fasta
 else
   samtools faidx ${params.index_fasta} ${fasta}
 fi

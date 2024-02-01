@@ -68,6 +68,7 @@ params.blasthreads = 18 // To override the nextflow.config threads number config
 params.fwprimer = "CTACTGTTCAAGCCTCCAAGC"
 params.rwprimer = "CGCAGACCAATTTATGCCTAC"
 params.maxlength = 3200
+params.minlength = 3000
 
 /*
  ****************************************************************
@@ -116,6 +117,8 @@ include { makeblastdb } from "./nf_modules/blast/2.15.0/main.nf" addParams(makeb
 include { concatenate } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(fastq_out: "01_fastq/")
 include { grep_primer as pick_fw_primer } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "fw")
 include { grep_primer as pick_rw_primer } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "rw")
+include { porechop } from "./nf_modules/porechop/0.2.4/main.nf" addParams(porechop_out: "01_fastq/")
+include { filterbylength } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(filterbylength_out: "01_fastq/")
 include { sample_fastq } from "./nf_modules/seqtk/1.3/main.nf" addParams(sample_fastq_out: "02_Blast/")
 include { blast_them_all } from "./nf_modules/blast/2.15.0/main.nf" addParams(blast_them_all_out: "02_Blast/")
 include { extractref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(extractref_out: "00_ReferenceFiles/")
@@ -135,7 +138,9 @@ workflow {
   concatenate(barcodes)
   pick_fw_primer(concatenate.out.merged_fastq, params.fwprimer)
   pick_rw_primer(pick_fw_primer.out.filtered_fastq, params.rwprimer)
-  sample_fastq(pick_rw_primer.out.filtered_fastq)
+  porechop(pick_rw_primer.out.filtered_fastq)
+  filterbylength(porechop.out.porechoped_fastq)
+  sample_fastq(filterbylength.out.filtered_fastq)
 
 // Step 1: Download or Upload Reference to blast:
 /*
@@ -170,16 +175,16 @@ else Load user's blastdb.
 
 // Step 3 : Blast reads from fastq files on blastdb
 
-  blast_them_all(sample_fastq.out.sampled_fastq, makeblastdb.out.blastdb)
+  blast_them_all(sample_fastq.out.sampled_fastq, makeblastdb.out.blastdb.collect())
 
 // Step 4 : Extract best results and corresponding reference sequence
 
-  extractref(blast_them_all.out.bestref, groupsfasta.out.groupedfasta)
+  extractref(blast_them_all.out.bestref, groupsfasta.out.groupedfasta.collect())
   index_fasta(extractref.out.referenceseq)
 
 // Step 5 : Align reads on reference sequence
 
-  mapping_hbv_genome(concatenate.out.merged_fastq, extractref.out.referenceseq)
+  mapping_hbv_genome(filterbylength.out.filtered_fastq.combine(extractref.out.referenceseq, by: 0))
 
 // Step 6 : filter mapping results
 

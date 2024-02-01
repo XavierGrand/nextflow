@@ -71,19 +71,16 @@ process mapping_hbv_genome {
   }
 
   input:
-  tuple val(barcode), path(fastq)
-  tuple val(ref), path(genome)
+  tuple val(barcode), path(fastq), path(genome)
 
   output:
-  tuple val(barcode), path("${barcode}/${barcode}_res.bam"), emit: bam
+  tuple val(barcode), path("${barcode}_res.bam"), emit: bam
 
   script:
   memory = "${task.memory}" - ~/\s*GB/
   memory = memory.toInteger() / (task.cpus + 1.0)
   """
-  mkdir ${barcode}
-  cd ${barcode}/
-  minimap2 ${params.mapping_hbv_genome} -t ${task.cpus} -K ${memory} ../${genome} ../${fastq} |
+  minimap2 ${params.mapping_hbv_genome} -t ${task.cpus} -K ${memory} ${genome} ${fastq} |
     samtools view -Shb -F4 - > ${barcode}_res.bam
   """
 }

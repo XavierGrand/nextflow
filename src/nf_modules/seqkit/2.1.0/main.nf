@@ -124,15 +124,16 @@ process extractref {
   }
   
   input:
-    path(bestref)
+    tuple val(barcode), path(bestref)
     tuple val(genotype), path(multifasta)
 
   output:
-    tuple val(genotype), path("${bestref.baseName}_toMap.fasta"), emit: referenceseq
+    tuple val(barcode), path("${barcode}/${barcode}_toMap.fasta"), emit: referenceseq
 
   script:
     """
-    seqkit grep -f ${bestref} ${multifasta} -o ${bestref.baseName}_toMap.fasta
+    mkdir ${barcode}
+    seqkit grep -f ${bestref} ${multifasta} -o ${barcode}/${barcode}_toMap.fasta
     """
 }
 
@@ -166,5 +167,29 @@ process grep_primer {
     gzip ${barcode}_${params.primerloc}_filtered.fastq
     seqkit stats ../${fastq} -T -j ${task.cpus} >> ${barcode}_seq_stats.csv
     seqkit stats ${barcode}_${params.primerloc}_filtered.fastq.gz -T -j ${task.cpus} | tail -n1 >> ${barcode}_seq_stats.csv
+    """
+}
+
+params.filterbylength_out = ""
+process filterbylength {
+  container = "${container_url}"
+  label "small_mem_multi_cpus"
+  tag "${barcode}"
+  if (params.filterbylength_out != "") {
+    publishDir "results/${params.filterbylength_out}", mode: 'copy'
+  }
+  
+  input:
+    tuple val(barcode), path(fastq)
+
+  output:
+    tuple val(barcode), path("${barcode}/${barcode}_${params.maxlength}bp_filtered.fastq.gz"), emit: filtered_fastq
+
+  script:
+    """
+    mkdir ${barcode}
+    cd ${barcode}/
+    seqkit seq --min-len ${params.minlength} --max-len ${params.maxlength} --remove-gaps ../${fastq} -j ${task.cpus} > ${barcode}_${params.maxlength}bp_filtered.fastq
+    gzip ${barcode}_${params.maxlength}bp_filtered.fastq
     """
 }

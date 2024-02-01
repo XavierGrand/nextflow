@@ -57,29 +57,30 @@ params.blast_them_all_out = ""
 process blast_them_all {
   container = "${container_url}"
   label "big_mem_multi_cpus"
-  tag "${file_id}_Genomes"
+  tag "${barcode}_Genomes"
   if (params.blast_them_all_out != "") {
     publishDir "results/${params.blast_them_all_out}", mode: 'copy'
   }
 
   input:
-    tuple val(file_id), path(fastq)
+    tuple val(barcode), path(fastq)
     tuple val(genotype), path(blastdb)
 
   output:
-    path("${file_id}_hits.txt"), emit: blasthits
-    path("${file_id}_hits_counts.txt"), emit: counthits
-    path("${file_id}_best_ref.txt"), emit: bestref
+    tuple val(barcode), path("${barcode}/${barcode}_hits.txt"), emit: blasthits
+    tuple val(barcode), path("${barcode}/${barcode}_hits_counts.txt"), emit: counthits
+    tuple val(barcode), path("${barcode}/${barcode}_best_ref.txt"), emit: bestref
 
   script:
 """
+mkdir ${barcode}
 blastn -db ${genotype}.fasta -query ${fastq} \
        -task megablast \
        -max_target_seqs 1 \
        -max_hsps 1 \
 			 -outfmt "6 qseqid sseqid evalue bitscore slen qlen length pident" \
-			 -out ${file_id}_hits.txt -num_threads ${params.blasthreads}
-cut -f2 ${file_id}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${file_id}_hits_counts.txt
-cut -f2 ${file_id}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head -n1 | sed 's/^ *[0-9]* //g' > ${file_id}_best_ref.txt
+			 -out ${barcode}/${barcode}_hits.txt -num_threads ${params.blasthreads}
+cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${barcode}/${barcode}_hits_counts.txt
+cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head -n1 | sed 's/^ *[0-9]* //g' > ${barcode}/${barcode}_best_ref.txt
 """
 }
