@@ -61,7 +61,7 @@ if (params.help || params.h) {
  ****************************************************************
 */
 
-params.input = "/home/xavier/Data/Gambia_cohort/banjul/01_basecalling/"
+params.input = "/home/xavier/Data/Gambia_cohort/20230214_minION_BS_HighVL_couple_SHAD01/01_basecalling/"
 params.fasta = ""
 params.hbvdb = "all"
 params.blasthreads = 18 // To override the nextflow.config threads number configuraton
