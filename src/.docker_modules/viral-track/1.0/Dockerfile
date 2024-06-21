@@ -15,12 +15,20 @@ RUN apt update \
     libbz2-dev \
 	procps
 
+RUN apt install -y python3-pip
+
 ## run update and install necessary tools
 RUN apt update -y && apt install -y \
     build-essential \
     git \
     rna-star \
     samtools
+
+RUN wget http://ccb.jhu.edu/software/stringtie/dl/stringtie-2.2.1.Linux_x86_64.tar.gz
+RUN tar xvfz stringtie-2.2.1.Linux_x86_64.tar.gz
+RUN echo "export PATH=$PATH:/stringtie-2.2.1.Linux_x86_64/stringtie" >> ~/.bashrc
+
+RUN pip install umi_tools
 
 RUN git clone https://github.com/PierreBSC/Viral-Track.git
 

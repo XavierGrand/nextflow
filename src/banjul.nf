@@ -69,6 +69,7 @@ params.fwprimer = "CTACTGTTCAAGCCTCCAAGC"
 params.rwprimer = "CGCAGACCAATTTATGCCTAC"
 params.maxlength = 3200
 params.minlength = 3000
+params.sort_bam = "-f0 -f16"
 
 /*
  ****************************************************************
@@ -191,6 +192,6 @@ else Load user's blastdb.
   sort_bam(mapping_hbv_genome.out.bam)
   index_bam(sort_bam.out.bam)
 
-// Step 7 : Variation calling
+// Step 7 : Variation calling/Consensus sequence, USE NANOPOLISH
 
 }
