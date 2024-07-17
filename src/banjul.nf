@@ -127,7 +127,7 @@ include { index_fasta } from "./nf_modules/samtools/1.11/main.nf" addParams(inde
 include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addParams(mapping_hbv_genome_out: "03_Minimap2/")
 include { sort_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(sort_bam_out: "03_Minimap2/")
 include { index_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(index_bam_out: "03_Minimap2/")
-include { filter_bam_mapped } from "./nf_modules/samtools/1.11/main.nf" addParams(params.filter_bam_mapped_out: "03_Minimap2/")
+include { filter_bam_mapped } from "./nf_modules/samtools/1.11/main.nf" addParams(filter_bam_mapped_out: "03_Minimap2/")
 
 /*
  ****************************************************************
