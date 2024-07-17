@@ -69,7 +69,6 @@ params.fwprimer = "CTACTGTTCAAGCCTCCAAGC"
 params.rwprimer = "CGCAGACCAATTTATGCCTAC"
 params.maxlength = 3200
 params.minlength = 3000
-params.sort_bam = "-f0 -f16"
 
 /*
  ****************************************************************
