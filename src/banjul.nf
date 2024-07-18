@@ -128,6 +128,7 @@ include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addPara
 include { sort_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(sort_bam_out: "03_Minimap2/")
 include { index_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(index_bam_out: "03_Minimap2/")
 include { filter_bam_mapped } from "./nf_modules/samtools/1.11/main.nf" addParams(filter_bam_mapped_out: "03_Minimap2/")
+include { consensus } from "./nf_modules/samtools/1.20/main.nf" addParams(consensus_out: "05_consensus/")
 
 /*
  ****************************************************************
@@ -196,4 +197,7 @@ else Load user's blastdb.
 
 // Step 7 : Variation calling/Consensus sequence, USE NANOPOLISH
 
+  consensus(sort_bam.out.bam)
+
+// Step 8 : Phylogenetic tree
 }
