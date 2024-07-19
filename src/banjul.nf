@@ -200,4 +200,6 @@ else Load user's blastdb.
   consensus(sort_bam.out.bam)
 
 // Step 8 : Phylogenetic tree
+
+  //mkinfile()
 }
