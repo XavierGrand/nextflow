@@ -1,5 +1,5 @@
 version = "1.20"
-container_url = "euformatics/samtools:${version}"
+container_url = "xgrand/samtools:${version}"
 
 params.index_fasta = ""
 params.index_fasta_out = ""

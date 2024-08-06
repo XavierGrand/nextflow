@@ -290,7 +290,7 @@ hisat2_mod = './nf_modules/hisat2/main.nf'
 multiqc_mod = './nf_modules/multiqc/main.nf'
 bedt_mod = './nf_modules/bedtools/main.nf'
 htseq_mod = './nf_modules/htseq/main.nf'
-sammod = './nf_modules/samtools/main.nf'
+sammod = './nf_modules/samtools/1.20/main.nf'
 deseqmod = "./nf_modules/deseq2/main.nf"
 topgomod = "./nf_modules/topgo/main.nf"
 
