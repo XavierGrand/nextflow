@@ -67,7 +67,7 @@ params.hbvdb = "all"
 params.blasthreads = 18 // To override the nextflow.config threads number configuraton
 params.fwprimer = "CTACTGTTCAAGCCTCCAAGC"
 params.rwprimer = "CGCAGACCAATTTATGCCTAC"
-params.maxlength = 3200
+params.maxlength = 3300
 params.minlength = 3000
 params.filter_bam_mapped = "-f0 -f16"
 
