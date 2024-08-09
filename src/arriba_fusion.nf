@@ -186,7 +186,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: '
 include { filter_bam_quality } from './nf_modules/samtools/main.nf'
 include { index_with_gtf } from './nf_modules/star/main_2.7.8a.nf'
 include { mapping2fusion } from './nf_modules/star/main_2.7.8a.nf'
-include { index_bam } from './nf_modules/samtools/main.nf'
+include { index_bam } from './nf_modules/samtools/1.20/main.nf'
 include { htseq_count } from './nf_modules/htseq/main.nf' addParams(htseq_out: '09_htseq_count', htseq_param: "${params.htseq_param}" )
 include { arriba } from "./nf_modules/arriba/main.nf"
 include { draw_fusions } from "./nf_modules/arriba/main.nf"
