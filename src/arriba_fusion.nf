@@ -137,9 +137,11 @@ Channel
     .fromPath( params.gtf )
     .set { gtf_file }
 
-Channel
+if ( params.design ) {
+  Channel
     .fromPath( params.design )
     .set { design }
+}
 
 if ( params.cyto ) {
     Channel
@@ -265,7 +267,8 @@ workflow {
               Parsing results & statistical analysis
  ****************************************************************
 */
-
-  concat_fusion(arriba.out.fusions)
-  parsefusion(concat_fusion.out.concatenated_fusions.collect(), htseq_count.out.counts.collect(), design)
+  if ( params.design ) {
+    concat_fusion(arriba.out.fusions)
+    parsefusion(concat_fusion.out.concatenated_fusions.collect(), htseq_count.out.counts.collect(), design)
+  }
 }
