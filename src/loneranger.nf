@@ -67,7 +67,7 @@ if (params.help || params.h) {
  ****************************************************************
 */
  
-params.fastq = "./data/fastq/*_R{1,2}.fastq.gz"
+params.fastq = "./data/fastq/*_{R1,R2,I1}.fastq.gz"
 params.genome = ""
 params.gtf = ""
 
@@ -134,7 +134,7 @@ if(params.bam) {
 }
 else {
     Channel
-        .fromFilePairs( fastq_list, size: -1)
+        .fromFilePairs( fastq_list, size: 3)
         .set { fastq_files }
 }
 
