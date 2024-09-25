@@ -89,6 +89,7 @@ process mapping_fastq {
   output:
     path "*.Log.final.out", emit: report
     tuple val(reads_id), path("*.bam"), emit: bam
+    tuple val(reads_id), path("*.tab")
 
   script:
 if (reads_id instanceof List){
@@ -108,7 +109,8 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--outSJtype
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
