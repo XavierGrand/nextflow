@@ -78,7 +78,10 @@ params.genome = ""
 params.cyto = ""
 params.gtf = ""
 params.index = ""
-params.htseq_param = "yes"
+params.htseq_param = "reverse"
+
+params.fastp = "-l 25 --detect_adapter_for_pe"
+params.paired_end=true
 
 /*
  ****************************************************************
