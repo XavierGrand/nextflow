@@ -74,10 +74,17 @@ STAR --runThreadN ${task.cpus} --runMode genomeGenerate \
 """
 }
 
+/*manage IntronMax and Min parameters*/
+params.star_Intron_params = "--alignIntronMax 10000"
 
 process mapping_fastq {
   container = "${container_url}"
-  label "big_mem_multi_cpus"
+  label "huge_mem_multi_cpus"
+  /*dynamic memory assignment*/
+  memory { 30.GB * task.attempt } 
+  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' } 
+  maxRetries 3 
+
   if (params.star_mapping_fastq_out != "") {
     publishDir "results/${params.star_mapping_fastq_out}", mode: 'copy'
   }
@@ -107,9 +114,11 @@ STAR --runThreadN ${task.cpus} \
 --readFilesCommand zcat \
 --readFilesIn ${reads[0]} ${reads[1]} \
 --outFileNamePrefix ${reads_id}. \
---alignIntronMax 10000 \
+${params.star_Intron_params} \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--outBAMcompression 10 \
+--outSAMunmapped Within 
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
@@ -122,7 +131,7 @@ STAR --runThreadN ${task.cpus} \
 --readFilesCommand zcat \
 --readFilesIn ${reads} \
 --outFileNamePrefix ${reads_id}. \
---alignIntronMax 10000 \
+${params.star_Intron_params} \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif
 

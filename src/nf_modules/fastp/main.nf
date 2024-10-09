@@ -29,7 +29,7 @@ workflow fastp {
 
 process fastp_default {
   container = "${container_url}"
-  label "big_mem_multi_cpus"
+  label "small_mem_medium_cpus"
   tag "$file_prefix"
   if (params.fastp_out != "") {
     publishDir "results/${params.fastp_out}", mode: 'copy'

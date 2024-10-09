@@ -82,7 +82,7 @@ ${params.mapping_fastq} \
 -R '${bwa_mem_R}' \
 ${index[0].baseName} ${reads[0]} ${reads[1]} 2> \
   ${file_prefix}_bwa_report.txt | \
-  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}${file_suffix}.bam
+  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}${params.file_suffix}.bam
 """
   else
 """
@@ -91,7 +91,7 @@ ${params.mapping_fastq} \
 -R '${bwa_mem_R}' \
 ${index[0].baseName} ${reads} 2> \
   ${file_prefix}_bwa_report.txt | \
-  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}${file_suffix}.bam
+  samtools view -@ ${task.cpus} -Sb - > ${file_prefix}${params.file_suffix}.bam
 """
 }
 

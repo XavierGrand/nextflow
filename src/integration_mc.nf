@@ -20,7 +20,9 @@ Pipeline to perform viral integration analysis and discovery, using both DNA and
 params.project = ""
 params.fastq = "${params.project}/fastq/*_{R1,R2}_*.fq.gz"
 params.fasta = ""
+params.fasta_hbv = ""
 params.idx = ""
+params.idx_hbv = ""
 
 /*
  ****************************************************************
@@ -47,31 +49,38 @@ Channel
                           Imports
  ****************************************************************
 */
-include { mapping } from "./nf_modules/bwa/main.nf"
 include { index_fasta as index_fasta_bwa  } from "./nf_modules/bwa/0.7.17/main.nf"
+include { index_fasta as index_fasta_hbv  } from "./nf_modules/bwa/0.7.17/main.nf"
 include { mapping_fastq as mapping_fastq_bwa  } from "./nf_modules/bwa/0.7.17/main.nf" addParams(mapping_fastq_out: "01_original_alignment")
 include { mapping_fastq as mapping_fastq_softclip  } from "./nf_modules/bwa/0.7.17/main.nf" addParams(mapping_fastq_out: "02_soft_clip_alignment", file_suffix: "_softclip")
+include { mapping_fastq as mapping_fastq_hbv  } from "./nf_modules/bwa/0.7.17/main.nf" addParams(mapping_fastq_out: "05_hbv_only_alignment", file_suffix: "_HBV")
 include { index_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { index_bam_hbv } from "./nf_modules/sambamba/1.0.1/main.nf"
 include { mark_dup } from "./nf_modules/sambamba/1.0.1/main.nf"
-include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { mark_dup_hbv } from "./nf_modules/sambamba/1.0.1/main.nf"
+include { sort_bam } from "./nf_modules/sambamba/1.0.1/main.nf" addParams(mapping_fastq_out: "01_original_alignment")
+include { sort_bam_hbv } from "./nf_modules/sambamba/1.0.1/main.nf" addParams(mapping_fastq_out: "05_hbv_only_alignment")
 include { get_soft_clipped } from "./nf_modules/seekSV/1.2.3/main.nf"
 include { get_sv } from "./nf_modules/seekSV/1.2.3/main.nf" addParams(get_sv_out: "03_sv_detection")
+include { stats_bam } from "./nf_modules/samtools/1.19.2/main.nf" addParams(stats_bam_out: "04_bamstats")
 /*
  ****************************************************************
                           Workflow
  ****************************************************************
 */
 
-workflow {
+workflow human_processing {
 
+  //#################### HUMAN ####################
   //############ GENOME INDEXING AND MAPPING ###################
+  
+  Channel
+    .fromPath( params.fasta )
+    .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
+    .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+    .set { genome_file }
 
   if (params.idx == "") {
-    Channel
-      .fromPath( params.fasta )
-      .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
-      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
-      .set { genome_file }
     
     index_fasta_bwa(genome_file)
     mapping_fastq_bwa(index_fasta_bwa.out.index.collect(), fastq_files)
@@ -84,10 +93,9 @@ workflow {
       .ifEmpty { error "Cannot find any files matching: ${params.idx}" }
       .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1],[it]]}
       .set { genome_indexed_input }
-
+    
     mapping_fastq_bwa(genome_indexed_input, fastq_files)
   }
-
   //#####################DUPLICATE MARKING
   mark_dup(mapping_fastq_bwa.out.bam)
   //#####################COORDINATE SORTING
@@ -96,20 +104,30 @@ workflow {
   //this is not needed since the sorting from sambamba generates already the index
   //index_bam(sort_bam.out.bam)
   //#####################SOFT CLIPPED READS EXTRACTION
-/*  Channel
+  /*Channel
     .fromFilePairs(sort_bam.out.bam)
     .set(sorted_bam_out)*/
 
-  //sort_bam_out=sort_bam.out.bam.map{it.first()}
-  //sort_bam.out.view()
-  //get_soft_clipped(sort_bam.out.bam)
+  //Need a channel to recover the correct bam file
+  /*Channel
+    .fromFilePairs(sort_bam.out.bam)
+    .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1],[it]]}
+    .set {sorted_bam_out}
+*/
+  //sort_bam.out.bam[0].view()
+  //sorted_bam_out.view()
+  //sorted_bam_out = sort_bam.out.bam.map{it -> [(it.baseName =~ /([^\.]*)/)[0][1],[it]]}
+  
+  stats_bam(sort_bam.out.bam,params.fasta)
+  
   get_soft_clipped(sort_bam.out.bam)
+
   //get_soft_clipped.out.clip_fq.view()
   //index_fasta_bwa.out.index.view()
   //get_soft_clipped(sort_bam_out)
   //#####################REALIGNMENT
   //Need to use the output of index_fasta_bwa or pass the fasta and indexed files as parameters
-  // get only the faasta with the clipped reads
+  // get only the fasta with the clipped reads
   if (params.idx == "") {
    /* Channel
       .fromPath( params.fasta )
@@ -132,4 +150,49 @@ workflow {
 
   //#####################GET SV
   get_sv(mapping_fastq_softclip.out.bam,sort_bam.out.bam,get_soft_clipped.out.clip_gz)
+  
+}
+
+workflow hbv_processing {
+
+  //#################### HBV ####################
+  //############ GENOME INDEXING AND MAPPING ###################
+  
+  Channel
+    .fromPath( params.fasta )
+    .ifEmpty { error "Cannot find any files matching: ${params.fasta}" }
+    .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1], it]}
+    .set { genome_file }
+
+  if (params.idx == "") {
+    
+    index_fasta_bwa(genome_file)
+    mapping_fastq_bwa(index_fasta_bwa.out.index.collect(), fastq_files)
+  }
+  else {
+    idx_genome = "${params.idx}"
+    
+    Channel
+      .fromPath( "${params.idx}" )
+      .ifEmpty { error "Cannot find any files matching: ${params.idx}" }
+      .map{it -> [(it.baseName =~ /([^\.]*)/)[0][1],[it]]}
+      .set { genome_indexed_input }
+    
+    mapping_fastq_bwa(genome_indexed_input, fastq_files)
+  }
+  //#####################DUPLICATE MARKING
+  mark_dup(mapping_fastq_bwa.out.bam)
+  //#####################COORDINATE SORTING
+  sort_bam(mark_dup.out.bam)
+  //#####################BAM INDEXING
+  //this is not needed since the sorting from sambamba generates already the index
+  //index_bam(sort_bam.out.bam)
+
+  stats_bam(sort_bam.out.bam,params.fasta)
+  
+}
+
+
+workflow {
+  human_processing()
 }
