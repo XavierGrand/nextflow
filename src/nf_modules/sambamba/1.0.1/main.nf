@@ -2,6 +2,7 @@ version = "1.0.1"
 container_url = "lbmc/sambamba:${version}"
 
 params.index_bam = ""
+params.index_bam_out = ""
 process index_bam {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -20,6 +21,7 @@ sambamba index ${params.index_bam} -t ${task.cpus} ${bam}
 }
 
 params.sort_bam = ""
+params.sort_bam_out = ""
 process sort_bam {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -38,6 +40,7 @@ sambamba sort -t ${task.cpus} ${params.sort_bam} -o ${bam.baseName}_sorted.bam $
 }
 
 params.mark_dup = ""
+params.mark_dup_out = ""
 process mark_dup {
   container = "${container_url}"
   label "big_mem_multi_cpus"
@@ -57,6 +60,7 @@ sambamba markdup -t ${task.cpus} ${params.mark_dup} ${bam} ${bam.baseName}_markd
 
 
 params.split_bam = ""
+params.split_bam_out = ""
 process split_bam {
   container = "${container_url}"
   label "big_mem_multi_cpus"

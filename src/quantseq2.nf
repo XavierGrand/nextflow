@@ -79,6 +79,7 @@ params.cyto = ""
 params.gtf = ""
 params.index = ""
 params.htseq_param = "reverse"
+params.star_Intron_params = ""
 
 params.fastp = "-l 25 --detect_adapter_for_pe"
 params.paired_end=true
@@ -336,6 +337,7 @@ workflow {
     fastqc_raw(fastq_files)
     fastqc_preprocessed(fastp.out.fastq)
     res = merge_channels(fastqc_raw.out.report, fastqc_preprocessed.out.report)
+    /*res = merge_channels(fastqc_raw.out.report, fastqc_preprocessed.out.report,fastp.out.report)*/
     multiqc(res)
 
 /*

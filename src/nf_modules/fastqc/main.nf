@@ -5,7 +5,7 @@ params.fastqc_fastq = ""
 params.fastqc_fastq_out = ""
 process fastqc_fastq {
   container = "${container_url}"
-  label "big_mem_mono_cpus"
+  label "small_mem_medium_cpus"
   tag "$file_id"
   if (params.fastqc_fastq_out != "") {
     publishDir "results/${params.fastqc_fastq_out}", mode: 'copy'
@@ -32,7 +32,7 @@ process fastqc_fastq {
 
 process fastqc_fastq_multi {
   container = "${container_url}"
-  label "big_mem_multi_cpus"
+  label "small_mem_medium_cpus"
   tag "$file_id"
   if (params.fastqc_fastq_out != "") {
     publishDir "results/${params.fastqc_fastq_out}", mode: 'copy'

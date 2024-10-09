@@ -35,6 +35,7 @@ process get_soft_clipped {
 
 params.get_sv = ""
 params.get_sv_out = ""
+params.get_sv_cache = ""
 process get_sv {
   if (params.get_sv_cache != "") {
     cache false
