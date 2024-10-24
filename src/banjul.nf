@@ -37,6 +37,7 @@ def helpMessage() {
     References:
       --hbvdb [string]              Source of reference genomes.
                                     Available: "all" (default),"A","B","C","D","E","F","G","H","I","J".
+      --fasta [path]                Optionnal: Path to multi-fasta file containing reference sequences.
 
     Help:                           Display this help message.
       --help
@@ -96,13 +97,12 @@ Channel
   .map(it -> [it.baseName, it])
   .set{barcodes}
 
-/*
-Channel
-  .fromPath( params.fasta )
-  .ifEmpty { error "Cannot find any fasta files matching: ${params.fasta}" }
-  .map( it -> [it.baseName, it])
-  .set { fasta_file }
-*/
+if ( params.fasta != "" ) {
+  Channel
+    .fromPath( params.fasta )
+    .map( it -> [it.baseName, it])
+    .set { fasta_file }
+}
 
 /*
  ****************************************************************
@@ -154,8 +154,11 @@ Optionnal: one of these options:
 #1 DL all reference from hbvdb:
 #2 DL selected genotype(s) only: need a parameter --gen [string] e.g. A,B,E as a Channel genotypes
 */
-  if (params.hbvdb != "") {
-    dl_hbvdb()
+  if ( params.fasta == "" ) {
+    if ( params.hbvdb != "" ) {
+      dl_hbvdb()
+      dl_hbvdb.out.reference_db.set { fasta_file }
+    }
   }
 
 /*
@@ -171,7 +174,7 @@ if DL ref from hbvdb OR Load user's multi-fasta file : doubled reference sequenc
 else Load user's blastdb.
 */
 
-  splitmultifasta(dl_hbvdb.out.reference_db)
+  splitmultifasta(fasta_file)
   doublefastaref(splitmultifasta.out.splitedfasta)
   groupsfasta(doublefastaref.out.doubledfasta.groupTuple())
   makeblastdb(groupsfasta.out.groupedfasta)
