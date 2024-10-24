@@ -161,8 +161,6 @@ Optionnal: one of these options:
     }
   }
 
-  fasta_file.view()
-
 /*
 #3 Load user's multi-fasta file: need a parameter --references
 Channel in or params...
@@ -179,6 +177,9 @@ else Load user's blastdb.
 */
 
   splitmultifasta(fasta_file)
+
+  splitedfasta.out.splitedfasta.view()
+
   doublefastaref(splitmultifasta.out.splitedfasta)
   groupsfasta(doublefastaref.out.doubledfasta.groupTuple())
   makeblastdb(groupsfasta.out.groupedfasta)
