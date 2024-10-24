@@ -100,7 +100,7 @@ Channel
 if ( params.fasta != "" ) {
   Channel
     .fromPath( params.fasta )
-    .map( it -> ["ref", it])
+    .map( it -> ["all", it])
     .set { fasta_file }
 }
 
@@ -160,6 +160,8 @@ Optionnal: one of these options:
       dl_hbvdb.out.reference_db.set { fasta_file }
     }
   }
+
+  fasta_file.view()
 
 /*
 #3 Load user's multi-fasta file: need a parameter --references
