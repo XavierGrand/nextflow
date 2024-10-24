@@ -100,7 +100,7 @@ Channel
 if ( params.fasta != "" ) {
   Channel
     .fromPath( params.fasta )
-    .map( it -> [it.baseName, it])
+    .map( it -> ["ref", it])
     .set { fasta_file }
 }
 
@@ -164,6 +164,8 @@ Optionnal: one of these options:
 /*
 #3 Load user's multi-fasta file: need a parameter --references
 Channel in or params...
+
+// Ok, Channel under condition.
 
 #4 Load user's blastdb files: need a parameter --blastdb
 Channel in or params...
