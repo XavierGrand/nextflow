@@ -11,7 +11,8 @@ process splitmultifasta {
   }
 
   input:
-    tuple val(file_id), path(fasta)
+    // tuple val(file_id), path(fasta)
+    path(fasta)
 
   output:
     path("splited/*.fasta"), emit: splitedfasta

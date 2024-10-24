@@ -100,8 +100,7 @@ Channel
 if ( params.fasta != "" ) {
   Channel
     .fromPath( params.fasta )
-    .map( it -> ["all", it])
-    .set { fasta_file }
+    .set { dl_hbvdb.out.reference_db }
 }
 
 /*
@@ -157,7 +156,6 @@ Optionnal: one of these options:
   if ( params.fasta == "" ) {
     if ( params.hbvdb != "" ) {
       dl_hbvdb()
-      dl_hbvdb.out.reference_db.set { fasta_file }
     }
   }
 
@@ -176,7 +174,7 @@ if DL ref from hbvdb OR Load user's multi-fasta file : doubled reference sequenc
 else Load user's blastdb.
 */
 
-  splitmultifasta(fasta_file)
+  splitmultifasta(dl_hbvdb.out.reference_db)
 
   splitmultifasta.out.splitedfasta.view()
 
