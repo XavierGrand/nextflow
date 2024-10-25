@@ -176,9 +176,6 @@ else Load user's blastdb.
 */
 
   splitmultifasta(fasta_file)
-
-  splitmultifasta.out.splitedfasta.view()
-
   doublefastaref(splitmultifasta.out.splitedfasta)
   groupsfasta(doublefastaref.out.doubledfasta.groupTuple())
   makeblastdb(groupsfasta.out.groupedfasta)
