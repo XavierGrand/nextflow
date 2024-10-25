@@ -122,11 +122,11 @@ include { filterbylength } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(fi
 include { sample_fastq } from "./nf_modules/seqtk/1.3/main.nf" addParams(sample_fastq_out: "02_Blast/")
 include { blast_them_all } from "./nf_modules/blast/2.15.0/main.nf" addParams(blast_them_all_out: "02_Blast/")
 include { extractref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(extractref_out: "00_ReferenceFiles/")
-include { index_fasta } from "./nf_modules/samtools/1.11/main.nf" addParams(index_fasta_out: "00_ReferenceFiles/")
+include { index_fasta } from "./nf_modules/samtools/1.20/main.nf" addParams(index_fasta_out: "00_ReferenceFiles/")
 include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addParams(mapping_hbv_genome_out: "03_Minimap2/")
-include { sort_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(sort_bam_out: "03_Minimap2/")
-include { index_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(index_bam_out: "03_Minimap2/")
-include { filter_bam_mapped } from "./nf_modules/samtools/1.11/main.nf" addParams(filter_bam_mapped_out: "03_Minimap2/")
+include { sort_bam } from "./nf_modules/samtools/1.20/main.nf" addParams(sort_bam_out: "03_Minimap2/")
+include { index_bam } from "./nf_modules/samtools/1.20/main.nf" addParams(index_bam_out: "03_Minimap2/")
+include { filter_bam_mapped } from "./nf_modules/samtools/1.20/main.nf" addParams(filter_bam_mapped_out: "03_Minimap2/")
 include { consensus } from "./nf_modules/samtools/1.20/main.nf" addParams(consensus_out: "05_consensus/")
 
 /*
