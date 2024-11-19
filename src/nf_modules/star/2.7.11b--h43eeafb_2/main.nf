@@ -21,7 +21,7 @@ gffread ${gff3_file} -T -o ${genome_id}.gtf
 
 process index_with_gtf {
   container = "${container_url}"
-  label "big_mem_multi_cpus"
+  label "huge_mem_multi_cpus"
   if (params.star_index_out != "") {
     publishDir "results/${params.star_index_out}", mode: 'copy'
   }
