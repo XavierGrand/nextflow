@@ -36,10 +36,12 @@ process index_with_gtf {
   script:
   memory = "${task.memory}" - ~/\s*GB/
 """
-STAR --runThreadN ${task.cpus} --runMode genomeGenerate \
---genomeDir ./ \
---genomeFastaFiles ${genome_fasta}  \
---sjdbGTFfile ${gtf_file}
+STAR --runThreadN ${task.cpus} \
+  --limitGenomeGenerateRAM ${memory}000000000 \
+  --runMode genomeGenerate \
+  --genomeDir ./ \
+  --genomeFastaFiles ${genome_fasta}  \
+  --sjdbGTFfile ${gtf_file}
 """
 }
 
@@ -67,10 +69,12 @@ process index_without_gff {
 
   script:
 """
-STAR --runThreadN ${task.cpus} --runMode genomeGenerate \
---genomeDir ./ \
---genomeFastaFiles ${genome_fasta}  \
---genomeSAindexNbases 13 # min(14, log2(GenomeLength)/2 - 1)
+STAR --runThreadN ${task.cpus} \
+  --limitGenomeGenerateRAM ${memory}000000000 \
+  --runMode genomeGenerate \
+  --genomeDir ./ \
+  --genomeFastaFiles ${genome_fasta}  \
+  --genomeSAindexNbases 13 # min(14, log2(GenomeLength)/2 - 1)
 """
 }
 
