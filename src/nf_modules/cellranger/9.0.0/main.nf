@@ -4,7 +4,7 @@ container_url = "xgrand/cellranger:${version}"
 
 params.cellranger_count_out = ""
 process cellranger_count {
-    tag ""
+    tag "$sample"
     label "huge_mem_multi_cpus"
 
     if (params.cellranger_count_out != "") {
@@ -12,7 +12,8 @@ process cellranger_count {
     }
 
     input:
-        tuple val(sample), path(fastq)
+        val(sample) 
+        path(fastq)
         path(refdata)
 
     output:
