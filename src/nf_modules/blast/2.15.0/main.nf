@@ -38,7 +38,8 @@ process dl_hbvdb {
   input:
 
   output:
-    tuple val(params.hbvdb), path("*.fasta"), emit: reference_db
+    //tuple val(params.hbvdb), path("*.fasta"), emit: reference_db
+    path("*.fasta"), emit: reference_db
 
   script:
   if (params.hbvdb == "all" || params.hbvdb == "A" || params.hbvdb == "B" || params.hbvdb == "C" || 

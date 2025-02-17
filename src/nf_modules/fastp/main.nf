@@ -1,5 +1,5 @@
-version = "0.23.2--h79da9fb_0"
-container_url = "quay.io/biocontainers/fastp:${version}"
+version = "0.24.0"
+container_url = "xgrand/fastp:${version}"
 
 params.fastp_protocol = ""
 
@@ -29,7 +29,7 @@ workflow fastp {
 
 process fastp_default {
   container = "${container_url}"
-  label "big_mem_multi_cpus"
+  label "small_mem_medium_cpus"
   tag "$file_prefix"
   if (params.fastp_out != "") {
     publishDir "results/${params.fastp_out}", mode: 'copy'

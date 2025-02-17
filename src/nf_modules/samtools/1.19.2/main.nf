@@ -1,5 +1,5 @@
-version = "1.20"
-container_url = "xgrand/samtools:${version}"
+version = "1.19.2"
+container_url = "euformatics/samtools:${version}"
 
 params.index_fasta = ""
 params.index_fasta_out = ""
@@ -20,7 +20,7 @@ process index_fasta {
 """
 if gzip -t ${fasta}; then
   zcat ${fasta} > ${fasta.simpleName}.fasta
-  samtools faidx ${params.index_fasta} ${fasta.simpleName}.fasta
+  samtools faidx ${params.index_fasta}  ${fasta.simpleName}.fasta
 else
   samtools faidx ${params.index_fasta} ${fasta}
 fi
@@ -143,7 +143,7 @@ params.index_bam = ""
 params.index_bam_out = ""
 process index_bam {
   container = "${container_url}"
-  label "small_mem_mono_cpus"
+  label "big_mem_mono_cpus"
   tag "$file_id"
   if (params.index_bam_out != "") {
     publishDir "results/${params.index_bam_out}", mode: 'copy'
@@ -268,6 +268,31 @@ process stats_bam {
 
   input:
     tuple val(file_id), path(bam)
+    path(fasta)
+
+  output:
+    /*tuple val(file_id), path("*.stats.txt"), emit: report*/
+    path "*.stats.txt", emit: report 
+  script:
+  bam_file=bam[0]
+"""
+samtools stats -@ ${task.cpus} ${params.stats_bam} -r ${fasta} ${bam_file} > ${bam_file.simpleName}.stats.txt
+"""
+}
+
+
+params.flagstat_bam = ""
+params.flagstat_bam_out = ""
+process flagstat_bam {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  tag "$file_id"
+  if (params.flagstat_bam_out != "") {
+    publishDir "results/${params.flagstat_bam_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(file_id), path(bam)
 
   output:
     tuple val(file_id), path("*.tsv"), emit: tsv
@@ -278,6 +303,7 @@ samtools flagstat -@ ${task.cpus} ${params.stats_bam} -O tsv ${bam} > ${bam.simp
 cp ${bam.simpleName}.flagstat.txt ${bam.simpleName}.tsv
 """
 }
+
 
 params.flagstat_2_multiqc = ""
 params.flagstat_2_multiqc_out = ""
@@ -340,26 +366,5 @@ samtools view -@ ${Math.round(task.cpus/2)} ${params.split_rt_bam} \
   -hb -f ${params.flag_fwd} ${bam} > ${bam.simpleName}_forward.bam &
 samtools view -@ ${Math.round(task.cpus/2)} ${params.split_rt_bam} \
   -hb -f ${params.flag_rev} ${bam} > ${bam.simpleName}_reverse.bam
-"""
-}
-
-params.consensus_out = ""
-process consensus {
-  container = "${container_url}"
-  label "big_mem_multi_cpus"
-  tag "$file_id"
-  if (params.consensus_out != "") {
-    publishDir "results/${params.consensus_out}", mode: 'copy'
-  }
-
-  input:
-    tuple val(file_id), path(bam)
-
-  output:
-    tuple val(file_id), path("*_consensus.fasta"), emit: fasta
-
-  script:
-"""
-samtools consensus -@ ${task.cpus} -f "fasta" ${bam} -o ${file_id}_consensus.fasta
 """
 }

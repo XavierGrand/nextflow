@@ -37,6 +37,7 @@ def helpMessage() {
     References:
       --hbvdb [string]              Source of reference genomes.
                                     Available: "all" (default),"A","B","C","D","E","F","G","H","I","J".
+      --fasta [path]                Optionnal: Path to multi-fasta file containing reference sequences.
 
     Help:                           Display this help message.
       --help
@@ -96,13 +97,11 @@ Channel
   .map(it -> [it.baseName, it])
   .set{barcodes}
 
-/*
-Channel
-  .fromPath( params.fasta )
-  .ifEmpty { error "Cannot find any fasta files matching: ${params.fasta}" }
-  .map( it -> [it.baseName, it])
-  .set { fasta_file }
-*/
+if ( params.fasta != "" ) {
+  Channel
+    .fromPath( params.fasta )
+    .set { fasta_file }
+}
 
 /*
  ****************************************************************
@@ -112,22 +111,22 @@ Channel
 
 include { dl_hbvdb } from "./nf_modules/blast/2.15.0/main.nf" addParams(dl_hbvdb_out: "00_ReferenceFiles/")
 include { splitmultifasta } from "./nf_modules/splitmultifasta/1.0/main.nf" addParams(splitmultifasta_out: "00_ReferenceFiles/")
-include { doublefastaref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(doublefastaref_out: "00_ReferenceFiles/")
+include { doublefastaref } from "./nf_modules/seqkit/2.8.2/main.nf" addParams(doublefastaref_out: "00_ReferenceFiles/")
 include { groupsfasta } from "./nf_modules/splitmultifasta/1.0/main.nf" addParams(groupsfasta_out: "00_ReferenceFiles/")
 include { makeblastdb } from "./nf_modules/blast/2.15.0/main.nf" addParams(makeblastdb_out: "00_ReferenceFiles/")
-include { concatenate } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(fastq_out: "01_fastq/")
-include { grep_primer as pick_fw_primer } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "fw")
-include { grep_primer as pick_rw_primer } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "rw")
+include { concatenate } from "./nf_modules/seqkit/2.8.2/main.nf" addParams(fastq_out: "01_fastq/")
+include { grep_primer as pick_fw_primer } from "./nf_modules/seqkit/2.8.2/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "fw")
+include { grep_primer as pick_rw_primer } from "./nf_modules/seqkit/2.8.2/main.nf" addParams(grep_primer_out: "01_fastq/", primerloc: "rw")
 include { porechop } from "./nf_modules/porechop/0.2.4/main.nf" addParams(porechop_out: "01_fastq/")
-include { filterbylength } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(filterbylength_out: "01_fastq/")
+include { filterbylength } from "./nf_modules/seqkit/2.8.2/main.nf" addParams(filterbylength_out: "01_fastq/")
 include { sample_fastq } from "./nf_modules/seqtk/1.3/main.nf" addParams(sample_fastq_out: "02_Blast/")
 include { blast_them_all } from "./nf_modules/blast/2.15.0/main.nf" addParams(blast_them_all_out: "02_Blast/")
-include { extractref } from "./nf_modules/seqkit/2.1.0/main.nf" addParams(extractref_out: "00_ReferenceFiles/")
-include { index_fasta } from "./nf_modules/samtools/1.11/main.nf" addParams(index_fasta_out: "00_ReferenceFiles/")
+include { extractref } from "./nf_modules/seqkit/2.8.2/main.nf" addParams(extractref_out: "00_ReferenceFiles/")
+include { index_fasta } from "./nf_modules/samtools/1.20/main.nf" addParams(index_fasta_out: "00_ReferenceFiles/")
 include { mapping_hbv_genome } from "./nf_modules/minimap2/2.17/main.nf" addParams(mapping_hbv_genome_out: "03_Minimap2/")
-include { sort_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(sort_bam_out: "03_Minimap2/")
-include { index_bam } from "./nf_modules/samtools/1.11/main.nf" addParams(index_bam_out: "03_Minimap2/")
-include { filter_bam_mapped } from "./nf_modules/samtools/1.11/main.nf" addParams(filter_bam_mapped_out: "03_Minimap2/")
+include { sort_bam } from "./nf_modules/samtools/1.20/main.nf" addParams(sort_bam_out: "03_Minimap2/")
+include { index_bam } from "./nf_modules/samtools/1.20/main.nf" addParams(index_bam_out: "03_Minimap2/")
+include { filter_bam_mapped } from "./nf_modules/samtools/1.20/main.nf" addParams(filter_bam_mapped_out: "03_Minimap2/")
 include { consensus } from "./nf_modules/samtools/1.20/main.nf" addParams(consensus_out: "05_consensus/")
 
 /*
@@ -154,13 +153,18 @@ Optionnal: one of these options:
 #1 DL all reference from hbvdb:
 #2 DL selected genotype(s) only: need a parameter --gen [string] e.g. A,B,E as a Channel genotypes
 */
-  if (params.hbvdb != "") {
-    dl_hbvdb()
+  if ( params.fasta == "" ) {
+    if ( params.hbvdb != "" ) {
+      dl_hbvdb()
+      dl_hbvdb.out.reference_db.set { fasta_file }
+    }
   }
 
 /*
 #3 Load user's multi-fasta file: need a parameter --references
 Channel in or params...
+
+// Ok, Channel under condition.
 
 #4 Load user's blastdb files: need a parameter --blastdb
 Channel in or params...
@@ -171,7 +175,7 @@ if DL ref from hbvdb OR Load user's multi-fasta file : doubled reference sequenc
 else Load user's blastdb.
 */
 
-  splitmultifasta(dl_hbvdb.out.reference_db)
+  splitmultifasta(fasta_file)
   doublefastaref(splitmultifasta.out.splitedfasta)
   groupsfasta(doublefastaref.out.doubledfasta.groupTuple())
   makeblastdb(groupsfasta.out.groupedfasta)
