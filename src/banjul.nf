@@ -69,7 +69,7 @@ params.blasthreads = 18 // To override the nextflow.config threads number config
 params.fwprimer = "CTACTGTTCAAGCCTCCAAGC" // Denomination P3(1857-1877)
 params.rwprimer = "CGCAGACCAATTTATGCCTAC" // Denomination P4(1783-1803)
 params.maxlength = 3300
-params.minlength = 3000
+params.minlength = 2900
 params.filter_bam_mapped = "-f0 -f16"
 
 /*
@@ -137,7 +137,12 @@ include { consensus } from "./nf_modules/samtools/1.20/main.nf" addParams(consen
 
 workflow {
 
+// Step 0: Basecalling Nanopore (inspire from bolero last version)
+
   concatenate(barcodes)
+
+// Step 0: Preprocessing reads, sampling
+
   pick_fw_primer(concatenate.out.merged_fastq, params.fwprimer)
   pick_rw_primer(pick_fw_primer.out.filtered_fastq, params.rwprimer)
   porechop(pick_rw_primer.out.filtered_fastq)
@@ -150,8 +155,7 @@ Download HBV reference sequences from hbvdb:
 Use blast image, ~ Ubuntu 22.04.3 LTS based.
 
 Optionnal: one of these options:
-#1 DL all reference from hbvdb:
-#2 DL selected genotype(s) only: need a parameter --gen [string] e.g. A,B,E as a Channel genotypes
+#1 DL selected genotype(s) only: need a parameter --gen [string] e.g. A,B,E as a Channel genotypes
 */
   if ( params.fasta == "" ) {
     if ( params.hbvdb != "" ) {
