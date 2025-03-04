@@ -307,7 +307,7 @@ topgomod = "./nf_modules/topgo/main.nf"
 include { fastp_default } from fastp_mod addParams(fastp_out: '02_fastp',
                                                    fastp: "${params_fastp}" )
 //include { genome_mapping; index_fasta } from hisat2_mod addParams(folder: '06_mapping')
-include { ; index_fasta } from star_mod addParams(folder: '06_mapping')
+include { index_without_gff as index_fasta } from star_mod addParams(folder: '06_mapping')
 include { sort_bam } from sammod addParams(sort_bam_out: '07_sort_bam' )
 include { stats_bam } from sammod addParams(stats_bam_out: "07_bam_stats")
 include { index_bam } from sammod addParams(index_bam_out: '08_index_bam' )
