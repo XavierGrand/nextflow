@@ -439,7 +439,7 @@ workflow {
             .set { fastqc_spikein_report }
     }
     genome_mapping(fastq_mapping, index_file.collect())
-    sort_bam(genome_mapping.out.aligned)
+    sort_bam(genome_mapping.out.bam)
     stats_bam(sort_bam.out.bam)
     index_bam(sort_bam.out.bam)
     htseq_count(index_bam.out.bam_idx, gtf_file.collect())
@@ -451,10 +451,10 @@ workflow {
     // Quality control
     fastqc1(fastq_files)
     fastqc2(fastp_default.out.fastq)
-    fastqc_unaligned(genome_mapping.out.unaligned)
+    // fastqc_unaligned(genome_mapping.out.unaligned)
 
     // multiqc
-    res = merge_channels(fastqc1.out.report, fastqc2.out.report, fastqc_unaligned.out.report,
+    res = merge_channels(fastqc1.out.report, fastqc2.out.report, //fastqc_unaligned.out.report,
                          stats_bam.out.tsv, fastqc_spikein_report, fastp_default.out.report,
                          genome_mapping.out.report)
     multiqc_default(res)
