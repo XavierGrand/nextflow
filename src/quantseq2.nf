@@ -453,9 +453,10 @@ workflow {
     fastqc2(fastp_default.out.fastq)
     // fastqc_unaligned(genome_mapping.out.unaligned)
 
-    // multiqc
+    /* multiqc
     res = merge_channels(fastqc1.out.report, fastqc2.out.report, //fastqc_unaligned.out.report,
                          stats_bam.out.tsv, fastqc_spikein_report, fastp_default.out.report,
                          genome_mapping.out.report)
     multiqc_default(res)
+    */
 }
