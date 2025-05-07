@@ -292,7 +292,7 @@ if (params.design != "") {
 
 fastqc_mod = './nf_modules/fastqc/main.nf'
 fastp_mod = './nf_modules/fastp/main.nf'
-star_mod = './nf_modules/star/2.7.8a/main.nf'
+star_mod = './nf_modules/star/2.7.11b--h43eeafb_2/main.nf'
 hisat2_mod = './nf_modules/hisat2/main.nf'
 multiqc_mod = './nf_modules/multiqc/main.nf'
 bedt_mod = './nf_modules/bedtools/main.nf'
