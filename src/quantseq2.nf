@@ -438,7 +438,7 @@ workflow {
             .map( it -> [ "tmp", [it]] )
             .set { fastqc_spikein_report }
     }
-    genome_mapping(fastq_mapping, index_file.collect())
+    genome_mapping(index_file.collect(), fastq_mapping)
     sort_bam(genome_mapping.out.bam)
     stats_bam(sort_bam.out.bam)
     index_bam(sort_bam.out.bam)
