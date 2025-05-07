@@ -183,7 +183,7 @@ log.info "fastq files : ${params.fastq}"
 log.info "genome files : ${params.genome}"
 log.info "htseq param: -s ${params.htseq_param}"
 log.info "gtf file: ${params.gtf}"
-log.info "index file: ${params.index}"
+log.info "index folder: ${params.index}"
 log.info "fastp parameters: ${params_fastp}"
 log.info "spike-in fasta: ${params.spikein_fasta}"
 log.info "spike-in gtf: ${params.spikein_gtf}"
@@ -242,8 +242,6 @@ if (params.index != "") {
     Channel
         .fromPath( params.index )
         .ifEmpty { error "Cannot find any index files matching: ${params.index}" }
-        .collect()
-        .map { it -> [ "ht2_index", it ]}
         .set { index_file }
 } else {
     Channel.from( "" ).set{ index_file }
@@ -313,7 +311,7 @@ if (params.index == "" ) {
     include { index_without_gff as index_fasta } from star_mod addParams(folder: '06_mapping')
 }
 
-include { mapping_fastq as genome_mapping } from star_mod addParams(folder: '06_mapping')
+include { mapping_withindex as genome_mapping } from star_mod addParams(folder: '06_mapping')
 
 include { sort_bam } from sammod addParams(sort_bam_out: '07_sort_bam' )
 include { stats_bam } from sammod addParams(stats_bam_out: "07_bam_stats")
