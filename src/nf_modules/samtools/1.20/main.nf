@@ -179,7 +179,7 @@ process sort_bam {
 
   script:
 """
-samtools sort -@ ${task.cpus} ${params.sort_bam} -O BAM -o ${bam.simpleName}_sorted.bam ${bam}
+samtools sort -@ ${task.cpus} ${params.sort_bam} -O BAM -o ${file_id}_sorted.bam ${bam}
 """
 }
 
