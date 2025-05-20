@@ -85,7 +85,7 @@ process mapping_fastq {
   container = "${container_url}"
   label "huge_mem_multi_cpus"
   /*dynamic memory assignment*/
-  memory { 30.GB * task.attempt } 
+  memory { task.memory * task.attempt } 
   errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' } 
   maxRetries 3 
 
@@ -122,7 +122,8 @@ ${params.star_Intron_params} \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
 --outBAMcompression 10 \
---outSAMunmapped Within 
+--outSAMunmapped Within \
+--limitBAMsortRAM ${memory}
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
@@ -137,7 +138,8 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 ${params.star_Intron_params} \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--limitBAMsortRAM ${memory}
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
