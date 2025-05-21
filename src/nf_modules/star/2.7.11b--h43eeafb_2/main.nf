@@ -204,6 +204,10 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 process mapping_withindex {
   container = "${container_url}"
   label "huge_mem_multi_cpus"
+  /*dynamic memory assignment*/
+  memory { task.memory * task.attempt } 
+  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' } 
+  maxRetries 3 
   tag "$reads_id"
   if (params.star_mapping_fastq_out != "") {
     publishDir "results/${params.star_mapping_fastq_out}", mode: 'copy'
@@ -233,7 +237,8 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--limitBAMsortRAM ${memory}
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
@@ -246,7 +251,8 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--limitBAMsortRAM ${memory}
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
