@@ -206,7 +206,7 @@ process mapping_withindex {
   label "huge_mem_multi_cpus"
   /*dynamic memory assignment*/
   memory { task.memory * task.attempt } 
-  errorStrategy { task.exitStatus == 137 ? 'retry' : 'terminate' } 
+  errorStrategy { task.exitStatus == 102 ? 'retry' : 'terminate' } 
   maxRetries 3 
   tag "$reads_id"
   if (params.star_mapping_fastq_out != "") {
