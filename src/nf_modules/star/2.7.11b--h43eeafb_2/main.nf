@@ -237,7 +237,8 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--limitBAMsortRAM ${memory}
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
@@ -250,7 +251,8 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
---outSAMstrandField intronMotif
+--outSAMstrandField intronMotif \
+--limitBAMsortRAM ${memory}
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
