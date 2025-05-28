@@ -204,10 +204,6 @@ mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 process mapping_withindex {
   container = "${container_url}"
   label "huge_mem_multi_cpus"
-  /*dynamic memory assignment*/
-  memory { task.memory * task.attempt } 
-  errorStrategy { task.exitStatus == 102 ? 'retry' : 'terminate' } 
-  maxRetries 3 
   tag "$reads_id"
   if (params.star_mapping_fastq_out != "") {
     publishDir "results/${params.star_mapping_fastq_out}", mode: 'copy'
@@ -222,6 +218,7 @@ process mapping_withindex {
     tuple val(reads_id), path("*.bam"), emit: bam
 
   script:
+  memory = "${task.memory}" - ~/\s*GB/
 if (reads_id instanceof List){
     file_prefix = reads_id[0]
   } else {
@@ -238,7 +235,7 @@ STAR --runThreadN ${task.cpus} \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
---limitBAMsortRAM ${memory}
+--limitBAMsortRAM ${memory}000000000
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
@@ -252,7 +249,7 @@ STAR --runThreadN ${task.cpus} \
 --alignIntronMax 10000 \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
---limitBAMsortRAM ${memory}
+--limitBAMsortRAM ${memory}000000000
 
 mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
 """
