@@ -236,7 +236,7 @@ STAR --runThreadN ${task.cpus} \
 --outSAMtype BAM Unsorted \
 --outSAMstrandField intronMotif
 
-mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
+mv ${reads_id}.Aligned.out.bam ${reads_id}.bam
 """
 else
 """
@@ -249,7 +249,7 @@ STAR --runThreadN ${task.cpus} \
 --outSAMtype BAM Unsorted \
 --outSAMstrandField intronMotif
 
-mv ${reads_id}.Aligned.sortedByCoord.out.bam ${reads_id}.bam
+mv ${reads_id}.Aligned.out.bam ${reads_id}.bam
 """
 }
 
