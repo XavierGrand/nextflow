@@ -296,6 +296,7 @@ multiqc_mod = './nf_modules/multiqc/main.nf'
 bedt_mod = './nf_modules/bedtools/main.nf'
 htseq_mod = './nf_modules/htseq/main.nf'
 sammod = './nf_modules/samtools/1.20/main.nf'
+//sammod = './nf_modules/sambamba/1.0.1/main.nf'
 deseqmod = "./nf_modules/deseq2/main.nf"
 topgomod = "./nf_modules/topgo/main.nf"
 
