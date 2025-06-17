@@ -215,7 +215,7 @@ process mapping_withindex {
 
   output:
     path "*.Log.final.out", emit: report
-    path "*.ReadsPerGene.out.tab"
+    path "*.tab"
     tuple val(reads_id), path("*.bam"), emit: bam
 
   script:
