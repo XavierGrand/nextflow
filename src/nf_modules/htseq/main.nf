@@ -1,6 +1,6 @@
 
 version = "2.0.5"
-container_url = "lbmc/htseq:${version}"
+container_url = "xgrand/htseq:${version}"
 
 params.htseq_out = ""
 
