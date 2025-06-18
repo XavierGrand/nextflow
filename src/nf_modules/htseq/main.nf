@@ -1,5 +1,5 @@
 
-version = "2.0.5"
+version = "2.0.9"
 container_url = "xgrand/htseq:${version}"
 
 params.htseq_out = ""
