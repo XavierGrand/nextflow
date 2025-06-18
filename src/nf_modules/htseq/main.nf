@@ -1,5 +1,5 @@
 
-version = "0.13.5"
+version = "1.99.2"
 container_url = "lbmc/htseq:${version}"
 
 params.htseq_out = ""
