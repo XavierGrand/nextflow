@@ -24,7 +24,7 @@ gffread ${gff3_file} -T -o ${genome_id}.gtf
 params.htseq_param = "yes"
 process htseq_count {
     container = "${container_url}"
-    label "big_mem_mono_cpus"
+    label "huge_mem_mono_cpus"
     tag "$file_id"
     if (params.htseq_out != "") {
         publishDir "results/${params.htseq_out}", mode: 'copy'
