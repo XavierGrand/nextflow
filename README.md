@@ -23,6 +23,8 @@ If you want to add more tools to this project, please read the [CONTRIBUTING.md]
 * **Xavier Grand** - *Owner, development from 09/2022*
 * **Laurent Modolo** - *Initial work, from ENS Lyon*
 
+Initial work : https://gitbio.ens-lyon.fr/LBMC/nextflow
+
 ## License
 
 This project is licensed under the CeCiLL License- see the [LICENSE](LICENSE) file for details
