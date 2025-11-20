@@ -237,7 +237,7 @@ STAR --runThreadN ${task.cpus} \
 --outFileNamePrefix ${reads_id}. \
 --alignIntronMax 10000 \
 --outSAMtype BAM Unsorted \
---quantMode \
+--quantMode GeneCounts \
 --outSAMstrandField intronMotif
 
 mv ${reads_id}.Aligned.out.bam ${reads_id}.bam
