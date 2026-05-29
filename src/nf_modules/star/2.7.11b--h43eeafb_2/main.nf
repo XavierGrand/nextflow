@@ -323,7 +323,6 @@ STAR --runThreadN ${task.cpus} \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
 --chimOutType WithinBAM HardClip \
---outStd BAM_SortedByCoordinate \
 --outSAMunmapped Within \
 --outFilterMultimapNmax 50 \
 --peOverlapNbasesMin 10 \
