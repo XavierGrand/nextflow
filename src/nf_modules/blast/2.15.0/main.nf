@@ -87,7 +87,7 @@ cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head 
 """
 }
 
-rocess makerefdb {
+process makerefdb {
   label "big_mem_multi_cpus"
   // mettre en tag l'ID de la séquence_Genomes
   if (params.makerefdb_out != "") {
