@@ -55,32 +55,6 @@ wget --quiet --no-check-certificate -O ${output_name} ${link}
 }
 
 
-process makeblastdb {
-  container = "${container_url}"
-  label "big_mem_multi_cpus"
-  tag "${file_id}_Genomes"
-  if (params.makeblastdb_out != "") {
-    publishDir "results/${params.makeblastdb_out}", mode: 'copy'
-  }
-
-  input:
-    tuple val(file_id), path(ref_fasta)
-
-  output:
-    tuple val(ref_fasta.baseName), path("*.fasta.n*"), emit: blastdb
-
-  script:
-
-"""
-makeblastdb \
-    -in ${ref_fasta} \
-    -input_type 'fasta' \
-    -dbtype 'nucl' \
-    -parse_seqids
-"""
-}
-
-
 params.blast_them_all_out = ""
 process blast_them_all {
   container = "${container_url}"
