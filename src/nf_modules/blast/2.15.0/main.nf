@@ -140,7 +140,7 @@ process exhaustive_blast {
 """
 mkdir ${barcode}
 blastn -db ${genotype}.fasta -query ${fastq} \
-       -task megablast \
+       -task blastn \
 			 -outfmt "6 qseqid sseqid evalue bitscore slen qlen length pident" \
 			 -out ${barcode}/${barcode}_hits.txt -num_threads ${task.cpus}
 cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${barcode}/${barcode}_hits_counts.txt
