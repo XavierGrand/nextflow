@@ -83,6 +83,7 @@ params.blast_them_all_out = '04_blast_them_all/'
 // QUERY input
 if (params.query != '') {
   Channel.fromPath(params.query)
+         .map(it -> [it.baseName, it])
          .set { query }
 }
 
