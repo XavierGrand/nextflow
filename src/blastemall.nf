@@ -70,7 +70,7 @@ params.ref_user = ""
 params.dl_hbvdb_out =  '01_dl_hdvdb/'
 params.makerefdb_out = '02_makerefdb/'
 params.makeblastdb_out = '03_makeblastdb/'
-params.blast_them_all_out = '04_blast_them_all/'
+params.exhaustive_blast_out = '04_exhaustive_blast/'
 
 /*
  ****************************************************************
