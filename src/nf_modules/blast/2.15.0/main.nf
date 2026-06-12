@@ -146,7 +146,7 @@ blastn -db ${genotype}.fasta -query ${fastq} \
        -max_target_seqs 50000 \
 			 -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend qlen sstart send slen length mismatch evalue bitscore" \
 			 -out ${barcode}/${barcode}_hits.txt -num_threads ${task.cpus}
-echo "qseqid  sseqid  pident  length  mismatch  gapopen qstart  qend  qlen  sstart  send  slen  length  mismatch  evalue  bitscore" > ${barcode}/${barcode}_all_results.csv
+echo -e "qseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqstart\tqend\tqlen\tsstart\tsend\tslen\tlength\tmismatch\tevalue\tbitscore" > ${barcode}/${barcode}_all_results.csv
 cat ${barcode}/${barcode}_hits.txt >> ${barcode}/${barcode}_all_results.csv
 cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${barcode}/${barcode}_hits_counts.txt
 cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head -n1 | sed 's/^ *[0-9]* //g' > ${barcode}/${barcode}_best_ref.txt
