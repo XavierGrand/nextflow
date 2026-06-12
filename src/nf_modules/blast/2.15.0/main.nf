@@ -135,6 +135,7 @@ process exhaustive_blast {
     tuple val(barcode), path("${barcode}/${barcode}_hits.txt"), emit: blasthits
     tuple val(barcode), path("${barcode}/${barcode}_hits_counts.txt"), emit: counthits
     tuple val(barcode), path("${barcode}/${barcode}_best_ref.txt"), emit: bestref
+    tuple val(barcode), path("${barcode}/${barcode}_all_results.csv"), emit: exhaustive
 
   script:
 """
