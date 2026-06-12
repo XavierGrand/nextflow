@@ -118,3 +118,32 @@ process makerefdb {
   rm temporary.txt
 """
 }
+
+process exhaustive_blast {
+  container = "${container_url}"
+  label "big_mem_multi_cpus"
+  tag "${barcode}_Genomes"
+  if (params.exhaustive_blast_out != "") {
+    publishDir "results/${params.exhaustive_blast_out}", mode: 'copy'
+  }
+
+  input:
+    tuple val(barcode), path(fastq)
+    tuple val(genotype), path(blastdb)
+
+  output:
+    tuple val(barcode), path("${barcode}/${barcode}_hits.txt"), emit: blasthits
+    tuple val(barcode), path("${barcode}/${barcode}_hits_counts.txt"), emit: counthits
+    tuple val(barcode), path("${barcode}/${barcode}_best_ref.txt"), emit: bestref
+
+  script:
+"""
+mkdir ${barcode}
+blastn -db ${genotype}.fasta -query ${fastq} \
+       -task megablast \
+			 -outfmt "6 qseqid sseqid evalue bitscore slen qlen length pident" \
+			 -out ${barcode}/${barcode}_hits.txt -num_threads ${task.cpus}
+cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${barcode}/${barcode}_hits_counts.txt
+cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head -n1 | sed 's/^ *[0-9]* //g' > ${barcode}/${barcode}_best_ref.txt
+"""
+}

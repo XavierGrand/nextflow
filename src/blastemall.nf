@@ -117,7 +117,7 @@ if (params.ref_db != '') {
 include { dl_hbvdb } from './nf_modules/blast/2.15.0/main.nf'
 include { makeblastdb } from './nf_modules/blast/2.15.0/main.nf'
 include { makerefdb } from './nf_modules/blast/2.15.0/main.nf'
-include { blast_them_all } from './nf_modules/blast/2.15.0/main.nf'
+include { exhaustive_blast } from './nf_modules/blast/2.15.0/main.nf'
 
 /*
  ****************************************************************
@@ -144,6 +144,6 @@ workflow {
    makeblastdb(user_ref)
   }
 
-  blast_them_all(query, makeblastdb.out.blastdb.collect())
+  exhaustive_blast(query, makeblastdb.out.blastdb.collect())
 
 }
