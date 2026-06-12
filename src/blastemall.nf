@@ -96,6 +96,7 @@ if (params.hbvdb != '') {
 // To make the user use its own multi-fasta file
 if (params.ref_user != '') {
   Channel.fromPath(params.ref_user)
+         .map(it -> [it.baseName, it])
          .set { user_ref }
 }
 
