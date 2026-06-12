@@ -107,7 +107,7 @@ blastn -db ${genotype}.fasta -query ${fastq} \
        -max_target_seqs 1 \
        -max_hsps 1 \
 			 -outfmt "6 qseqid sseqid evalue bitscore slen qlen length pident" \
-			 -out ${barcode}/${barcode}_hits.txt -num_threads ${params.blasthreads}
+			 -out ${barcode}/${barcode}_hits.txt -num_threads ${task.cpus}
 cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r > ${barcode}/${barcode}_hits_counts.txt
 cut -f2 ${barcode}/${barcode}_hits.txt | sort | uniq -c | sort -k 1,1 -r | head -n1 | sed 's/^ *[0-9]* //g' > ${barcode}/${barcode}_best_ref.txt
 """
