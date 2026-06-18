@@ -17,15 +17,15 @@ process arriba{
   tuple val(genome_id), path(genome)
 
   output:
-  tuple val(bam_id), path("${bam_id}_fusions.tsv"), path("${bam_id}_fusions.discarded.tsv"), emit: fusions
+  tuple val(bam_id), path("${bam_id}_fusions.csv"), path("${bam_id}_fusions.discarded.csv"), emit: fusions
 
   script:
 """
 arriba -x ${bam} \
        -g ${gtf} \
        -a ${genome} \
-       -o ${bam_id}_fusions.tsv \
-       -O ${bam_id}_fusions.discarded.tsv \
+       -o ${bam_id}_fusions.csv \
+       -O ${bam_id}_fusions.discarded.csv \
        ${params.arriba_options}
 """
 }
