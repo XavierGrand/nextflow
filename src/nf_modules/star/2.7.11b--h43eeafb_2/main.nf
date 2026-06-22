@@ -328,8 +328,8 @@ STAR --runThreadN ${task.cpus} \
 --peOverlapNbasesMin 10 \
 --alignSplicedMateMapLminOverLmate 0.5 \
 --alignSJstitchMismatchNmax 5 -1 5 5 \
---chimSegmentMin 10 \
---chimJunctionOverhangMin 10 \
+--chimSegmentMin 20 \
+--chimJunctionOverhangMin 20 \
 --chimScoreDropMax 30 \
 --chimScoreJunctionNonGTAG 0 \
 --chimScoreSeparation 1 \
