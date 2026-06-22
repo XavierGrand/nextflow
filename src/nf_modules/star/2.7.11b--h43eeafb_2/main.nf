@@ -325,7 +325,6 @@ STAR --runThreadN ${task.cpus} \
 --chimOutType WithinBAM HardClip \
 --outSAMunmapped Within \
 --outFilterMultimapNmax 50 \
---peOverlapNbasesMin 10 \
 --alignSplicedMateMapLminOverLmate 0.5 \
 --alignSJstitchMismatchNmax 5 -1 5 5 \
 --chimSegmentMin 20 \
