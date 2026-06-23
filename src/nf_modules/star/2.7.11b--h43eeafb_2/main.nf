@@ -327,8 +327,8 @@ STAR --runThreadN ${task.cpus} \
 --outFilterMultimapNmax 50 \
 --alignSplicedMateMapLminOverLmate 0.5 \
 --alignSJstitchMismatchNmax 5 -1 5 5 \
---chimSegmentMin 20 \
---chimJunctionOverhangMin 20 \
+--chimSegmentMin 25 \
+--chimJunctionOverhangMin 25 \
 --chimScoreDropMax 30 \
 --chimScoreJunctionNonGTAG 0 \
 --chimScoreSeparation 1 \
