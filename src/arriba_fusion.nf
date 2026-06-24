@@ -80,7 +80,7 @@ params.cyto = ""
 params.gtf = ""
 params.index = ""
 params.htseq_param = "yes"
-params.duplicates = FALSE
+params.duplicates = false
 
 /* Specific Arriba parameters */
 params.arriba_options = "-f 'blacklist,read_through' \
