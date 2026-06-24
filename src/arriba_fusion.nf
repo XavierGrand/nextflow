@@ -80,6 +80,7 @@ params.cyto = ""
 params.gtf = ""
 params.index = ""
 params.htseq_param = "yes"
+params.duplicates = FALSE
 
 /* Specific Arriba parameters */
 params.arriba_options = "-f 'blacklist,read_through' \
@@ -241,10 +242,23 @@ workflow {
 */
 
     filter_bam_quality(mapping2fusion.out.bam)
-    index_bam(filter_bam_quality.out.bam)
+    
+    if(params.duplicates) {
+      mark_duplicate(filter_bam_quality.out.bam)
+      index_bam(mark_duplicate.out.bam)
+    } else {
+      index_bam(filter_bam_quality.out.bam)
+    }
   }
 
-  else { index_bam(bam_files) }
+  else { 
+    if(params.duplicates) {
+      mark_duplicate(bam_files)
+      index_bam(mark_duplicate.out.bam)
+    } else {
+    index_bam(bam_files) 
+    }
+  }
 
 /*
  ****************************************************************
