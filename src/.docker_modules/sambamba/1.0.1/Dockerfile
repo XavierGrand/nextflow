@@ -1,0 +1,1 @@
+FROM justdnaseq/sambamba:1.0.1
