@@ -244,19 +244,17 @@ workflow {
     filter_bam_quality(mapping2fusion.out.bam)
     
     if(params.duplicates) {
-      mark_dup(filter_bam_quality.out.bam)
-      index_bam(mark_dup.out.bam)
+      mark_dup(filter_bam_quality.out.bam).set { indexed_bam }
     } else {
-      index_bam(filter_bam_quality.out.bam)
+      index_bam(filter_bam_quality.out.bam).set { indexed_bam }
     }
   }
 
   else { 
     if(params.duplicates) {
-      mark_dup(bam_files)
-      index_bam(mark_dup.out.bam)
+      mark_dup(bam_files).set { indexed_bam }
     } else {
-    index_bam(bam_files) 
+    index_bam(bam_files).set { indexed_bam }
     }
   }
 
@@ -266,7 +264,7 @@ workflow {
  ****************************************************************
 */
 
-  htseq_count(index_bam.out.bam_idx, gtf_file.collect())
+  htseq_count(indexed_bam, gtf_file.collect())
 
 /*
  ****************************************************************
@@ -274,8 +272,8 @@ workflow {
  ****************************************************************
 */
 
-  arriba(index_bam.out.bam_idx, gtf_file.collect(), genome_file.collect())
-  if (params.cyto != "") { draw_fusions(arriba.out.fusions, index_bam.out.bam_idx, gtf_file.collect(), cytobands.collect()) }
+  arriba(indexed_bam, gtf_file.collect(), genome_file.collect())
+  if (params.cyto != "") { draw_fusions(arriba.out.fusions, indexed_bam, gtf_file.collect(), cytobands.collect()) }
 
 /*
  ****************************************************************
