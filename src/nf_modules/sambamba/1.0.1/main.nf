@@ -39,7 +39,7 @@ sambamba sort -t ${task.cpus} ${params.sort_bam} -o ${bam.baseName}_sorted.bam $
 """
 }
 
-params.mark_dup = ""
+params.mark_dup = "-r"
 params.mark_dup_out = ""
 process mark_dup {
   container = "${container_url}"

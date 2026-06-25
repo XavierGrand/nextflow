@@ -188,7 +188,7 @@ include { multiqc } from './nf_modules/multiqc/main.nf' addParams(multiqc_out: '
 include { filter_bam_quality } from './nf_modules/samtools/1.20/main.nf'
 include { index_with_gtf } from './nf_modules/star/2.7.11b--h43eeafb_2/main.nf'
 include { mapping2fusion } from './nf_modules/star/2.7.11b--h43eeafb_2/main.nf'
-include { mark_duplicate } from './nf_modules/picard/2.18.11/main.nf'
+include { mark_dup } from './nf_modules/sambamba/1.0.1/main.nf'
 include { index_bam } from './nf_modules/samtools/1.20/main.nf'
 include { htseq_count } from './nf_modules/htseq/main.nf' addParams(htseq_out: '09_htseq_count', htseq_param: "${params.htseq_param}" )
 include { arriba } from "./nf_modules/arriba/main.nf"
@@ -244,8 +244,8 @@ workflow {
     filter_bam_quality(mapping2fusion.out.bam)
     
     if(params.duplicates) {
-      mark_duplicate(filter_bam_quality.out.bam)
-      index_bam(mark_duplicate.out.bam)
+      mark_dup(filter_bam_quality.out.bam)
+      index_bam(mark_dup.out.bam)
     } else {
       index_bam(filter_bam_quality.out.bam)
     }
@@ -253,8 +253,8 @@ workflow {
 
   else { 
     if(params.duplicates) {
-      mark_duplicate(bam_files)
-      index_bam(mark_duplicate.out.bam)
+      mark_dup(bam_files)
+      index_bam(mark_dup.out.bam)
     } else {
     index_bam(bam_files) 
     }
