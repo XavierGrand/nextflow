@@ -50,7 +50,7 @@ process mark_dup {
     tuple val(file_id), path(bam)
 
   output:
-    tuple val(file_id), path("*.bam*"), emit: bam
+    tuple val(file_id), path("*.bam"), path("*.bai"), emit: bam
 
   script:
 """
