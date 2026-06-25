@@ -5,7 +5,7 @@ params.mark_duplicate = "VALIDATION_STRINGENCY=LENIENT REMOVE_DUPLICATES=true"
 params.mark_duplicate_out = ""
 process mark_duplicate {
   container = "${container_url}"
-  label "big_mem_mono_cpus"
+  label "huge_mem_multi_cpus"
   tag "$file_id"
   if (params.mark_duplicate_out != "") {
     publishDir "results/${params.mark_duplicate_out}", mode: 'copy'
