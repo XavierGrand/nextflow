@@ -1,5 +1,5 @@
 version = "1.0.1"
-container_url = "lbmc/sambamba:${version}"
+container_url = "xgrand/sambamba:${version}"
 
 params.index_bam = ""
 params.index_bam_out = ""
