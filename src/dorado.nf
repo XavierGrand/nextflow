@@ -112,22 +112,22 @@ workflow {
     //####################### & BASECALLING #######################
 
     //Multiplexed samples:
-      if ( params.kit_barcoding != "" ) {
+    if ( params.kit_barcoding != "" ) {
         //pod5convert(input)
         //basecall_bc(pod5convert.out.pod5)
         // Modif avant implementation input as pod5:
         basecall_bc(input)
         demux(basecall_bc.out.basecalled)
         demux.out.fastq.flatten()
-          .map{it -> [it.getSimpleName(), it]}
-          .set{tuples_fastq}
-      }
-      //Single sample:
-      else if ( params.kit_barcoding == "" ) {
+            .map{it -> [it.getSimpleName(), it]}
+            .set{tuples_fastq}
+    }
+    //Single sample:
+    else if ( params.kit_barcoding == "" ) {
         pod5convert(input)
         params.dorado_parameters = "--emit-fastq"
         basecall(pod5convert.out.pod5)
         basecall.out.basecalled.map{it -> [it.getSimpleName(), it]}
-          .set{tuples_fastq}
-      }
+            .set{tuples_fastq}
+    }
 }
