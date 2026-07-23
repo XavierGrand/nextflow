@@ -69,7 +69,7 @@ if (params.help || params.h) {
 params.input = ""
 params.kit_barcoding = "EXP-PBC001"
 params.model = "sup"
-params.min_qscore = 7.0
+params.min_qscore = 7
 
 /*
  ****************************************************************
