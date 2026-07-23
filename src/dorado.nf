@@ -97,13 +97,13 @@ Channel
 */
 
 if ( params.kit_barcoding ) {
-    include { pod5convert } from "./nf_modules/dorado/0.8.2/main.nf"
-    include { basecall_bc } from "./nf_modules/dorado/0.8.2/main.nf"
-    include { demux } from "./nf_modules/dorado/0.8.2/main.nf"
+    include { pod5convert } from "./nf_modules/dorado/1.1.1/main.nf"
+    include { basecall_bc } from "./nf_modules/dorado/1.1.1/main.nf"
+    include { demux } from "./nf_modules/dorado/1.1.1/main.nf"
 }
 else {
-    include { pod5convert } from "./nf_modules/dorado/0.8.2/main.nf"
-    include { basecall } from "./nf_modules/dorado/0.8.2/main.nf"
+    include { pod5convert } from "./nf_modules/dorado/1.1.1/main.nf"
+    include { basecall } from "./nf_modules/dorado/1.1.1/main.nf"
 }
 
 /*
