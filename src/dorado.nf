@@ -37,7 +37,6 @@ def helpMessage() {
                                       If skip basecalling option enabled, path to fastq files folder.
 
     Nanopore basecalling:
-      --skipBC [boolean]              Skip basecalling step. If true, give fastq folder as input. Default: true.
       --kit_barcoding [str]           Nanopore barcoding kit. Default = "EXP-PBC001"
       --model [str]                   Model to basecalling with dorado. Available: fast, hac, sup.
 
@@ -68,6 +67,9 @@ if (params.help || params.h) {
 */
 
 params.input = ""
+params.kit_barcoding = "EXP-PBC001"
+params.model = "sup"
+params.min_qscore = 7.0
 
 /*
  ****************************************************************
