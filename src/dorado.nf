@@ -66,10 +66,23 @@ if (params.help || params.h) {
  ****************************************************************
 */
 
+
+/*
+*** Params in ***
+*/
 params.input = ""
 params.kit_barcoding = "EXP-PBC001"
 params.model = "sup"
 params.min_qscore = 7
+
+
+/*
+*** Params out ***
+*/
+params.pod5convert_out = '01_pod5convert/'
+params.basecalling_out = '02_basecalling/'
+params.basecalling_nobc_out = '02_basecalling_nobc/'
+params.demux_out = '03_demux/'
 
 /*
  ****************************************************************
