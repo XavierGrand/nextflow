@@ -5,7 +5,7 @@ params.fc_out = ""
 params.fc_param = "2"      // strandness: 0 = unstranded, 1 = stranded, 2 = reversely stranded
 params.fc_feature = "exon"
 params.fc_attr = "gene_id"
-params.fc_extra = ""       // args additionnels (e.g. "-p --countReadPairs")
+params.fc_paired = "-p"       // args additionnels (e.g. "-p --countReadPairs")
 
 process gff3_2_gtf {
     container = "dceoy/cufflinks"
