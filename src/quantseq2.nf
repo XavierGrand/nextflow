@@ -136,9 +136,9 @@ can take the following values: 'entrez',
 params.fastp = ""
 if(params.fastp == "") {
     if (!params.paired_end) {
-        params_fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA"
+        params_fastp = "-l 25 --detect_adapter_for_pe"
     } else {
-        params_fastp = "-x 10 -3 --cut_tail_window_size 10 --adapter_sequence=AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --adapter_sequence=AAAAAA -F 18 --adapter_sequence_r2=AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"
+        params_fastp = "-l 25"
     }
 } else {
     params_fastp = params.fastp
