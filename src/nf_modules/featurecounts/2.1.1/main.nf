@@ -2,7 +2,7 @@ version = "2.1.1"
 container_url = "xgrand/featurecounts:${version}"
 
 params.fc_out = ""
-params.fc_param = "0"      // strandness: 0 = unstranded, 1 = stranded, 2 = reversely stranded
+params.fc_param = "2"      // strandness: 0 = unstranded, 1 = stranded, 2 = reversely stranded
 params.fc_feature = "exon"
 params.fc_attr = "gene_id"
 params.fc_extra = ""       // args additionnels (e.g. "-p --countReadPairs")
@@ -25,7 +25,7 @@ process gff3_2_gtf {
 
 process featurecounts {
     container = "${container_url}"
-    label "huge_mem_mono_cpus"
+    label "big_mem_multi_cpus"
     tag "$file_id"
     if (params.fc_out != "") {
         publishDir "results/${params.fc_out}", mode: 'copy'
