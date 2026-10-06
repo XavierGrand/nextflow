@@ -1,0 +1,1 @@
+FROM pegi3s/feature-counts:2.1.1
